@@ -13,7 +13,7 @@ public class CorsConfig {
 
   @Bean
   CorsConfigurationSource corsConfigurationSource(
-      @Value("${app.frontend-url:http://localhost:3000}") String frontendUrl) {
+      @Value("${app.frontend-url:http://localhost:5173}") String frontendUrl) {
     CorsConfiguration cfg = new CorsConfiguration();
     cfg.setAllowedOrigins(List.of(frontendUrl));
     cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));

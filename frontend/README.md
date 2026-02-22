@@ -15,4 +15,20 @@ npm install
 npm run dev
 ```
 
-Vite runs on `http://localhost:3000`.
+Vite runs on `http://localhost:5173`.
+
+## API connection
+
+The app calls the backend using `VITE_API_BASE_URL`.
+
+Create `.env` from `.env.example` if needed:
+
+```bash
+cp .env.example .env
+```
+
+Default local API URL:
+
+```env
+VITE_API_BASE_URL=http://localhost:8080
+```

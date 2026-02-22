@@ -1,48 +1,83 @@
-import ThemeToggle from './components/ThemeToggle.jsx';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext.jsx';
+import ProtectedRoute, { PublicRoute } from './components/ProtectedRoute.jsx';
+
+// Layouts
+import StudentLayout from './components/layouts/StudentLayout.jsx';
+import AdminLayout from './components/layouts/AdminLayout.jsx';
+
+// Public Pages
+import LoginPage from './pages/LoginPage.jsx';
+import RegisterPage from './pages/RegisterPage.jsx';
+
+// Student Pages
+import StudentDashboard from './pages/student/StudentDashboard.jsx';
+import ApplyHostelPage from './pages/student/ApplyHostelPage.jsx';
+import MyBookingPage from './pages/student/MyBookingPage.jsx';
+import ProfilePage from './pages/student/ProfilePage.jsx';
+
+// Admin Pages
+import AdminDashboard from './pages/admin/AdminDashboard.jsx';
+import ManageHostelsPage from './pages/admin/ManageHostelsPage.jsx';
+import ManageRoomsPage from './pages/admin/ManageRoomsPage.jsx';
+import ManageBookingsPage from './pages/admin/ManageBookingsPage.jsx';
 
 export default function App() {
   return (
-    <div className="mx-auto max-w-3xl p-6">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold">Hostel Management System</h1>
-          <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-300">
-            School theme: forest green (primary), gold (accent), cream surfaces.
-          </p>
-        </div>
-        <ThemeToggle />
-      </div>
+    <AuthProvider>
+      <Routes>
+        {/* Public Routes */}
+        <Route
+          path="/login"
+          element={
+            <PublicRoute>
+              <LoginPage />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <PublicRoute>
+              <RegisterPage />
+            </PublicRoute>
+          }
+        />
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="card">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Booking Status</span>
-            <span className="badge-pending">PENDING_PAYMENT</span>
-          </div>
-          <p className="mt-3 text-sm text-neutral-700 dark:text-neutral-200">
-            Primary actions use green; highlights use gold.
-          </p>
-          <div className="mt-4 flex gap-2">
-            <button className="btn-primary" type="button">Primary</button>
-            <button className="btn-accent" type="button">Accent</button>
-            <button className="btn-ghost" type="button">Ghost</button>
-          </div>
-        </div>
+        {/* Student Routes */}
+        <Route
+          path="/student"
+          element={
+            <ProtectedRoute allowedRoles={['STUDENT']}>
+              <StudentLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<StudentDashboard />} />
+          <Route path="apply" element={<ApplyHostelPage />} />
+          <Route path="booking" element={<MyBookingPage />} />
+          <Route path="profile" element={<ProfilePage />} />
+        </Route>
 
-        <div className="card">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Example Badges</span>
-          </div>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <span className="badge-approved">APPROVED</span>
-            <span className="badge-pending">PENDING</span>
-            <span className="badge-rejected">REJECTED</span>
-          </div>
-          <p className="mt-4 text-xs text-neutral-600 dark:text-neutral-300">
-            Note: Payment can be PENDING; booking uses PENDING_PAYMENT.
-          </p>
-        </div>
-      </div>
-    </div>
+        {/* Admin Routes */}
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute allowedRoles={['ADMIN']}>
+              <AdminLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<AdminDashboard />} />
+          <Route path="hostels" element={<ManageHostelsPage />} />
+          <Route path="rooms" element={<ManageRoomsPage />} />
+          <Route path="bookings" element={<ManageBookingsPage />} />
+        </Route>
+
+        {/* Default Redirect */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    </AuthProvider>
   );
 }
