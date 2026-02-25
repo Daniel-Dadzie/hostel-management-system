@@ -1,31 +1,60 @@
 import { Link } from 'react-router-dom';
-import { FaEnvelope, FaGlobe, FaPhoneAlt, FaSearch } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext.jsx';
 
-const roomHighlights = [
+const features = [
   {
-    title: 'Entertainment Zone',
-    image: 'https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=700&q=80',
-    description: 'Lounge-ready shared spaces designed for comfort, study, and social activities.'
+    icon: '🏠',
+    title: 'Comfortable Accommodation',
+    description: 'Modern rooms with AC, WiFi, and comfortable bedding options to suit your preferences.'
   },
   {
-    title: 'Best Rooms In Town',
-    image: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=700&q=80',
-    description: 'Neat interiors with quality bedding and practical storage for students.'
+    icon: '📱',
+    title: 'Easy Online Booking',
+    description: 'Apply for hostel accommodation online and track your application status in real-time.'
   },
   {
-    title: 'Great Location',
-    image: 'https://images.unsplash.com/photo-1467269204594-9661b134dd2b?auto=format&fit=crop&w=700&q=80',
-    description: 'Located close to campus essentials with easy access to student services.'
+    icon: '🔒',
+    title: 'Secure Environment',
+    description: '24/7 security surveillance and controlled access ensure a safe living environment.'
+  },
+  {
+    icon: '💰',
+    title: 'Transparent Pricing',
+    description: 'Clear fee structure with online payment tracking and payment history.'
+  },
+  {
+    icon: '👥',
+    title: 'Community Living',
+    description: 'Connect with fellow students in well-maintained common areas and study rooms.'
+  },
+  {
+    icon: '🛠️',
+    title: 'Maintenance Support',
+    description: 'Quick response to maintenance requests through our online portal.'
   }
 ];
 
-const galleryImages = [
-  'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=700&q=80',
-  'https://images.unsplash.com/photo-1505693314120-0d443867891c?auto=format&fit=crop&w=700&q=80',
-  'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=700&q=80',
-  'https://images.unsplash.com/photo-1616594039964-3f5d4b90f47d?auto=format&fit=crop&w=700&q=80',
-  'https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=700&q=80'
+const steps = [
+  {
+    number: 1,
+    title: 'Register Account',
+    description: 'Create your student account with your university email.'
+  },
+  {
+    number: 2,
+    title: 'Apply for Hostel',
+    description: 'Submit your hostel application with room preferences.'
+  },
+  {
+    number: 3,
+    title: 'Confirm Booking',
+    description: 'Receive your room allocation and complete payment.'
+  },
+  {
+    number: 4,
+    title: 'Move In',
+    description: 'Check in to your assigned room on the designated date.'
+  }
 ];
 
 export default function LandingPage() {
@@ -33,160 +62,211 @@ export default function LandingPage() {
   const dashboardPath = role === 'ADMIN' ? '/admin' : '/student';
 
   return (
-    <div className="min-h-screen bg-[#f2f2f2] text-neutral-800">
-      <div className="border-b border-neutral-200 bg-[#f7f7f7] text-[10px] text-neutral-500">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-2">
-          <p className="inline-flex items-center gap-2"><FaPhoneAlt /> +233 20 123 4567</p>
-          <p className="inline-flex items-center gap-2"><FaGlobe /> Language: ENGLISH</p>
-        </div>
-      </div>
-
-      <header className="border-b border-neutral-300 bg-white">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-          <nav className="hidden items-center gap-6 text-[11px] uppercase tracking-[0.18em] text-neutral-500 md:flex">
-            <a href="#" className="hover:text-primary-700">Home</a>
-            <a href="#" className="hover:text-primary-700">Features</a>
-            <a href="#" className="hover:text-primary-700">Exterior</a>
-            <a href="#" className="hover:text-primary-700">Blog</a>
-            <a href="#" className="hover:text-primary-700">Typography</a>
-          </nav>
-
-          <div className="flex h-24 w-24 items-center justify-center bg-orange-500 text-center text-white shadow-sm">
-            <div>
-              <p className="text-4xl font-semibold leading-none">H</p>
-              <p className="text-[9px] uppercase tracking-widest">Hot Hostel</p>
-            </div>
-          </div>
-
-          <nav className="hidden items-center gap-6 text-[11px] uppercase tracking-[0.18em] text-neutral-500 md:flex">
-            <a href="#" className="hover:text-primary-700">Rooms</a>
-            <a href="#" className="hover:text-primary-700">Styles</a>
-            <a href="#" className="hover:text-primary-700">Installations</a>
-            <a href="#" className="hover:text-primary-700">About</a>
-            <a href="#" className="hover:text-primary-700">Contact</a>
-          </nav>
-        </div>
-      </header>
-
-      <section className="relative">
-        <img
-          src="https://images.unsplash.com/photo-1555854877-bab0e460b7a5?auto=format&fit=crop&w=1500&q=80"
-          alt="Hostel interior"
-          className="h-[420px] w-full object-cover"
-        />
-        <div className="absolute inset-0 bg-black/20" />
-
-        <div className="absolute inset-x-0 top-1/2 mx-auto max-w-4xl -translate-y-1/2 px-4 text-center">
-          <div className="bg-orange-500/95 px-8 py-4.5 text-white shadow-lg">
-            <h1 className="text-[44px] font-light leading-[1.08]">Comfortable Room Hostel of Your Dreams</h1>
-            <p className="mt-1.5 text-[17px]">for less than the price of a hotel room</p>
-          </div>
-
-          <div className="mx-auto mt-4 grid grid-cols-2 overflow-hidden rounded-sm bg-white/95 text-left text-[11px] shadow-md md:grid-cols-6">
-            {['Arrival', 'Departure', 'Rooms', 'Guest', 'Children'].map((field) => (
-              <div key={field} className="border-r border-neutral-200 px-4 py-3">
-                <p className="text-neutral-400">{field}</p>
-                <p className="font-semibold text-neutral-700">--/--/----</p>
-              </div>
-            ))}
-            <button type="button" className="flex items-center justify-center bg-neutral-700 text-white hover:bg-neutral-800">
-              <FaSearch />
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-white py-14">
-        <div className="mx-auto max-w-6xl px-4">
-          <div className="mb-10 text-center">
-            <h2 className="text-[52px] font-semibold tracking-tight text-neutral-800">
-              Hot <span className="text-orange-500">Hostel</span> Budget Rooms
-            </h2>
-          </div>
-
-          <div className="grid gap-6 md:grid-cols-3">
-            {roomHighlights.map((item) => (
-              <div key={item.title}>
-                <img src={item.image} alt={item.title} className="h-40 w-full object-cover" />
-                <h3 className="mt-4 text-[22px] font-semibold text-neutral-800">{item.title}</h3>
-                <p className="mt-2 text-[14px] leading-7 text-neutral-500">{item.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-[#c9bfb3] py-16 text-center text-white">
-        <div className="mx-auto max-w-3xl px-4">
-          <p className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-white/50 text-2xl">“</p>
-          <p className="text-2xl font-light leading-9">
-            Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium,
-            totam rem aperiam, eaque ipsa quae ab illo.
-          </p>
-          <p className="mt-6 text-[11px] uppercase tracking-[0.2em] text-white/80">Jane Johnson, Hostel guest</p>
-        </div>
-      </section>
-
-      <section className="bg-white py-14">
-        <div className="mx-auto max-w-6xl px-4 text-center">
-          <h2 className="text-[50px] font-semibold tracking-tight text-neutral-800">Gallery</h2>
-          <p className="mx-auto mt-2 max-w-2xl text-[14px] text-neutral-500">
-            Explore our student-friendly rooms, shared spaces, and modern facilities.
-          </p>
-
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-            {galleryImages.map((image, index) => (
-              <figure key={image}>
-                <img src={image} alt={`Gallery ${index + 1}`} className="h-32 w-full object-cover" />
-                <figcaption className="mt-2 text-[10px] uppercase tracking-wide text-neutral-500">
-                  Hostel Space {index + 1}
-                </figcaption>
-              </figure>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <footer className="border-t border-neutral-200 bg-[#f3f3f3]">
-        <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 text-[13px] text-neutral-500 md:grid-cols-4 md:gap-12 lg:gap-14">
-          <div>
-            <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-neutral-700">Contact Info</h3>
-            <p className="leading-6">University Hostel Lane<br />Campus Avenue, GH</p>
-            <p className="mt-3 inline-flex items-center gap-2"><FaPhoneAlt /> +233 20 123 4567</p>
-            <p className="mt-2 inline-flex items-center gap-2"><FaEnvelope /> info@hostel.com</p>
-          </div>
-
-          <div>
-            <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-neutral-700">Customer Support</h3>
-            <p className="leading-6">FAQ<br />Help Desk<br />Payment Queries</p>
-          </div>
-
-          <div>
-            <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-neutral-700">Quick Links</h3>
-            <p className="leading-6">Facilities<br />Policy<br />Terms</p>
-          </div>
-
-          <div>
-            <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-neutral-700">Get Started</h3>
+    <div className="min-h-screen bg-gradient-to-b from-primary-50 to-white dark:from-neutral-900 dark:to-neutral-800">
+      {/* Navigation */}
+      <nav className="sticky top-0 z-50 border-b border-neutral-200 bg-white/80 backdrop-blur-md dark:border-neutral-700 dark:bg-neutral-900/80">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+          <Link to="/" className="flex items-center gap-2">
+            <span className="text-2xl">🏠</span>
+            <span className="text-xl font-bold text-primary-700 dark:text-primary-400">
+              UniHostel
+            </span>
+          </Link>
+          <div className="flex items-center gap-4">
             {isAuthenticated ? (
-              <Link to={dashboardPath} className="inline-flex items-center rounded bg-orange-500 px-4 py-2 text-white hover:bg-orange-600">
+              <Link
+                to={dashboardPath}
+                className="btn-primary"
+              >
                 Go to Dashboard
               </Link>
             ) : (
-              <div className="flex flex-col gap-2">
-                <Link to="/register" className="inline-flex items-center rounded bg-orange-500 px-4 py-2 text-white hover:bg-orange-600">
-                  Register
-                </Link>
-                <Link to="/login" className="inline-flex items-center rounded border border-neutral-300 px-4 py-2 text-neutral-700 hover:bg-neutral-100">
+              <>
+                <Link
+                  to="/login"
+                  className="btn-ghost"
+                >
                   Login
                 </Link>
-              </div>
+                <Link
+                  to="/register"
+                  className="btn-primary"
+                >
+                  Register
+                </Link>
+              </>
             )}
           </div>
         </div>
+      </nav>
 
-        <div className="bg-orange-500 py-2 text-center text-[11px] text-white">
-          Copyright © {new Date().getFullYear()} Hot Hostel. Designed for university student housing.
+      {/* Hero Section */}
+      <section className="relative overflow-hidden py-20 sm:py-32">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h1 className="text-4xl font-bold tracking-tight text-neutral-900 dark:text-white sm:text-5xl lg:text-6xl">
+              Your Home Away From Home
+            </h1>
+            <p className="mx-auto mt-6 max-w-2xl text-lg text-neutral-600 dark:text-neutral-300 sm:text-xl">
+              Experience comfortable and secure hostel accommodation designed for students. 
+              Apply online, track your booking, and manage your stay all in one place.
+            </p>
+            <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+              {!isAuthenticated && (
+                <>
+                  <Link
+                    to="/register"
+                    className="btn-primary inline-flex items-center gap-2 px-8 py-3 text-lg"
+                  >
+                    Apply for Hostel
+                    <span>→</span>
+                  </Link>
+                  <Link
+                    to="/login"
+                    className="btn-ghost inline-flex items-center gap-2 px-8 py-3 text-lg"
+                  >
+                    Already have an account?
+                  </Link>
+                </>
+              )}
+              {isAuthenticated && (
+                <Link
+                  to={dashboardPath}
+                  className="btn-primary inline-flex items-center gap-2 px-8 py-3 text-lg"
+                >
+                  Go to Dashboard
+                  <span>→</span>
+                </Link>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Decorative elements */}
+        <div className="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-primary-200/30 dark:bg-primary-900/20"></div>
+        <div className="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-accent-200/30 dark:bg-accent-900/20"></div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-16 bg-white dark:bg-neutral-800 sm:py-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold tracking-tight text-neutral-900 dark:text-white sm:text-4xl">
+              Why Choose UniHostel?
+            </h2>
+            <p className="mx-auto mt-4 max-w-2xl text-neutral-600 dark:text-neutral-300">
+              We provide everything you need for a comfortable and productive stay during your academic journey.
+            </p>
+          </div>
+
+          <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            {features.map((feature, index) => (
+              <div
+                key={index}
+                className="card group hover:border-primary-300 dark:hover:border-primary-700"
+              >
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary-100 text-2xl dark:bg-primary-900/30">
+                  {feature.icon}
+                </div>
+                <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">
+                  {feature.title}
+                </h3>
+                <p className="mt-2 text-neutral-600 dark:text-neutral-300">
+                  {feature.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works Section */}
+      <section className="py-16 bg-primary-50 dark:bg-neutral-900 sm:py-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold tracking-tight text-neutral-900 dark:text-white sm:text-4xl">
+              How It Works
+            </h2>
+            <p className="mx-auto mt-4 max-w-2xl text-neutral-600 dark:text-neutral-300">
+              Getting your hostel accommodation is simple and straightforward.
+            </p>
+          </div>
+
+          <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            {steps.map((step, index) => (
+              <div key={index} className="relative text-center">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary-700 text-xl font-bold text-white shadow-lg">
+                  {step.number}
+                </div>
+                <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">
+                  {step.title}
+                </h3>
+                <p className="mt-2 text-neutral-600 dark:text-neutral-300">
+                  {step.description}
+                </p>
+                {index < steps.length - 1 && (
+                  <div className="absolute left-1/2 top-8 hidden h-0.5 w-full -translate-y-1/2 bg-primary-200 dark:bg-primary-800 lg:block"></div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-16 bg-primary-700 dark:bg-primary-900 sm:py-24">
+        <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+            Ready to Apply?
+          </h2>
+          <p className="mx-auto mt-4 max-w-2xl text-primary-100">
+            Join hundreds of students who have found their home at UniHostel. 
+            Start your application today and secure your spot.
+          </p>
+          <div className="mt-10">
+            {!isAuthenticated ? (
+              <Link
+                to="/register"
+                className="inline-flex items-center gap-2 rounded-lg bg-white px-8 py-3 text-lg font-semibold text-primary-700 shadow-lg transition-all hover:bg-primary-50 hover:shadow-xl"
+              >
+                Create Your Account
+                <span>→</span>
+              </Link>
+            ) : (
+              <Link
+                to={dashboardPath}
+                className="inline-flex items-center gap-2 rounded-lg bg-white px-8 py-3 text-lg font-semibold text-primary-700 shadow-lg transition-all hover:bg-primary-50 hover:shadow-xl"
+              >
+                Go to Dashboard
+                <span>→</span>
+              </Link>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-neutral-200 bg-white py-12 dark:border-neutral-700 dark:bg-neutral-800">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col items-center justify-between gap-6 sm:flex-row">
+            <div className="flex items-center gap-2">
+              <span className="text-2xl">🏠</span>
+              <span className="text-lg font-bold text-primary-700 dark:text-primary-400">
+                UniHostel
+              </span>
+            </div>
+            <div className="flex gap-6 text-sm text-neutral-600 dark:text-neutral-400">
+              <Link to="/login" className="hover:text-primary-700 dark:hover:text-primary-400">
+                Login
+              </Link>
+              <Link to="/register" className="hover:text-primary-700 dark:hover:text-primary-400">
+                Register
+              </Link>
+            </div>
+            <p className="text-sm text-neutral-500 dark:text-neutral-400">
+              © {new Date().getFullYear()} UniHostel. All rights reserved.
+            </p>
+          </div>
         </div>
       </footer>
     </div>
