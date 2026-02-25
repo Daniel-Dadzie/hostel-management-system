@@ -1,0 +1,2 @@
+ALTER TABLE students
+ADD COLUMN IF NOT EXISTS profile_image_url VARCHAR(500) NULL;

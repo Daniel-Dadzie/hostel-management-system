@@ -1,42 +1,55 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext.jsx';
-import { apiRequest } from '../../api/client.js';
+import { updateStudentProfile } from '../../services/studentService.js';
+import UserAvatar from '../../components/UserAvatar.jsx';
 
 export default function ProfilePage() {
   const { user, loadProfile } = useAuth();
   const [form, setForm] = useState({
     fullName: '',
-    phone: ''
+    phone: '',
+    profileImageUrl: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
+  const imageUrlValidationError = validateProfileImageUrl(form.profileImageUrl);
+
   useEffect(() => {
     if (user) {
       setForm({
         fullName: user.fullName || '',
-        phone: user.phone || ''
+        phone: user.phone || '',
+        profileImageUrl: user.profileImageUrl || ''
       });
     }
   }, [user]);
 
   function handleChange(field, value) {
+    setSuccess('');
     setForm((prev) => ({ ...prev, [field]: value }));
+  }
+
+  function handleRemovePhoto() {
+    setSuccess('');
+    setForm((prev) => ({ ...prev, profileImageUrl: '' }));
   }
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError('');
     setSuccess('');
+
+    if (imageUrlValidationError) {
+      setError(imageUrlValidationError);
+      return;
+    }
+
     setLoading(true);
 
     try {
-      await apiRequest('/api/student/profile', {
-        method: 'PUT',
-        body: form,
-        headers: { Authorization: `Bearer ${localStorage.getItem('hms.token')}` }
-      });
+      await updateStudentProfile(form);
       setSuccess('Profile updated successfully!');
       loadProfile();
     } catch (err) {
@@ -48,30 +61,28 @@ export default function ProfilePage() {
 
   return (
     <div className="mx-auto max-w-lg">
-      <h1 className="mb-6 text-2xl font-bold text-neutral-900 dark:text-white">My Profile</h1>
+      <h1 className="page-title mb-6 text-neutral-900 dark:text-white">My Profile</h1>
 
       <div className="card">
         {/* Avatar Section */}
         <div className="mb-6 flex items-center gap-4">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-600 text-white text-2xl font-bold">
-            {user?.fullName?.charAt(0)?.toUpperCase() || 'S'}
-          </div>
+          <UserAvatar user={{ ...user, profileImageUrl: form.profileImageUrl }} fallbackName={form.fullName || user?.fullName || 'Student'} className="h-16 w-16 text-xl" />
           <div>
-            <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
+            <h2 className="card-header text-neutral-900 dark:text-white">
               {user?.fullName || 'Student'}
             </h2>
-            <p className="text-sm text-neutral-500 dark:text-neutral-400">{user?.email}</p>
+            <p className="body-text text-neutral-500 dark:text-neutral-400">{user?.email}</p>
           </div>
         </div>
 
         {error && (
-          <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
+          <div className="alert-error mb-4">
             {error}
           </div>
         )}
 
         {success && (
-          <div className="mb-4 rounded-lg bg-green-50 p-3 text-sm text-green-600 dark:bg-green-900/20 dark:text-green-400">
+          <div className="alert-success mb-4">
             {success}
           </div>
         )}
@@ -102,7 +113,7 @@ export default function ProfilePage() {
               value={user?.email || ''}
               disabled
             />
-            <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+            <p className="section-subtitle text-neutral-500 dark:text-neutral-400">
               Email cannot be changed
             </p>
           </div>
@@ -122,6 +133,36 @@ export default function ProfilePage() {
           </div>
 
           <div>
+            <label htmlFor="profile-image-url" className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+              Profile Image URL
+            </label>
+            <div className="flex gap-2">
+              <input
+                id="profile-image-url"
+                type="url"
+                className={`input-field ${imageUrlValidationError ? 'border-red-400 focus:border-red-500 focus:ring-red-100 dark:border-red-500 dark:focus:ring-red-900/30' : ''}`}
+                placeholder="https://example.com/my-photo.jpg"
+                value={form.profileImageUrl}
+                onChange={(e) => handleChange('profileImageUrl', e.target.value)}
+              />
+              <button
+                type="button"
+                className="btn-ghost whitespace-nowrap"
+                onClick={handleRemovePhoto}
+                disabled={!form.profileImageUrl}
+              >
+                Remove
+              </button>
+            </div>
+            <p className="section-subtitle text-neutral-500 dark:text-neutral-400">
+              Add a public image link to show your photo in the navbar.
+            </p>
+            {imageUrlValidationError && (
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{imageUrlValidationError}</p>
+            )}
+          </div>
+
+          <div>
             <label htmlFor="profile-gender" className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">
               Gender
             </label>
@@ -132,7 +173,7 @@ export default function ProfilePage() {
               value={user?.gender || ''}
               disabled
             />
-            <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+            <p className="section-subtitle text-neutral-500 dark:text-neutral-400">
               Contact admin to change gender
             </p>
           </div>
@@ -140,7 +181,7 @@ export default function ProfilePage() {
           <button
             type="submit"
             className="btn-primary w-full"
-            disabled={loading}
+            disabled={loading || Boolean(imageUrlValidationError)}
           >
             {loading ? 'Saving...' : 'Save Changes'}
           </button>
@@ -148,4 +189,29 @@ export default function ProfilePage() {
       </div>
     </div>
   );
+}
+
+function validateProfileImageUrl(value) {
+  if (!value) return '';
+
+  // Data URIs are allowed but with size limit to prevent database bloat
+  // 50KB limit for base64 encoded images (approximately 37KB of actual image data)
+  if (value.startsWith('data:image/')) {
+    const MAX_DATA_URI_LENGTH = 50000; // 50KB
+    if (value.length > MAX_DATA_URI_LENGTH) {
+      return 'Image data URL is too large (max 50KB). Please use a hosted image URL instead.';
+    }
+    return '';
+  }
+
+  try {
+    const parsed = new URL(value);
+    if (!['http:', 'https:'].includes(parsed.protocol)) {
+      return 'Image URL must start with http:// or https://';
+    }
+  } catch {
+    return 'Please enter a valid image URL';
+  }
+
+  return '';
 }

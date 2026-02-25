@@ -1,9 +1,14 @@
 import { useEffect, useState } from 'react';
-import { apiRequest } from '../../api/client.js';
+import { listHostels } from '../../services/hostelService.js';
+import { createRoom, listRooms } from '../../services/roomService.js';
 
 export default function ManageRoomsPage() {
   const [rooms, setRooms] = useState([]);
   const [hostels, setHostels] = useState([]);
+  const [selectedHostel, setSelectedHostel] = useState('ALL');
+  const [selectedStatus, setSelectedStatus] = useState('ALL');
+  const [selectedGender, setSelectedGender] = useState('ALL');
+  const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showForm, setShowForm] = useState(false);
@@ -11,11 +16,12 @@ export default function ManageRoomsPage() {
     hostelId: '',
     roomNumber: '',
     capacity: 2,
-    gender: 'MALE',
+    roomGender: 'MALE',
     hasAc: false,
     hasWifi: true,
     mattressType: 'NORMAL',
-    price: ''
+    price: '',
+    floorNumber: 1
   });
   const [saving, setSaving] = useState(false);
 
@@ -25,16 +31,16 @@ export default function ManageRoomsPage() {
 
   async function loadData() {
     try {
-      const token = localStorage.getItem('hms.token');
-      const headers = { Authorization: `Bearer ${token}` };
       const [roomsData, hostelsData] = await Promise.all([
-        apiRequest('/api/admin/rooms', { headers }),
-        apiRequest('/api/admin/hostels', { headers })
+        listRooms(),
+        listHostels()
       ]);
       setRooms(Array.isArray(roomsData) ? roomsData : []);
-      setHostels(Array.isArray(hostelsData) ? hostelsData : []);
-      if (hostelsData?.length > 0) {
-        setForm(prev => ({ ...prev, hostelId: hostelsData[0].id }));
+      // Show all hostels for room creation (not just active ones)
+      const allHostels = Array.isArray(hostelsData) ? hostelsData : [];
+      setHostels(allHostels);
+      if (allHostels.length > 0) {
+        setForm(prev => ({ ...prev, hostelId: allHostels[0].id }));
       }
     } catch (err) {
       setError(err.message);
@@ -49,25 +55,24 @@ export default function ManageRoomsPage() {
     setError('');
 
     try {
-      await apiRequest('/api/admin/rooms', {
-        method: 'POST',
-        body: {
-          ...form,
-          capacity: Number.parseInt(form.capacity, 10),
-          price: Number.parseFloat(form.price) || 0
-        },
-        headers: { Authorization: `Bearer ${localStorage.getItem('hms.token')}` }
+      await createRoom({
+        ...form,
+        hostelId: Number(form.hostelId),
+        capacity: Number.parseInt(form.capacity, 10),
+        price: Number.parseFloat(form.price) || 0,
+        floorNumber: Number.parseInt(form.floorNumber, 10)
       });
       setShowForm(false);
       setForm({
         hostelId: hostels[0]?.id || '',
         roomNumber: '',
         capacity: 2,
-        gender: 'MALE',
+        roomGender: 'MALE',
         hasAc: false,
         hasWifi: true,
         mattressType: 'NORMAL',
-        price: ''
+        price: '',
+        floorNumber: 1
       });
       loadData();
     } catch (err) {
@@ -82,21 +87,34 @@ export default function ManageRoomsPage() {
     FULL: 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
   };
 
+  const filteredRooms = rooms
+    .filter((room) => (selectedHostel === 'ALL' ? true : String(room.hostelId) === selectedHostel))
+    .filter((room) => (selectedStatus === 'ALL' ? true : room.status === selectedStatus))
+    .filter((room) => (selectedGender === 'ALL' ? true : room.roomGender === selectedGender))
+    .filter((room) => {
+      const query = search.trim().toLowerCase();
+      if (!query) return true;
+      return (
+        room.roomNumber?.toLowerCase().includes(query) ||
+        room.hostelName?.toLowerCase().includes(query)
+      );
+    });
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-12 w-12 animate-spin rounded-full border-4 border-purple-500 border-t-transparent"></div>
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary-600 border-t-transparent"></div>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Manage Rooms</h1>
-          <p className="mt-1 text-neutral-600 dark:text-neutral-400">
-            Create and manage hostel rooms
+          <h1 className="page-title text-neutral-900 dark:text-white">Manage Rooms</h1>
+          <p className="section-subtitle">
+            Create, filter, and monitor room allocation status
           </p>
         </div>
         <button
@@ -110,12 +128,12 @@ export default function ManageRoomsPage() {
 
       {hostels.length === 0 && (
         <div className="rounded-lg bg-yellow-50 p-4 text-yellow-600 dark:bg-yellow-900/20 dark:text-yellow-400">
-          Please create a hostel first before adding rooms.
+          No hostels found. Please create a hostel first before adding rooms.
         </div>
       )}
 
       {error && (
-        <div className="rounded-lg bg-red-50 p-4 text-red-600 dark:bg-red-900/20 dark:text-red-400">
+        <div className="alert-error">
           {error}
         </div>
       )}
@@ -123,7 +141,7 @@ export default function ManageRoomsPage() {
       {/* Add Room Form */}
       {showForm && hostels.length > 0 && (
         <div className="card">
-          <h2 className="mb-4 text-lg font-semibold text-neutral-900 dark:text-white">Add New Room</h2>
+          <h2 className="card-header mb-4 text-neutral-900 dark:text-white">Add New Room</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <div>
@@ -170,8 +188,8 @@ export default function ManageRoomsPage() {
                 <select
                   id="room-gender"
                   className="input-field"
-                  value={form.gender}
-                  onChange={(e) => setForm({ ...form, gender: e.target.value })}
+                  value={form.roomGender}
+                  onChange={(e) => setForm({ ...form, roomGender: e.target.value })}
                 >
                   <option value="MALE">Male</option>
                   <option value="FEMALE">Female</option>
@@ -200,9 +218,21 @@ export default function ManageRoomsPage() {
                   onChange={(e) => setForm({ ...form, price: e.target.value })}
                 />
               </div>
+              <div>
+                <label htmlFor="room-floor" className="mb-1 block text-sm font-medium">Floor Number</label>
+                <input
+                  id="room-floor"
+                  type="number"
+                  className="input-field"
+                  min="1"
+                  value={form.floorNumber}
+                  onChange={(e) => setForm({ ...form, floorNumber: e.target.value })}
+                  required
+                />
+              </div>
             </div>
             
-            <div className="flex gap-6">
+            <div className="flex flex-wrap gap-4 sm:gap-6">
               <label className="flex items-center gap-2">
                 <input
                   type="checkbox"
@@ -231,35 +261,104 @@ export default function ManageRoomsPage() {
       )}
 
       {/* Rooms Table */}
-      {rooms.length === 0 ? (
-        <div className="card text-center py-12">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800">
+      {rooms.length > 0 && (
+        <div className="card">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+            <select
+              className="input-field"
+              value={selectedHostel}
+              onChange={(e) => setSelectedHostel(e.target.value)}
+            >
+              <option value="ALL">Hostel: All</option>
+              {hostels.map((hostel) => (
+                <option key={hostel.id} value={String(hostel.id)}>
+                  {hostel.name}
+                </option>
+              ))}
+            </select>
+
+            <select
+              className="input-field"
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value)}
+            >
+              <option value="ALL">Status: All</option>
+              <option value="AVAILABLE">Available</option>
+              <option value="FULL">Full</option>
+            </select>
+
+            <select
+              className="input-field"
+              value={selectedGender}
+              onChange={(e) => setSelectedGender(e.target.value)}
+            >
+              <option value="ALL">Gender: All</option>
+              <option value="MALE">Male</option>
+              <option value="FEMALE">Female</option>
+            </select>
+
+            <input
+              className="input-field lg:col-span-2"
+              placeholder="Search room number or hostel"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+        </div>
+      )}
+
+      {filteredRooms.length === 0 ? (
+        <div className="empty-state">
+          <div className="empty-state-icon">
             <span className="text-3xl">🛏️</span>
           </div>
-          <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">No Rooms Yet</h3>
-          <p className="mt-1 text-neutral-600 dark:text-neutral-400">
-            Click "Add Room" to create your first room
+          <h3 className="empty-state-title">No Rooms Found</h3>
+          <p className="section-subtitle">
+            Add rooms or adjust the current filters.
           </p>
         </div>
       ) : (
-        <div className="card overflow-x-auto">
-          <table className="w-full text-left text-sm">
+        <div className="space-y-4">
+          <div className="grid gap-3 md:hidden">
+            {filteredRooms.map((room) => (
+              <div key={room.id} className="card space-y-2">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="font-medium text-neutral-900 dark:text-white">Room {room.roomNumber}</p>
+                  <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusColors[room.status] || statusColors.AVAILABLE}`}>
+                    {room.status}
+                  </span>
+                </div>
+                <p className="body-text text-neutral-600 dark:text-neutral-300">Hostel: {room.hostelName}</p>
+                <p className="body-text text-neutral-600 dark:text-neutral-300">Gender: {room.roomGender} · Floor: {room.floorNumber}</p>
+                <p className="body-text text-neutral-600 dark:text-neutral-300">Capacity: {room.currentOccupancy || 0}/{room.capacity}</p>
+                <div className="flex gap-1">
+                  {room.hasAc && <span className="rounded bg-accent-100 px-1.5 py-0.5 text-xs text-accent-900 dark:bg-accent-900/30 dark:text-accent-200">AC</span>}
+                  {room.hasWifi && <span className="rounded bg-green-100 px-1.5 py-0.5 text-xs dark:bg-green-900/30">WiFi</span>}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="card hidden overflow-x-auto md:block">
+          <table className="w-full min-w-[960px] text-left text-sm">
             <thead className="border-b border-neutral-200 dark:border-neutral-700">
               <tr>
                 <th className="px-4 py-3 font-medium text-neutral-900 dark:text-white">Room</th>
                 <th className="px-4 py-3 font-medium text-neutral-900 dark:text-white">Hostel</th>
                 <th className="px-4 py-3 font-medium text-neutral-900 dark:text-white">Gender</th>
+                <th className="px-4 py-3 font-medium text-neutral-900 dark:text-white">Floor</th>
                 <th className="px-4 py-3 font-medium text-neutral-900 dark:text-white">Capacity</th>
                 <th className="px-4 py-3 font-medium text-neutral-900 dark:text-white">Status</th>
                 <th className="px-4 py-3 font-medium text-neutral-900 dark:text-white">Amenities</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-200 dark:divide-neutral-700">
-              {rooms.map((room) => (
+              {filteredRooms.map((room) => (
                 <tr key={room.id}>
                   <td className="px-4 py-3 font-medium">{room.roomNumber}</td>
                   <td className="px-4 py-3 text-neutral-600 dark:text-neutral-400">{room.hostelName}</td>
-                  <td className="px-4 py-3">{room.gender}</td>
+                  <td className="px-4 py-3">{room.roomGender}</td>
+                  <td className="px-4 py-3">{room.floorNumber}</td>
                   <td className="px-4 py-3">
                     {room.currentOccupancy || 0}/{room.capacity}
                   </td>
@@ -270,7 +369,7 @@ export default function ManageRoomsPage() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex gap-1">
-                      {room.hasAc && <span className="rounded bg-blue-100 px-1.5 py-0.5 text-xs dark:bg-blue-900/30">AC</span>}
+                      {room.hasAc && <span className="rounded bg-accent-100 px-1.5 py-0.5 text-xs text-accent-900 dark:bg-accent-900/30 dark:text-accent-200">AC</span>}
                       {room.hasWifi && <span className="rounded bg-green-100 px-1.5 py-0.5 text-xs dark:bg-green-900/30">WiFi</span>}
                     </div>
                   </td>
@@ -278,6 +377,7 @@ export default function ManageRoomsPage() {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
     </div>

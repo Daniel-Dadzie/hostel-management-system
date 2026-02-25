@@ -10,7 +10,7 @@ export default function ProtectedRoute({ children, allowedRoles = [] }) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
-          <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent mx-auto"></div>
+          <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-primary-600 border-t-transparent"></div>
           <p className="mt-4 text-neutral-600 dark:text-neutral-400">Loading...</p>
         </div>
       </div>
@@ -36,7 +36,7 @@ export function PublicRoute({ children }) {
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary-600 border-t-transparent"></div>
       </div>
     );
   }

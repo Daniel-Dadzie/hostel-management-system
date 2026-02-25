@@ -5,13 +5,13 @@ function PreferenceToggle({ label, description, checked, onToggle }) {
     <div className="flex items-center justify-between">
       <div>
         <p className="font-medium text-neutral-900 dark:text-white">{label}</p>
-        <p className="text-sm text-neutral-500 dark:text-neutral-400">{description}</p>
+        <p className="body-text text-neutral-500 dark:text-neutral-400">{description}</p>
       </div>
       <button
         type="button"
         onClick={onToggle}
         className={`relative h-6 w-11 rounded-full transition-colors ${
-          checked ? 'bg-blue-600' : 'bg-neutral-300 dark:bg-neutral-600'
+          checked ? 'bg-primary-700' : 'bg-neutral-300 dark:bg-neutral-600'
         }`}
       >
         <span
@@ -31,12 +31,12 @@ PreferenceToggle.propTypes = {
   onToggle: PropTypes.func.isRequired
 };
 
-export default function ApplyPreferencesForm({ form, loading, error, onChange, onSubmit }) {
+export default function ApplyPreferencesForm({ form, hostels, loading, error, onChange, onSubmit }) {
   return (
     <div className="mx-auto max-w-lg">
       <div className="card">
-        <h1 className="text-xl font-bold text-neutral-900 dark:text-white">Apply for Hostel</h1>
-        <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+        <h1 className="page-title text-neutral-900 dark:text-white">Apply for Hostel</h1>
+        <p className="body-text mt-1 text-neutral-500 dark:text-neutral-400">
           Select your room preferences. The system will automatically allocate the best available room.
         </p>
 
@@ -47,6 +47,62 @@ export default function ApplyPreferencesForm({ form, loading, error, onChange, o
         ) : null}
 
         <form onSubmit={onSubmit} className="mt-6 space-y-5">
+          {/* Hostel Selection */}
+          <div>
+            <label htmlFor="apply-hostel" className="mb-2 block font-medium text-neutral-900 dark:text-white">
+              Preferred Hostel
+            </label>
+            {hostels.length === 0 ? (
+              <p className="body-text rounded-lg border border-neutral-200 bg-neutral-50 p-3 text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800">
+                No active hostels available. Please contact administration.
+              </p>
+            ) : (
+              <select
+                id="apply-hostel"
+                className="input-field"
+                value={form.hostelId}
+                onChange={(e) => onChange('hostelId', e.target.value)}
+                required
+              >
+                <option value="">Select a hostel</option>
+                {hostels.map((hostel) => (
+                  <option key={hostel.id} value={String(hostel.id)}>
+                    {hostel.name} {hostel.location ? `(${hostel.location})` : ''}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+
+          {/* Room Capacity Selection */}
+          <div>
+            <label className="mb-2 block font-medium text-neutral-900 dark:text-white">
+              Number of Roommates
+            </label>
+            <p className="body-text mb-3 text-neutral-500 dark:text-neutral-400">
+              How many people would you like in your room?
+            </p>
+            <div className="grid grid-cols-4 gap-2">
+              {[1, 2, 3, 4].map((num) => (
+                <button
+                  key={num}
+                  type="button"
+                  onClick={() => onChange('preferredCapacity', num)}
+                  className={`rounded-lg border-2 p-3 text-center transition-colors ${
+                    form.preferredCapacity === num
+                      ? 'border-primary-600 bg-primary-50 dark:bg-primary-900/20'
+                      : 'border-neutral-200 dark:border-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-600'
+                  }`}
+                >
+                  <span className="text-xl font-semibold text-neutral-900 dark:text-white">{num}</span>
+                  <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+                    {num === 1 ? 'Single' : num === 2 ? 'Double' : num === 3 ? 'Triple' : 'Quad'}
+                  </p>
+                </button>
+              ))}
+            </div>
+          </div>
+
           <PreferenceToggle
             label="Air Conditioning"
             description="Prefer a room with AC"
@@ -66,13 +122,13 @@ export default function ApplyPreferencesForm({ form, loading, error, onChange, o
               Mattress Type
             </label>
             <input id="apply-mattress" type="hidden" value={form.mattressType} readOnly />
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid gap-3 sm:grid-cols-2">
               <button
                 type="button"
                 onClick={() => onChange('mattressType', 'NORMAL')}
                 className={`rounded-lg border-2 p-3 text-center transition-colors ${
                   form.mattressType === 'NORMAL'
-                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                    ? 'border-primary-600 bg-primary-50 dark:bg-primary-900/20'
                     : 'border-neutral-200 dark:border-neutral-700'
                 }`}
               >
@@ -84,7 +140,7 @@ export default function ApplyPreferencesForm({ form, loading, error, onChange, o
                 onClick={() => onChange('mattressType', 'QUEEN')}
                 className={`rounded-lg border-2 p-3 text-center transition-colors ${
                   form.mattressType === 'QUEEN'
-                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                    ? 'border-primary-600 bg-primary-50 dark:bg-primary-900/20'
                     : 'border-neutral-200 dark:border-neutral-700'
                 }`}
               >
@@ -107,7 +163,7 @@ export default function ApplyPreferencesForm({ form, loading, error, onChange, o
             />
           </div>
 
-          <button type="submit" className="btn-primary w-full" disabled={loading}>
+          <button type="submit" className="btn-primary w-full" disabled={loading || hostels.length === 0}>
             {loading ? 'Submitting...' : 'Submit Application'}
           </button>
         </form>
@@ -118,13 +174,27 @@ export default function ApplyPreferencesForm({ form, loading, error, onChange, o
 
 ApplyPreferencesForm.propTypes = {
   form: PropTypes.shape({
+    hostelId: PropTypes.string,
+    preferredCapacity: PropTypes.number.isRequired,
     hasAc: PropTypes.bool.isRequired,
     hasWifi: PropTypes.bool.isRequired,
     mattressType: PropTypes.string.isRequired,
     specialRequests: PropTypes.string.isRequired
   }).isRequired,
+  hostels: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      name: PropTypes.string.isRequired,
+      location: PropTypes.string,
+      active: PropTypes.bool
+    })
+  ),
   loading: PropTypes.bool.isRequired,
   error: PropTypes.string,
   onChange: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired
+};
+
+ApplyPreferencesForm.defaultProps = {
+  hostels: []
 };

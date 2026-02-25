@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { apiRequest } from '../api/client.js';
+import { loginUser, registerUser } from '../services/authService.js';
+import { getStudentProfile } from '../services/studentService.js';
 
 const AuthContext = createContext(null);
 const TOKEN_KEY = 'hms.token';
@@ -24,9 +25,7 @@ export function AuthProvider({ children }) {
 
   const loadProfile = useCallback(async () => {
     try {
-      const data = await apiRequest('/api/student/profile', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const data = await getStudentProfile();
       setUser(data);
     } catch (error) {
       console.error('Failed to load profile:', error);
@@ -34,7 +33,7 @@ export function AuthProvider({ children }) {
     } finally {
       setLoading(false);
     }
-  }, [logout, token]);
+  }, [logout]);
 
   useEffect(() => {
     if (!token) {
@@ -52,26 +51,26 @@ export function AuthProvider({ children }) {
   }, [token, role, loadProfile]);
 
   async function login(email, password) {
-    const data = await apiRequest('/api/auth/login', {
-      method: 'POST',
-      body: { email, password }
-    });
+    const data = await loginUser(email, password);
     setToken(data.token);
     setRole(data.role);
     localStorage.setItem(TOKEN_KEY, data.token);
     localStorage.setItem(ROLE_KEY, data.role);
+    if (data.role === 'STUDENT') {
+      await loadProfile();
+    }
     return data;
   }
 
   async function register(userData) {
-    const data = await apiRequest('/api/auth/register', {
-      method: 'POST',
-      body: userData
-    });
+    const data = await registerUser(userData);
     setToken(data.token);
     setRole(data.role);
     localStorage.setItem(TOKEN_KEY, data.token);
     localStorage.setItem(ROLE_KEY, data.role);
+    if (data.role === 'STUDENT') {
+      await loadProfile();
+    }
     return data;
   }
 

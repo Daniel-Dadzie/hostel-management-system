@@ -1,10 +1,23 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+.theme-transition,
+.theme-transition *,
+.theme-transition *::before,
+.theme-transition *::after {
+  transition: background-color 300ms ease, border-color 300ms ease, color 300ms ease, fill 300ms ease, stroke 300ms ease !important;
+}
+
 @layer base {
   :root {
     color-scheme: light;
+  }
+
+  html {
+    font-size: 16px;
   }
 
   .dark {
@@ -12,29 +25,45 @@
   }
 
   body {
-    @apply bg-cream-50 text-neutral-900 dark:bg-neutral-950 dark:text-neutral-50;
+    @apply bg-cream-50 font-sans text-[15px] font-normal leading-relaxed text-neutral-900 antialiased dark:bg-neutral-950 dark:text-neutral-50;
   }
 
   a {
-    @apply text-primary-700 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300;
+    @apply text-primary-700 transition-colors duration-200 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300;
   }
 }
 
 @layer components {
+  .page-title {
+    @apply text-[30px] font-semibold leading-tight tracking-tight;
+  }
+
+  .card-header {
+    @apply text-[18px] font-semibold leading-snug;
+  }
+
+  .body-text {
+    @apply text-[15px] font-normal leading-relaxed;
+  }
+
+  .section-subtitle {
+    @apply body-text mt-1 text-neutral-600 dark:text-neutral-400;
+  }
+
   .card {
-    @apply rounded-xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-surface-dark;
+    @apply rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm transition-all duration-200 sm:p-5 dark:border-neutral-800 dark:bg-surface-dark;
   }
 
   .btn {
-    @apply inline-flex items-center justify-center rounded-lg px-3 py-2 text-sm font-medium transition;
+    @apply inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 active:scale-[0.99];
   }
 
   .btn-primary {
-    @apply btn bg-primary-700 text-white hover:bg-primary-800 dark:bg-primary-600 dark:hover:bg-primary-500;
+    @apply btn bg-primary-700 text-white shadow-sm hover:bg-primary-800 hover:shadow disabled:cursor-not-allowed disabled:opacity-50 dark:bg-primary-600 dark:hover:bg-primary-500 dark:disabled:bg-primary-600/50;
   }
 
   .btn-accent {
-    @apply btn bg-accent-500 text-neutral-950 hover:bg-accent-400 dark:bg-accent-400 dark:hover:bg-accent-300;
+    @apply btn bg-accent-500 text-neutral-950 shadow-sm hover:bg-accent-400 hover:shadow dark:bg-accent-400 dark:hover:bg-accent-300;
   }
 
   .btn-ghost {
@@ -42,7 +71,7 @@
   }
 
   .input-field {
-    @apply w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900;
+    @apply w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm transition-all duration-200 placeholder:text-neutral-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100 dark:border-neutral-700 dark:bg-neutral-900 dark:placeholder:text-neutral-500 dark:focus:border-primary-400 dark:focus:ring-primary-900/40;
   }
 
   .badge {
@@ -58,6 +87,31 @@
   }
 
   .badge-rejected {
-    @apply badge bg-rose-100 text-rose-900 dark:bg-rose-900/30 dark:text-rose-200;
+    @apply badge bg-accent-100 text-accent-900 dark:bg-accent-900/30 dark:text-accent-200;
   }
+
+  .alert {
+    @apply rounded-xl border p-4 text-sm;
+  }
+
+  .alert-error {
+    @apply alert border-red-100 bg-red-50 text-red-600 dark:border-red-800/40 dark:bg-red-900/20 dark:text-red-400;
+  }
+
+  .alert-success {
+    @apply alert border-green-100 bg-green-50 text-green-600 dark:border-green-800/40 dark:bg-green-900/20 dark:text-green-400;
+  }
+
+  .empty-state {
+    @apply card py-12 text-center;
+  }
+
+  .empty-state-icon {
+    @apply mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-neutral-100 ring-1 ring-neutral-200 dark:bg-neutral-800 dark:ring-neutral-700;
+  }
+
+  .empty-state-title {
+    @apply card-header text-neutral-900 dark:text-white;
+  }
+
 }

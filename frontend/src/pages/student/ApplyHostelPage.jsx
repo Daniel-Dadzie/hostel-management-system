@@ -1,10 +1,13 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { apiRequest } from '../../api/client.js';
+import { applyForHostel } from '../../services/studentService.js';
+import { listHostels } from '../../services/hostelService.js';
 import ApplyPreferencesForm from '../../components/student/ApplyPreferencesForm.jsx';
 import ApplyResultCard from '../../components/student/ApplyResultCard.jsx';
 
 const INITIAL_FORM = {
+  hostelId: '',
+  preferredCapacity: 2,
   hasAc: false,
   hasWifi: true,
   mattressType: 'NORMAL',
@@ -13,10 +16,31 @@ const INITIAL_FORM = {
 
 export default function ApplyHostelPage() {
   const [form, setForm] = useState(INITIAL_FORM);
+  const [hostels, setHostels] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [loadingHostels, setLoadingHostels] = useState(true);
   const [error, setError] = useState('');
   const [result, setResult] = useState(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    loadHostels();
+  }, []);
+
+  async function loadHostels() {
+    try {
+      const data = await listHostels();
+      const activeHostels = Array.isArray(data) ? data.filter((h) => h.active) : [];
+      setHostels(activeHostels);
+      if (activeHostels.length > 0) {
+        setForm((prev) => ({ ...prev, hostelId: String(activeHostels[0].id) }));
+      }
+    } catch (err) {
+      console.error('Failed to load hostels:', err);
+    } finally {
+      setLoadingHostels(false);
+    }
+  }
 
   function handleChange(field, value) {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -28,11 +52,12 @@ export default function ApplyHostelPage() {
     setLoading(true);
 
     try {
-      const data = await apiRequest('/api/student/apply', {
-        method: 'POST',
-        body: form,
-        headers: { Authorization: `Bearer ${localStorage.getItem('hms.token')}` }
-      });
+      const payload = {
+        ...form,
+        hostelId: form.hostelId ? Number(form.hostelId) : null,
+        preferredCapacity: Number(form.preferredCapacity)
+      };
+      const data = await applyForHostel(payload);
       setResult(data);
     } catch (err) {
       setError(err.message);
@@ -54,7 +79,8 @@ export default function ApplyHostelPage() {
   return (
     <ApplyPreferencesForm
       form={form}
-      loading={loading}
+      hostels={hostels}
+      loading={loading || loadingHostels}
       error={error}
       onChange={handleChange}
       onSubmit={handleSubmit}

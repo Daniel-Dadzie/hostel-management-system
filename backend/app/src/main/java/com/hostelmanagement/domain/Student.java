@@ -1,7 +1,18 @@
 package com.hostelmanagement.domain;
 
-import jakarta.persistence.*;
 import java.time.Instant;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 @Entity
 @Table(
@@ -23,6 +34,9 @@ public class Student {
 
   @Column(length = 30)
   private String phone;
+
+  @Column(name = "profile_image_url", length = 500)
+  private String profileImageUrl;
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 10)
@@ -79,6 +93,14 @@ public class Student {
 
   public void setPhone(String phone) {
     this.phone = phone;
+  }
+
+  public String getProfileImageUrl() {
+    return profileImageUrl;
+  }
+
+  public void setProfileImageUrl(String profileImageUrl) {
+    this.profileImageUrl = profileImageUrl;
   }
 
   public Gender getGender() {

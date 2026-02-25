@@ -14,11 +14,11 @@ export default function ApplyResultCard({ result, onViewBooking, onApplyAgain })
             <span className="text-3xl">{isSuccess ? '✅' : '❌'}</span>
           </div>
 
-          <h2 className={`text-xl font-bold ${titleClass}`}>
+          <h2 className={`card-header ${titleClass}`}>
             {isSuccess ? 'Application Submitted!' : 'Application Rejected'}
           </h2>
 
-          <p className="mt-2 text-neutral-600 dark:text-neutral-400">
+          <p className="body-text mt-2 text-neutral-600 dark:text-neutral-400">
             {isSuccess
               ? 'Your hostel application has been submitted successfully.'
               : 'Unfortunately, no rooms are available matching your preferences.'}
@@ -26,8 +26,8 @@ export default function ApplyResultCard({ result, onViewBooking, onApplyAgain })
 
           {isSuccess && result.hostelName ? (
             <div className="mt-4 rounded-lg bg-neutral-50 p-4 dark:bg-neutral-800">
-              <p className="text-sm text-neutral-500 dark:text-neutral-400">Allocated Room</p>
-              <p className="text-lg font-semibold text-neutral-900 dark:text-white">
+              <p className="body-text text-neutral-500 dark:text-neutral-400">Allocated Room</p>
+              <p className="card-header text-neutral-900 dark:text-white">
                 {result.hostelName} - Room {result.roomNumber}
               </p>
               <p className="mt-2 text-sm text-yellow-600 dark:text-yellow-400">

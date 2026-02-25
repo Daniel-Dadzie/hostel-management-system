@@ -73,3 +73,18 @@ On Windows:
 
 - Booking status uses `PENDING_PAYMENT` for the 30-minute hold.
 - Payment status uses `PENDING`/`COMPLETED`/etc.
+
+## Troubleshooting: Flyway checksum validation errors
+
+If startup fails with messages like:
+- `Detected applied migration not resolved locally`
+- `Migration checksum mismatch`
+
+Run Flyway repair, then start the app again:
+
+```powershell
+./repair-flyway.ps1
+./run-with-mysql.ps1
+```
+
+This updates Flyway schema-history metadata in your local MySQL DB to match the current migration files.

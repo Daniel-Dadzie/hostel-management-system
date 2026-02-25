@@ -11,21 +11,8 @@ if (-not $env:DB_PASSWORD) {
 	$env:DB_PASSWORD = "Ubuntu"
 }
 
-function Test-PortFree([int]$port) {
-	$listeners = Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue
-	return ($null -eq $listeners -or $listeners.Count -eq 0)
-}
-
 if (-not $env:SERVER_PORT) {
-	foreach ($p in 8081, 8082, 8083) {
-		if (Test-PortFree $p) {
-			$env:SERVER_PORT = "$p"
-			break
-		}
-	}
-	if (-not $env:SERVER_PORT) {
-		throw "No free port found in 8081-8083. Set SERVER_PORT manually."
-	}
+	$env:SERVER_PORT = "8081"
 }
 
 # Run the Spring Boot application

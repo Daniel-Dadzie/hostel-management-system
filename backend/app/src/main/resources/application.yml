@@ -22,6 +22,13 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+    placeholder-replacement: true
+    placeholders:
+      # IMPORTANT: Set ADMIN_PASSWORD_HASH environment variable before first run!
+      # Generate with: java -cp target/classes -e "new BCryptPasswordEncoder().encode(\"your-password\")"
+      # Or use online: https://bcrypt-generator.com/ (rounds=10)
+      # Default below is a random UUID hashed - check startup logs for the generated password
+      adminPasswordHash: ${ADMIN_PASSWORD_HASH:}
 
 logging:
   level:
@@ -31,7 +38,9 @@ app:
   frontend-url: ${FRONTEND_URL:http://localhost:5173}
 
   jwt:
-    secret: ${JWT_SECRET:change-me-in-env-please-change-me}
+    # IMPORTANT: Set JWT_SECRET environment variable in production!
+    # Default value is for development only and should never be used in production.
+    secret: ${JWT_SECRET:dev-only-secret-change-in-production-min-32-chars}
     expiration-seconds: ${JWT_EXPIRATION_SECONDS:86400}
 
   booking:

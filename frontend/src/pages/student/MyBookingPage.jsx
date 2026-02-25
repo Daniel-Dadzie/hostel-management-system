@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { apiRequest } from '../../api/client.js';
+import { getMyBooking } from '../../services/studentService.js';
 
 export default function MyBookingPage() {
   const [booking, setBooking] = useState(null);
@@ -12,9 +12,7 @@ export default function MyBookingPage() {
 
   async function loadBooking() {
     try {
-      const data = await apiRequest('/api/student/booking', {
-        headers: { Authorization: `Bearer ${localStorage.getItem('hms.token')}` }
-      });
+      const data = await getMyBooking();
       setBooking(data);
     } catch (err) {
       setError(err.message);
@@ -59,7 +57,7 @@ export default function MyBookingPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary-600 border-t-transparent"></div>
       </div>
     );
   }
@@ -67,12 +65,12 @@ export default function MyBookingPage() {
   if (error) {
     return (
       <div className="mx-auto max-w-lg">
-        <div className="card text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
+        <div className="empty-state">
+          <div className="empty-state-icon">
             <span className="text-3xl">📋</span>
           </div>
-          <h2 className="text-xl font-bold text-neutral-900 dark:text-white">No Active Booking</h2>
-          <p className="mt-2 text-neutral-600 dark:text-neutral-400">
+          <h2 className="empty-state-title">No Active Booking</h2>
+          <p className="section-subtitle mt-2">
             {error}
           </p>
         </div>
@@ -84,7 +82,7 @@ export default function MyBookingPage() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="mb-6 text-2xl font-bold text-neutral-900 dark:text-white">My Booking</h1>
+      <h1 className="page-title mb-6 text-neutral-900 dark:text-white">My Booking</h1>
 
       {/* Status Card */}
       <div className={`card ${status.color}`}>
@@ -93,8 +91,8 @@ export default function MyBookingPage() {
             <span className="text-3xl">{status.icon}</span>
           </div>
           <div>
-            <h2 className="text-xl font-bold">{status.title}</h2>
-            <p className="text-sm opacity-80">{status.description}</p>
+            <h2 className="card-header">{status.title}</h2>
+            <p className="body-text opacity-80">{status.description}</p>
           </div>
         </div>
       </div>
@@ -102,7 +100,7 @@ export default function MyBookingPage() {
       {/* Booking Details */}
       {booking && (
         <div className="mt-6 card">
-          <h3 className="mb-4 text-lg font-semibold text-neutral-900 dark:text-white">Booking Details</h3>
+          <h3 className="card-header mb-4 text-neutral-900 dark:text-white">Booking Details</h3>
           
           <div className="space-y-4">
             <div className="flex justify-between border-b border-neutral-200 pb-3 dark:border-neutral-700">
@@ -124,11 +122,11 @@ export default function MyBookingPage() {
               </div>
             )}
 
-            {booking.dueAt && booking.status === 'PENDING_PAYMENT' && (
+            {booking.paymentDueAt && booking.status === 'PENDING_PAYMENT' && (
               <div className="flex justify-between border-b border-neutral-200 pb-3 dark:border-neutral-700">
                 <span className="text-neutral-500 dark:text-neutral-400">Payment Due</span>
                 <span className="font-medium text-red-600 dark:text-red-400">
-                  {new Date(booking.dueAt).toLocaleString()}
+                  {new Date(booking.paymentDueAt).toLocaleString()}
                 </span>
               </div>
             )}
@@ -145,14 +143,14 @@ export default function MyBookingPage() {
 
       {/* Payment Action */}
       {booking?.status === 'PENDING_PAYMENT' && (
-        <div className="mt-6 card bg-blue-50 dark:bg-blue-900/20">
+        <div className="mt-6 card bg-primary-50 dark:bg-primary-900/20">
           <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-600 text-white">
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary-700 text-white">
               <span className="text-xl">💳</span>
             </div>
             <div className="flex-1">
-              <h3 className="font-semibold text-neutral-900 dark:text-white">Complete Payment</h3>
-              <p className="text-sm text-neutral-600 dark:text-neutral-400">
+              <h3 className="card-header text-neutral-900 dark:text-white">Complete Payment</h3>
+              <p className="body-text text-neutral-600 dark:text-neutral-400">
                 Pay now to confirm your booking
               </p>
             </div>

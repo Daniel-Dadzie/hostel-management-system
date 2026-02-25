@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { apiRequest } from '../../api/client.js';
+import { listAdminBookings } from '../../services/bookingService.js';
+import { listHostels } from '../../services/hostelService.js';
+import { listRooms } from '../../services/roomService.js';
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -10,6 +12,8 @@ export default function AdminDashboard() {
     pendingPayments: 0
   });
   const [loading, setLoading] = useState(true);
+  const [recentBookings, setRecentBookings] = useState([]);
+  const [roomsData, setRoomsData] = useState([]);
 
   useEffect(() => {
     loadStats();
@@ -17,17 +21,12 @@ export default function AdminDashboard() {
 
   async function loadStats() {
     try {
-      const token = localStorage.getItem('hms.token');
-      const headers = { Authorization: `Bearer ${token}` };
-      
-      // Load hostels
-      const hostels = await apiRequest('/api/admin/hostels', { headers });
-      
-      // Load rooms
-      const rooms = await apiRequest('/api/admin/rooms', { headers });
-      
-      // Load bookings
-      const bookings = await apiRequest('/api/admin/bookings', { headers });
+      const hostels = await listHostels();
+      const rooms = await listRooms();
+      const bookings = await listAdminBookings();
+
+      setRoomsData(Array.isArray(rooms) ? rooms : []);
+      setRecentBookings(Array.isArray(bookings) ? bookings.slice(0, 5) : []);
 
       setStats({
         hostels: hostels?.length || 0,
@@ -43,17 +42,27 @@ export default function AdminDashboard() {
   }
 
   const statCards = [
-    { label: 'Hostels', value: stats.hostels, icon: '🏢', color: 'bg-blue-500', link: '/admin/hostels' },
+    { label: 'Hostels', value: stats.hostels, icon: '🏢', color: 'bg-primary-600', link: '/admin/hostels' },
     { label: 'Rooms', value: stats.rooms, icon: '🛏️', color: 'bg-green-500', link: '/admin/rooms' },
-    { label: 'Bookings', value: stats.bookings, icon: '📋', color: 'bg-purple-500', link: '/admin/bookings' },
-    { label: 'Pending Payments', value: stats.pendingPayments, icon: '⏳', color: 'bg-yellow-500', link: '/admin/bookings' }
+    { label: 'Bookings', value: stats.bookings, icon: '📋', color: 'bg-accent-600', link: '/admin/bookings' },
+    { label: 'Pending Payments', value: stats.pendingPayments, icon: '⏳', color: 'bg-accent-500', link: '/admin/bookings' }
   ];
+
+  const occupancyByHostel = roomsData.reduce((acc, room) => {
+    const hostelName = room.hostelName || 'Unknown';
+    if (!acc[hostelName]) {
+      acc[hostelName] = { occupancy: 0, capacity: 0 };
+    }
+    acc[hostelName].occupancy += room.currentOccupancy || 0;
+    acc[hostelName].capacity += room.capacity || 0;
+    return acc;
+  }, {});
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Admin Dashboard</h1>
-        <p className="mt-1 text-neutral-600 dark:text-neutral-400">
+        <h1 className="page-title text-neutral-900 dark:text-white">Admin Dashboard</h1>
+        <p className="section-subtitle">
           Manage hostels, rooms, and bookings
         </p>
       </div>
@@ -71,8 +80,8 @@ export default function AdminDashboard() {
                 <span className="text-2xl">{stat.icon}</span>
               </div>
               <div>
-                <p className="text-sm text-neutral-500 dark:text-neutral-400">{stat.label}</p>
-                <p className="text-2xl font-bold text-neutral-900 dark:text-white">
+                <p className="body-text text-neutral-500 dark:text-neutral-400">{stat.label}</p>
+                <p className="card-header text-neutral-900 dark:text-white">
                   {loading ? '...' : stat.value}
                 </p>
               </div>
@@ -83,7 +92,7 @@ export default function AdminDashboard() {
 
       {/* Quick Actions */}
       <div className="card">
-        <h2 className="mb-4 text-lg font-semibold text-neutral-900 dark:text-white">Quick Actions</h2>
+        <h2 className="card-header mb-4 text-neutral-900 dark:text-white">Quick Actions</h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Link
             to="/admin/hostels"
@@ -116,15 +125,63 @@ export default function AdminDashboard() {
         </div>
       </div>
 
+      <div className="grid gap-4 lg:grid-cols-2">
+        <div className="card">
+          <h2 className="card-header mb-4 text-neutral-900 dark:text-white">Occupancy by Hostel</h2>
+          <div className="space-y-3">
+            {Object.entries(occupancyByHostel).map(([hostelName, value]) => {
+              const rate = value.capacity === 0 ? 0 : Math.round((value.occupancy / value.capacity) * 100);
+              return (
+                <div key={hostelName}>
+                  <div className="mb-1 flex items-center justify-between text-sm">
+                    <span className="text-neutral-700 dark:text-neutral-200">{hostelName}</span>
+                    <span className="text-neutral-600 dark:text-neutral-300">{rate}%</span>
+                  </div>
+                  <div className="h-2 rounded bg-neutral-200 dark:bg-neutral-800">
+                    <div className="h-2 rounded bg-primary-600" style={{ width: `${rate}%` }}></div>
+                  </div>
+                </div>
+              );
+            })}
+            {Object.keys(occupancyByHostel).length === 0 && (
+              <p className="body-text text-neutral-500 dark:text-neutral-400">No occupancy data available.</p>
+            )}
+          </div>
+        </div>
+
+        <div className="card">
+          <h2 className="card-header mb-4 text-neutral-900 dark:text-white">Recent Bookings</h2>
+          <div className="space-y-3">
+            {recentBookings.map((booking) => (
+              <div key={booking.id} className="rounded border border-neutral-200 p-3 dark:border-neutral-700">
+                <div className="flex items-center justify-between">
+                  <p className="font-medium text-neutral-900 dark:text-white">{booking.studentName}</p>
+                  <span className="body-text text-neutral-500 dark:text-neutral-400">#{booking.id}</span>
+                </div>
+                <p className="body-text mt-1 text-neutral-600 dark:text-neutral-300">
+                  {booking.hostelName || '-'} / {booking.roomNumber || '-'}
+                </p>
+                <p className="body-text mt-1 text-neutral-500 dark:text-neutral-400">
+                  Status: {booking.status?.replace('_', ' ')}
+                </p>
+              </div>
+            ))}
+            {recentBookings.length === 0 && (
+              <p className="body-text text-neutral-500 dark:text-neutral-400">No recent bookings.</p>
+            )}
+          </div>
+        </div>
+      </div>
+
       {/* Info Card */}
-      <div className="rounded-lg bg-purple-50 p-6 dark:bg-purple-900/20">
+      <div className="rounded-lg bg-primary-50 p-6 dark:bg-primary-900/20">
         <div className="flex items-start gap-4">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-600 text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-700 text-white">
             <span className="text-xl">💡</span>
           </div>
           <div>
-            <h3 className="font-semibold text-purple-900 dark:text-purple-100">Getting Started</h3>
-            <p className="mt-1 text-sm text-purple-700 dark:text-purple-300">
+            <h3 className="card-header text-primary-900 dark:text-primary-100">Getting Started</h3>
+            <p className="body-text mt-1 text-primary-700 dark:text-primary-300">
               Start by creating hostels and rooms. Students will then be able to apply for accommodation.
               You can approve or reject bookings from the bookings page.
             </p>
