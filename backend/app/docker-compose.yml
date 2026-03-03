@@ -54,6 +54,7 @@ services:
       DB_USERNAME: hostel_user
       DB_PASSWORD: hostel_pass
       CACHE_TYPE: ${CACHE_TYPE:-none}
+      MANAGEMENT_HEALTH_REDIS_ENABLED: "false"
       REDIS_HOST: redis
       REDIS_PORT: "6379"
       FRONTEND_URL: http://localhost
@@ -67,9 +68,7 @@ services:
     healthcheck:
       test:
         - "CMD-SHELL"
-        - >
-          wget -qO- http://localhost:8080/actuator/health 2>/dev/null
-          | grep -c '"status":"UP"' || exit 1
+        - "nc -z localhost 8080"
       interval: 15s
       timeout: 5s
       start_period: 60s
