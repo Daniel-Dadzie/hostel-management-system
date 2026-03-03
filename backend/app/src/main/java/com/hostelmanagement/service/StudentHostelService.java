@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +34,7 @@ public class StudentHostelService {
     this.studentRepository = studentRepository;
   }
 
+  @Cacheable("active-hostels")
   @Transactional(readOnly = true)
   public List<HostelResponse> listActiveHostels() {
     return hostelRepository.findByActiveTrue().stream()
@@ -45,6 +47,7 @@ public class StudentHostelService {
         .toList();
   }
 
+  @Cacheable(value = "available-rooms", key = "#hostelId + '-' + #studentId")
   @Transactional(readOnly = true)
   public List<RoomResponse> listAvailableRooms(Long studentId, Long hostelId) {
     Long requiredStudentId = Objects.requireNonNull(studentId, "studentId is required");

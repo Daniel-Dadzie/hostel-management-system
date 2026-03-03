@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,6 +53,7 @@ public class BookingService {
     this.holdMinutes = holdMinutes;
   }
 
+  @CacheEvict(value = "available-rooms", allEntries = true)
   @Transactional
   public BookingResponse apply(Long studentId, ApplyRequest request) {
     Long requiredStudentId = Objects.requireNonNull(studentId, "studentId is required");
@@ -171,6 +173,7 @@ public class BookingService {
     return new BookingResponse(booking.getId(), booking.getStatus(), hostelName, roomNumber, dueAt);
   }
 
+  @CacheEvict(value = "available-rooms", allEntries = true)
   @Transactional
   public Booking updateStatus(Long bookingId, BookingStatus status) {
     Long requiredBookingId = Objects.requireNonNull(bookingId, "bookingId is required");
@@ -211,6 +214,7 @@ public class BookingService {
     return bookingRepository.save(booking);
   }
 
+  @CacheEvict(value = "available-rooms", allEntries = true)
   @Transactional
   public int expirePendingPayments(Instant cutoff) {
     List<Booking> expired = bookingRepository.findByStatusAndCreatedAtBefore(BookingStatus.PENDING_PAYMENT, cutoff);

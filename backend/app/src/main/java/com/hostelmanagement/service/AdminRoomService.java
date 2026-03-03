@@ -1,16 +1,19 @@
 package com.hostelmanagement.service;
 
-import com.hostelmanagement.domain.Hostel;
+import java.util.List;
+import java.util.Objects;
+
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.hostelmanagement.domain.Gender;
+import com.hostelmanagement.domain.Hostel;
 import com.hostelmanagement.domain.Room;
 import com.hostelmanagement.repository.HostelRepository;
 import com.hostelmanagement.repository.RoomRepository;
 import com.hostelmanagement.web.admin.dto.UpsertRoomRequest;
 import com.hostelmanagement.web.dto.RoomResponse;
-import java.util.List;
-import java.util.Objects;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AdminRoomService {
@@ -30,6 +33,7 @@ public class AdminRoomService {
     return rooms.stream().map(AdminRoomService::toDto).toList();
   }
 
+  @CacheEvict(value = "available-rooms", allEntries = true)
   @Transactional
   public RoomResponse create(UpsertRoomRequest request) {
     Long requiredHostelId = Objects.requireNonNull(request.hostelId(), "hostelId is required");
@@ -61,6 +65,7 @@ public class AdminRoomService {
     return toDto(saved);
   }
 
+  @CacheEvict(value = "available-rooms", allEntries = true)
   @Transactional
   public RoomResponse update(Long id, UpsertRoomRequest request) {
     Room r = roomRepository.findByIdWithHostel(id).orElseThrow(() -> new IllegalArgumentException("Room not found"));
@@ -105,6 +110,7 @@ public class AdminRoomService {
     return toDto(roomRepository.save(r));
   }
 
+  @CacheEvict(value = "available-rooms", allEntries = true)
   @Transactional
   public void delete(Long id) {
     Room r = roomRepository.findByIdWithHostel(id).orElseThrow(() -> new IllegalArgumentException("Room not found"));

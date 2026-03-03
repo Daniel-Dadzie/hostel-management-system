@@ -2,6 +2,8 @@ package com.hostelmanagement.service;
 
 import java.util.List;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +35,7 @@ public class AdminHostelService {
     return hostels.stream().map(AdminHostelService::toDto).toList();
   }
 
+  @CacheEvict(value = "active-hostels", allEntries = true)
   @Transactional
   public HostelResponse create(UpsertHostelRequest request) {
     Hostel h = new Hostel();
@@ -46,6 +49,7 @@ public class AdminHostelService {
     return toDto(hostelRepository.save(h));
   }
 
+  @CacheEvict(value = "active-hostels", allEntries = true)
   @Transactional
   public HostelResponse update(Long id, UpsertHostelRequest request) {
     Hostel h = hostelRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Hostel not found"));
@@ -57,6 +61,10 @@ public class AdminHostelService {
     return toDto(hostelRepository.save(h));
   }
 
+  @Caching(evict = {
+      @CacheEvict(value = "active-hostels", allEntries = true),
+      @CacheEvict(value = "available-rooms", allEntries = true)
+  })
   @Transactional
   public void deactivate(Long id) {
     Hostel h = hostelRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Hostel not found"));
