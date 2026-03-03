@@ -8,14 +8,14 @@ services:
     ports:
       - "${MYSQL_HOST_PORT:-3307}:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: rootpass
-      MYSQL_DATABASE: hostel_db
-      MYSQL_USER: hostel_user
-      MYSQL_PASSWORD: hostel_pass
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD in your shell or .env}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-hostel_db}
+      MYSQL_USER: ${MYSQL_USER:-hostel_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD in your shell or .env}
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-prootpass"]
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD"]
       interval: 5s
       timeout: 3s
       retries: 20
@@ -50,9 +50,9 @@ services:
       mysql:
         condition: service_healthy
     environment:
-      DB_URL: jdbc:mysql://mysql:3306/hostel_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-      DB_USERNAME: hostel_user
-      DB_PASSWORD: hostel_pass
+      DB_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE:-hostel_db}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      DB_USERNAME: ${MYSQL_USER:-hostel_user}
+      DB_PASSWORD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD in your shell or .env}
       CACHE_TYPE: ${CACHE_TYPE:-none}
       MANAGEMENT_HEALTH_REDIS_ENABLED: "false"
       REDIS_HOST: redis

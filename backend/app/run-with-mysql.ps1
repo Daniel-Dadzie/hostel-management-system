@@ -8,7 +8,10 @@ if (-not $env:DB_USERNAME) {
 	$env:DB_USERNAME = "root"
 }
 if (-not $env:DB_PASSWORD) {
-	$env:DB_PASSWORD = "Ubuntu"
+	$secure = Read-Host "Enter MySQL password for DB user '$($env:DB_USERNAME)'" -AsSecureString
+	$bstr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
+	$env:DB_PASSWORD = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($bstr)
+	[System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr)
 }
 
 if (-not $env:SERVER_PORT) {

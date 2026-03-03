@@ -28,7 +28,7 @@ docker compose up -d
 If `docker compose` is not available, or you prefer not to use Compose:
 
 ```powershell
-docker run -d --name hostel-mysql -e MYSQL_ROOT_PASSWORD=rootpass -e MYSQL_DATABASE=hostel_db -e MYSQL_USER=hostel_user -e MYSQL_PASSWORD=hostel_pass -p 3306:3306 mysql:8.4
+docker run -d --name hostel-mysql -e MYSQL_ROOT_PASSWORD=<set-root-password> -e MYSQL_DATABASE=hostel_db -e MYSQL_USER=hostel_user -e MYSQL_PASSWORD=<set-app-password> -p 3306:3306 mysql:8.4
 ```
 
 Note: Docker Desktop / the Docker daemon must be running.
@@ -36,7 +36,7 @@ Note: Docker Desktop / the Docker daemon must be running.
 This starts MySQL on `127.0.0.1:3306` with:
 - Database: `hostel_db`
 - Username: `hostel_user`
-- Password: `hostel_pass`
+- Password: `<set-app-password>`
 
 ### Option B: Use an existing MySQL install
 
@@ -50,7 +50,7 @@ PowerShell example:
 ```powershell
 $env:DB_URL='jdbc:mysql://localhost:3306/hostel_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC'
 $env:DB_USERNAME='hostel_user'
-$env:DB_PASSWORD='hostel_pass'
+$env:DB_PASSWORD='<set-app-password>'
 $env:JWT_SECRET='change-me-in-env-please-change-me-32-chars-min'
 $env:FRONTEND_URL='http://localhost:5173'
 ```
