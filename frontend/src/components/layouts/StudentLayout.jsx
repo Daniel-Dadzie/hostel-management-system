@@ -1,15 +1,17 @@
 import { Link, NavLink, Outlet } from 'react-router-dom';
-import { FaBed, FaChartBar, FaCreditCard, FaHome, FaSignOutAlt, FaUser, FaWrench } from 'react-icons/fa';
+import { FaBed, FaBuilding, FaChartBar, FaCreditCard, FaExclamationCircle, FaHome, FaSignOutAlt, FaUser, FaWrench } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext.jsx';
 import ThemeToggle from '../ThemeToggle.jsx';
 import UserAvatar from '../UserAvatar.jsx';
 
 const navItems = [
   { to: '/student', label: 'Dashboard', icon: FaChartBar },
+  { to: '/student/hostels', label: 'Browse Hostels', icon: FaBuilding },
   { to: '/student/apply', label: 'Apply for Hostel', icon: FaHome },
   { to: '/student/preferences', label: 'Room Preferences', icon: FaWrench },
   { to: '/student/booking', label: 'My Booking', icon: FaBed },
   { to: '/student/payments', label: 'My Payments', icon: FaCreditCard },
+  { to: '/student/complaints', label: 'Complaints', icon: FaExclamationCircle },
   { to: '/student/profile', label: 'Profile', icon: FaUser }
 ];
 
@@ -21,11 +23,11 @@ export default function StudentLayout() {
       {/* Header */}
       <header className="sticky top-0 z-50 border-b border-neutral-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/85 dark:border-neutral-800 dark:bg-surface-dark/95 dark:supports-[backdrop-filter]:bg-surface-dark/85">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3">
-          <Link to="/student" className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-700 text-sm font-bold text-white shadow-sm">
+          <Link to="/student" className="flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 text-sm font-bold text-white shadow-md ring-1 ring-white/20">
               H
             </div>
-            <span className="text-base font-semibold text-neutral-900 dark:text-white sm:text-lg">Student Portal</span>
+            <span className="text-base font-bold tracking-tight text-neutral-900 dark:text-white sm:text-[17px]">Student Portal</span>
           </Link>
           <div className="flex w-full items-center justify-end gap-2 sm:w-auto sm:gap-4">
             <div className="flex items-center gap-2">
@@ -59,10 +61,10 @@ export default function StudentLayout() {
                   to={item.to}
                   end={item.to === '/student'}
                   className={({ isActive }) =>
-                    `inline-flex min-w-max items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200 md:flex md:px-4 md:py-2.5 ${
+                    `inline-flex min-w-max items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 md:flex md:px-4 md:py-2.5 ${
                       isActive
-                        ? 'bg-primary-50 text-primary-700 shadow-sm dark:bg-primary-900/20 dark:text-primary-300'
-                        : 'text-neutral-600 hover:bg-neutral-100 hover:shadow-sm dark:text-neutral-300 dark:hover:bg-neutral-900'
+                        ? 'bg-primary-50 font-semibold text-primary-700 ring-1 ring-primary-200/80 dark:bg-primary-900/25 dark:text-primary-300 dark:ring-primary-800/40'
+                        : 'text-neutral-500 hover:bg-neutral-100/80 hover:text-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-800/60 dark:hover:text-neutral-200'
                     }`
                   }
                 >
@@ -76,7 +78,7 @@ export default function StudentLayout() {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-4 sm:p-6">
+        <main className="flex-1 animate-fade-in p-4 sm:p-6">
           <Outlet />
         </main>
       </div>

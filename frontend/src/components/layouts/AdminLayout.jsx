@@ -30,11 +30,11 @@ export default function AdminLayout() {
       {/* Header */}
       <header className="sticky top-0 z-50 border-b border-neutral-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/85 dark:border-neutral-800 dark:bg-surface-dark/95 dark:supports-[backdrop-filter]:bg-surface-dark/85">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3">
-          <Link to="/admin" className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-800 text-sm font-bold text-white shadow-sm">
+          <Link to="/admin" className="flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-primary-800 text-sm font-bold text-white shadow-md ring-1 ring-white/20">
               H
             </div>
-            <span className="text-base font-semibold text-neutral-900 dark:text-white sm:text-lg">Admin Portal</span>
+            <span className="text-base font-bold tracking-tight text-neutral-900 dark:text-white sm:text-[17px]">Admin Portal</span>
           </Link>
           <div className="flex w-full items-center justify-end gap-2 sm:w-auto sm:gap-4">
             <span className="hidden rounded-full bg-accent-100 px-2 py-0.5 text-xs font-medium text-accent-900 dark:bg-accent-900/30 dark:text-accent-200 sm:inline-flex">
@@ -71,10 +71,10 @@ export default function AdminLayout() {
                   to={item.to}
                   end={item.to === '/admin'}
                   className={({ isActive }) =>
-                    `inline-flex min-w-max items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200 md:flex md:px-4 md:py-2.5 ${
+                    `inline-flex min-w-max items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 md:flex md:px-4 md:py-2.5 ${
                       isActive
-                        ? 'bg-primary-50 text-primary-700 shadow-sm dark:bg-primary-900/20 dark:text-primary-300'
-                        : 'text-neutral-600 hover:bg-neutral-100 hover:shadow-sm dark:text-neutral-300 dark:hover:bg-neutral-900'
+                        ? 'bg-primary-50 font-semibold text-primary-700 ring-1 ring-primary-200/80 dark:bg-primary-900/25 dark:text-primary-300 dark:ring-primary-800/40'
+                        : 'text-neutral-500 hover:bg-neutral-100/80 hover:text-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-800/60 dark:hover:text-neutral-200'
                     }`
                   }
                 >
@@ -88,7 +88,7 @@ export default function AdminLayout() {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-4 sm:p-6">
+        <main className="flex-1 animate-fade-in p-4 sm:p-6">
           <Outlet />
         </main>
       </div>

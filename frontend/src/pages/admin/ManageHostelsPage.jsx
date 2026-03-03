@@ -1,15 +1,16 @@
 import { useEffect, useState } from 'react';
-import { FaEdit, FaPencilAlt, FaTimes } from 'react-icons/fa';
+import { FaPencilAlt, FaTimes } from 'react-icons/fa';
 import { createHostel, listHostels, updateHostel } from '../../services/hostelService.js';
 
 export default function ManageHostelsPage() {
   const [hostels, setHostels] = useState([]);
   const [search, setSearch] = useState('');
+  const [sortBy, setSortBy] = useState('distance-asc');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingHostel, setEditingHostel] = useState(null);
-  const [form, setForm] = useState({ name: '', location: '', active: true });
+  const [form, setForm] = useState({ name: '', location: '', distanceToCampusKm: '', imageUrl: '', active: true });
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -33,14 +34,25 @@ export default function ManageHostelsPage() {
     setError('');
 
     try {
+      const payload = {
+        name: form.name,
+        location: form.location,
+        active: form.active,
+        imageUrl: form.imageUrl.trim() || null,
+        distanceToCampusKm:
+          form.distanceToCampusKm === '' || form.distanceToCampusKm == null
+            ? null
+            : Number(form.distanceToCampusKm)
+      };
+
       if (editingHostel) {
-        await updateHostel(editingHostel.id, form);
+        await updateHostel(editingHostel.id, payload);
         setEditingHostel(null);
       } else {
-        await createHostel(form);
+        await createHostel(payload);
         setShowForm(false);
       }
-      setForm({ name: '', location: '', active: true });
+      setForm({ name: '', location: '', distanceToCampusKm: '', imageUrl: '', active: true });
       loadHostels();
     } catch (err) {
       setError(err.message);
@@ -54,6 +66,11 @@ export default function ManageHostelsPage() {
     setForm({
       name: hostel.name,
       location: hostel.location || '',
+      distanceToCampusKm:
+        hostel.distanceToCampusKm === null || hostel.distanceToCampusKm === undefined
+          ? ''
+          : String(hostel.distanceToCampusKm),
+      imageUrl: hostel.imageUrl || '',
       active: hostel.active
     });
     setShowForm(false);
@@ -61,7 +78,7 @@ export default function ManageHostelsPage() {
 
   function cancelEdit() {
     setEditingHostel(null);
-    setForm({ name: '', location: '', active: true });
+    setForm({ name: '', location: '', distanceToCampusKm: '', imageUrl: '', active: true });
   }
 
   async function toggleActive(hostel) {
@@ -69,6 +86,8 @@ export default function ManageHostelsPage() {
       await updateHostel(hostel.id, {
         name: hostel.name,
         location: hostel.location,
+        distanceToCampusKm: hostel.distanceToCampusKm ?? null,
+        imageUrl: hostel.imageUrl || null,
         active: !hostel.active
       });
       loadHostels();
@@ -82,9 +101,41 @@ export default function ManageHostelsPage() {
     if (!query) return true;
     return (
       hostel.name?.toLowerCase().includes(query) ||
-      hostel.location?.toLowerCase().includes(query)
+      hostel.location?.toLowerCase().includes(query) ||
+      String(hostel.distanceToCampusKm ?? '').toLowerCase().includes(query)
     );
   });
+
+  const sortedHostels = [...filteredHostels].sort((a, b) => {
+    if (sortBy === 'distance-asc') {
+      const distanceA = a.distanceToCampusKm == null ? Number.POSITIVE_INFINITY : Number(a.distanceToCampusKm);
+      const distanceB = b.distanceToCampusKm == null ? Number.POSITIVE_INFINITY : Number(b.distanceToCampusKm);
+      return distanceA - distanceB;
+    }
+
+    if (sortBy === 'distance-desc') {
+      const distanceA = a.distanceToCampusKm == null ? Number.NEGATIVE_INFINITY : Number(a.distanceToCampusKm);
+      const distanceB = b.distanceToCampusKm == null ? Number.NEGATIVE_INFINITY : Number(b.distanceToCampusKm);
+      return distanceB - distanceA;
+    }
+
+    if (sortBy === 'name-asc') {
+      return (a.name || '').localeCompare(b.name || '');
+    }
+
+    if (sortBy === 'name-desc') {
+      return (b.name || '').localeCompare(a.name || '');
+    }
+
+    return 0;
+  });
+
+  let submitLabel = 'Save Hostel';
+  if (saving) {
+    submitLabel = 'Saving...';
+  } else if (editingHostel) {
+    submitLabel = 'Update Hostel';
+  }
 
   if (loading) {
     return (
@@ -163,6 +214,45 @@ export default function ManageHostelsPage() {
                   onChange={(e) => setForm({ ...form, location: e.target.value })}
                 />
               </div>
+              <div>
+                <label htmlFor="hostel-distance" className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                  Distance to Campus (km)
+                </label>
+                <input
+                  id="hostel-distance"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  className="input-field"
+                  placeholder="e.g., 1.50"
+                  value={form.distanceToCampusKm}
+                  onChange={(e) => setForm({ ...form, distanceToCampusKm: e.target.value })}
+                />
+              </div>
+            </div>
+            <div>
+              <label htmlFor="hostel-image-url" className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                Photo URL <span className="font-normal text-neutral-400">(optional — paste a direct image link)</span>
+              </label>
+              <input
+                id="hostel-image-url"
+                type="url"
+                className="input-field"
+                placeholder="https://example.com/hostel-photo.jpg"
+                value={form.imageUrl}
+                onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
+              />
+              {form.imageUrl.trim() && (
+                <div className="mt-2 flex items-center gap-3">
+                  <img
+                    src={form.imageUrl.trim()}
+                    alt="Preview"
+                    className="h-16 w-24 rounded-lg object-cover"
+                    onError={(ev) => { ev.currentTarget.style.display = 'none'; }}
+                  />
+                  <p className="body-text text-neutral-500 dark:text-neutral-400">Preview</p>
+                </div>
+              )}
             </div>
             <div className="flex items-center gap-2">
               <input
@@ -178,7 +268,7 @@ export default function ManageHostelsPage() {
             </div>
             <div className="flex gap-3">
               <button type="submit" className="btn-primary" disabled={saving}>
-                {saving ? 'Saving...' : editingHostel ? 'Update Hostel' : 'Save Hostel'}
+                {submitLabel}
               </button>
               {editingHostel && (
                 <button type="button" onClick={cancelEdit} className="btn-ghost">
@@ -194,12 +284,25 @@ export default function ManageHostelsPage() {
         <div className="card">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <h2 className="card-header text-neutral-900 dark:text-white">Hostel List</h2>
-            <input
-              className="input-field sm:max-w-sm"
-              placeholder="Search by name or location"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <input
+                className="input-field sm:max-w-sm"
+                placeholder="Search by name, location, or distance"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+              <select
+                className="input-field sm:w-52"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                aria-label="Sort hostels"
+              >
+                <option value="distance-asc">Distance: Nearest first</option>
+                <option value="distance-desc">Distance: Farthest first</option>
+                <option value="name-asc">Name: A to Z</option>
+                <option value="name-desc">Name: Z to A</option>
+              </select>
+            </div>
           </div>
         </div>
       )}
@@ -218,7 +321,7 @@ export default function ManageHostelsPage() {
       ) : (
         <div className="space-y-4">
           <div className="grid gap-3 md:hidden">
-            {filteredHostels.map((hostel) => (
+            {sortedHostels.map((hostel) => (
               <div key={hostel.id} className="card space-y-2">
                 <div className="flex items-center justify-between gap-3">
                   <p className="font-medium text-neutral-900 dark:text-white">{hostel.name}</p>
@@ -233,6 +336,7 @@ export default function ManageHostelsPage() {
                   </span>
                 </div>
                 <p className="body-text text-neutral-600 dark:text-neutral-300">Location: {hostel.location || '-'}</p>
+                <p className="body-text text-neutral-600 dark:text-neutral-300">Distance: {hostel.distanceToCampusKm ?? '-'} km</p>
                 <p className="body-text text-neutral-600 dark:text-neutral-300">Rooms: {hostel.totalRooms || 0}</p>
                 <div className="flex gap-2">
                   <button
@@ -263,16 +367,18 @@ export default function ManageHostelsPage() {
               <tr className="border-b border-neutral-200 dark:border-neutral-700">
                 <th className="px-3 py-2 text-left font-semibold text-neutral-800 dark:text-neutral-100">Name</th>
                 <th className="px-3 py-2 text-left font-semibold text-neutral-800 dark:text-neutral-100">Location</th>
+                <th className="px-3 py-2 text-left font-semibold text-neutral-800 dark:text-neutral-100">Distance (km)</th>
                 <th className="px-3 py-2 text-left font-semibold text-neutral-800 dark:text-neutral-100">Rooms</th>
                 <th className="px-3 py-2 text-left font-semibold text-neutral-800 dark:text-neutral-100">Status</th>
                 <th className="px-3 py-2 text-left font-semibold text-neutral-800 dark:text-neutral-100">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {filteredHostels.map((hostel) => (
+              {sortedHostels.map((hostel) => (
                 <tr key={hostel.id} className="border-b border-neutral-100 dark:border-neutral-800">
                   <td className="px-3 py-2 font-medium text-neutral-900 dark:text-white">{hostel.name}</td>
                   <td className="px-3 py-2 text-neutral-600 dark:text-neutral-300">{hostel.location || '-'}</td>
+                  <td className="px-3 py-2 text-neutral-600 dark:text-neutral-300">{hostel.distanceToCampusKm ?? '-'}</td>
                   <td className="px-3 py-2 text-neutral-600 dark:text-neutral-300">{hostel.totalRooms || 0}</td>
                   <td className="px-3 py-2">
                     <span

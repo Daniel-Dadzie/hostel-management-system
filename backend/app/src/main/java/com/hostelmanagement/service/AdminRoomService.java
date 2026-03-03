@@ -1,12 +1,14 @@
 package com.hostelmanagement.service;
 
 import com.hostelmanagement.domain.Hostel;
+import com.hostelmanagement.domain.Gender;
 import com.hostelmanagement.domain.Room;
 import com.hostelmanagement.repository.HostelRepository;
 import com.hostelmanagement.repository.RoomRepository;
 import com.hostelmanagement.web.admin.dto.UpsertRoomRequest;
 import com.hostelmanagement.web.dto.RoomResponse;
 import java.util.List;
+import java.util.Objects;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,10 +32,14 @@ public class AdminRoomService {
 
   @Transactional
   public RoomResponse create(UpsertRoomRequest request) {
+    Long requiredHostelId = Objects.requireNonNull(request.hostelId(), "hostelId is required");
+
     Hostel hostel =
         hostelRepository
-            .findById(request.hostelId())
+        .findById(requiredHostelId)
             .orElseThrow(() -> new IllegalArgumentException("Hostel not found"));
+
+    validateFloorGenderConsistency(hostel.getId(), request.floorNumber(), request.roomGender(), null);
 
     Room r = new Room();
     r.setHostel(hostel);
@@ -63,13 +69,19 @@ public class AdminRoomService {
       throw new IllegalArgumentException("Capacity cannot be less than current occupancy");
     }
 
+    Long requiredHostelId = Objects.requireNonNull(request.hostelId(), "hostelId is required");
+
     Hostel currentHostel = r.getHostel();
-    if (!currentHostel.getId().equals(request.hostelId())) {
+    Long targetHostelId = requiredHostelId;
+    int targetFloorNumber = request.floorNumber();
+
+    if (!currentHostel.getId().equals(requiredHostelId)) {
       Hostel newHostel =
           hostelRepository
-              .findById(request.hostelId())
+          .findById(requiredHostelId)
               .orElseThrow(() -> new IllegalArgumentException("Hostel not found"));
       r.setHostel(newHostel);
+      targetHostelId = newHostel.getId();
 
       currentHostel.setTotalRooms(Math.max(0, currentHostel.getTotalRooms() - 1));
       hostelRepository.save(currentHostel);
@@ -77,6 +89,8 @@ public class AdminRoomService {
       newHostel.setTotalRooms(newHostel.getTotalRooms() + 1);
       hostelRepository.save(newHostel);
     }
+
+    validateFloorGenderConsistency(targetHostelId, targetFloorNumber, request.roomGender(), r.getId());
 
     r.setRoomNumber(request.roomNumber());
     r.setCapacity(request.capacity());
@@ -122,5 +136,21 @@ public class AdminRoomService {
         r.getStatus(),
         r.getPrice(),
         r.getFloorNumber());
+  }
+
+  private void validateFloorGenderConsistency(Long hostelId, int floorNumber, Gender roomGender, Long excludeRoomId) {
+    List<Room> sameFloorRooms = roomRepository.findByHostelIdAndFloorNumber(hostelId, floorNumber);
+
+    for (Room existingRoom : sameFloorRooms) {
+      if (excludeRoomId != null && excludeRoomId.equals(existingRoom.getId())) {
+        continue;
+      }
+
+      if (existingRoom.getRoomGender() != roomGender) {
+        throw new IllegalArgumentException(
+            "A floor must contain only one gender. Floor " + floorNumber + " is already assigned to "
+                + existingRoom.getRoomGender());
+      }
+    }
   }
 }

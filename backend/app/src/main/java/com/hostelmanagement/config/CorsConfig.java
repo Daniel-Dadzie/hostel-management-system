@@ -3,9 +3,11 @@ package com.hostelmanagement.config;
 import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -13,7 +15,10 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @Configuration
 public class CorsConfig {
 
-  @Value("${app.frontend-url:http://localhost:5173}")
+  @Autowired
+  private Environment springEnvironment;
+
+  @Value("${app.frontend-url:http://localhost:3000}")
   private String frontendUrl;
 
   @Value("${app.cors.allowed-origins:}")
@@ -57,16 +62,19 @@ public class CorsConfig {
   }
   
   private boolean isDevelopmentEnvironment() {
-    String env = System.getProperty("spring.profiles.active", "");
-    // Only allow development CORS origins when explicitly in dev/local mode
-    // Empty profile defaults to production for security
-    if (env.isEmpty()) {
-      return false;
+    String[] activeProfiles = springEnvironment.getActiveProfiles();
+    if (activeProfiles.length == 0) {
+      // Fall back to checking environment variable directly
+      String envVar = System.getenv("SPRING_PROFILES_ACTIVE");
+      if (envVar == null || envVar.isBlank()) {
+        return false;
+      }
+      return Arrays.stream(envVar.split(","))
+          .map(String::trim)
+          .map(String::toLowerCase)
+          .anyMatch(profile -> profile.contains("dev") || profile.contains("local"));
     }
-    // Split by comma for multiple profiles and check each one
-    // Use contains check to catch variations like "development", "dev-local", etc.
-    return Arrays.stream(env.split(","))
-        .map(String::trim)
+    return Arrays.stream(activeProfiles)
         .map(String::toLowerCase)
         .anyMatch(profile -> profile.contains("dev") || profile.contains("local"));
   }

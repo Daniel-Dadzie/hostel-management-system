@@ -1,6 +1,35 @@
 import { useEffect, useState } from 'react';
 import { listHostels } from '../../services/hostelService.js';
-import { createRoom, listRooms } from '../../services/roomService.js';
+import { createRoom, listRooms, updateRoom } from '../../services/roomService.js';
+
+function buildInitialForm(nextHostels) {
+  return {
+    hostelId: nextHostels[0]?.id || '',
+    roomNumber: '',
+    capacity: 2,
+    roomGender: 'MALE',
+    hasAc: false,
+    hasWifi: true,
+    mattressType: 'NORMAL',
+    price: '',
+    floorNumber: 1
+  };
+}
+
+function filterRooms(rooms, selectedHostel, selectedStatus, selectedGender, search) {
+  return rooms
+    .filter((room) => (selectedHostel === 'ALL' ? true : String(room.hostelId) === selectedHostel))
+    .filter((room) => (selectedStatus === 'ALL' ? true : room.status === selectedStatus))
+    .filter((room) => (selectedGender === 'ALL' ? true : room.roomGender === selectedGender))
+    .filter((room) => {
+      const query = search.trim().toLowerCase();
+      if (!query) return true;
+      return (
+        room.roomNumber?.toLowerCase().includes(query) ||
+        room.hostelName?.toLowerCase().includes(query)
+      );
+    });
+}
 
 export default function ManageRoomsPage() {
   const [rooms, setRooms] = useState([]);
@@ -12,6 +41,7 @@ export default function ManageRoomsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showForm, setShowForm] = useState(false);
+  const [editingRoom, setEditingRoom] = useState(null);
   const [form, setForm] = useState({
     hostelId: '',
     roomNumber: '',
@@ -39,7 +69,7 @@ export default function ManageRoomsPage() {
       // Show all hostels for room creation (not just active ones)
       const allHostels = Array.isArray(hostelsData) ? hostelsData : [];
       setHostels(allHostels);
-      if (allHostels.length > 0) {
+      if (!editingRoom && allHostels.length > 0) {
         setForm(prev => ({ ...prev, hostelId: allHostels[0].id }));
       }
     } catch (err) {
@@ -54,26 +84,24 @@ export default function ManageRoomsPage() {
     setSaving(true);
     setError('');
 
+    const payload = {
+      ...form,
+      hostelId: Number(form.hostelId),
+      capacity: Number.parseInt(form.capacity, 10),
+      price: Number.parseFloat(form.price) || 0,
+      floorNumber: Number.parseInt(form.floorNumber, 10)
+    };
+
     try {
-      await createRoom({
-        ...form,
-        hostelId: Number(form.hostelId),
-        capacity: Number.parseInt(form.capacity, 10),
-        price: Number.parseFloat(form.price) || 0,
-        floorNumber: Number.parseInt(form.floorNumber, 10)
-      });
+      if (editingRoom) {
+        await updateRoom(editingRoom.id, payload);
+      } else {
+        await createRoom(payload);
+      }
+
       setShowForm(false);
-      setForm({
-        hostelId: hostels[0]?.id || '',
-        roomNumber: '',
-        capacity: 2,
-        roomGender: 'MALE',
-        hasAc: false,
-        hasWifi: true,
-        mattressType: 'NORMAL',
-        price: '',
-        floorNumber: 1
-      });
+      setEditingRoom(null);
+      setForm(buildInitialForm(hostels));
       loadData();
     } catch (err) {
       setError(err.message);
@@ -82,23 +110,71 @@ export default function ManageRoomsPage() {
     }
   }
 
+  function startEdit(room) {
+    setEditingRoom(room);
+    setShowForm(true);
+    setError('');
+    setForm({
+      hostelId: room.hostelId,
+      roomNumber: room.roomNumber || '',
+      capacity: room.capacity ?? 2,
+      roomGender: room.roomGender || 'MALE',
+      hasAc: Boolean(room.hasAc),
+      hasWifi: Boolean(room.hasWifi),
+      mattressType: room.mattressType || 'NORMAL',
+      price: room.price ?? '',
+      floorNumber: room.floorNumber ?? 1
+    });
+  }
+
+  function cancelEdit() {
+    setEditingRoom(null);
+    setShowForm(false);
+    setError('');
+    setForm(buildInitialForm(hostels));
+  }
+
   const statusColors = {
     AVAILABLE: 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400',
     FULL: 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
   };
 
-  const filteredRooms = rooms
-    .filter((room) => (selectedHostel === 'ALL' ? true : String(room.hostelId) === selectedHostel))
-    .filter((room) => (selectedStatus === 'ALL' ? true : room.status === selectedStatus))
-    .filter((room) => (selectedGender === 'ALL' ? true : room.roomGender === selectedGender))
-    .filter((room) => {
-      const query = search.trim().toLowerCase();
-      if (!query) return true;
-      return (
-        room.roomNumber?.toLowerCase().includes(query) ||
-        room.hostelName?.toLowerCase().includes(query)
-      );
-    });
+  const filteredRooms = filterRooms(rooms, selectedHostel, selectedStatus, selectedGender, search);
+
+  const selectedHostelId = form.hostelId ? Number(form.hostelId) : null;
+  const selectedFloorNumber = form.floorNumber ? Number(form.floorNumber) : null;
+
+  const floorRooms =
+    selectedHostelId == null || selectedFloorNumber == null
+      ? []
+      : rooms.filter(
+          (room) =>
+            room.hostelId === selectedHostelId &&
+            Number(room.floorNumber) === selectedFloorNumber &&
+            (!editingRoom || room.id !== editingRoom.id)
+        );
+
+  let floorAssignedGender = null;
+  if (floorRooms.length > 0) {
+    floorAssignedGender = floorRooms[0].roomGender || null;
+  }
+
+  const hasFloorGenderConflict =
+    floorAssignedGender != null && form.roomGender !== floorAssignedGender;
+
+  let toggleFormLabel = 'Add Room';
+  if (showForm && editingRoom) {
+    toggleFormLabel = 'Cancel Edit';
+  } else if (showForm) {
+    toggleFormLabel = 'Cancel';
+  }
+
+  let saveButtonLabel = 'Save Room';
+  if (saving) {
+    saveButtonLabel = 'Saving...';
+  } else if (editingRoom) {
+    saveButtonLabel = 'Update Room';
+  }
 
   if (loading) {
     return (
@@ -118,11 +194,17 @@ export default function ManageRoomsPage() {
           </p>
         </div>
         <button
-          onClick={() => setShowForm(!showForm)}
+          onClick={() => {
+            if (showForm && editingRoom) {
+              cancelEdit();
+              return;
+            }
+            setShowForm(!showForm);
+          }}
           className="btn-primary"
           disabled={hostels.length === 0}
         >
-          {showForm ? 'Cancel' : 'Add Room'}
+          {toggleFormLabel}
         </button>
       </div>
 
@@ -141,7 +223,9 @@ export default function ManageRoomsPage() {
       {/* Add Room Form */}
       {showForm && hostels.length > 0 && (
         <div className="card">
-          <h2 className="card-header mb-4 text-neutral-900 dark:text-white">Add New Room</h2>
+          <h2 className="card-header mb-4 text-neutral-900 dark:text-white">
+            {editingRoom ? `Edit Room ${editingRoom.roomNumber}` : 'Add New Room'}
+          </h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <div>
@@ -231,6 +315,20 @@ export default function ManageRoomsPage() {
                 />
               </div>
             </div>
+
+            {selectedHostelId != null && selectedFloorNumber != null ? (
+              <div
+                className={`rounded-lg p-3 text-sm ${
+                  hasFloorGenderConflict
+                    ? 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-300'
+                    : 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300'
+                }`}
+              >
+                {floorAssignedGender
+                  ? `Floor ${selectedFloorNumber} is currently ${floorAssignedGender}.`
+                  : `Floor ${selectedFloorNumber} has no rooms yet. You can set the gender for this floor.`}
+              </div>
+            ) : null}
             
             <div className="flex flex-wrap gap-4 sm:gap-6">
               <label className="flex items-center gap-2">
@@ -253,9 +351,14 @@ export default function ManageRoomsPage() {
               </label>
             </div>
 
-            <button type="submit" className="btn-primary" disabled={saving}>
-              {saving ? 'Saving...' : 'Save Room'}
+            <button type="submit" className="btn-primary" disabled={saving || hasFloorGenderConflict}>
+              {saveButtonLabel}
             </button>
+            {editingRoom ? (
+              <button type="button" className="btn-ghost ml-2" onClick={cancelEdit}>
+                Cancel
+              </button>
+            ) : null}
           </form>
         </div>
       )}
@@ -335,6 +438,13 @@ export default function ManageRoomsPage() {
                   {room.hasAc && <span className="rounded bg-accent-100 px-1.5 py-0.5 text-xs text-accent-900 dark:bg-accent-900/30 dark:text-accent-200">AC</span>}
                   {room.hasWifi && <span className="rounded bg-green-100 px-1.5 py-0.5 text-xs dark:bg-green-900/30">WiFi</span>}
                 </div>
+                <button
+                  type="button"
+                  className="btn-ghost mt-2"
+                  onClick={() => startEdit(room)}
+                >
+                  Edit
+                </button>
               </div>
             ))}
           </div>
@@ -350,6 +460,7 @@ export default function ManageRoomsPage() {
                 <th className="px-4 py-3 font-medium text-neutral-900 dark:text-white">Capacity</th>
                 <th className="px-4 py-3 font-medium text-neutral-900 dark:text-white">Status</th>
                 <th className="px-4 py-3 font-medium text-neutral-900 dark:text-white">Amenities</th>
+                <th className="px-4 py-3 font-medium text-neutral-900 dark:text-white">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-200 dark:divide-neutral-700">
@@ -372,6 +483,11 @@ export default function ManageRoomsPage() {
                       {room.hasAc && <span className="rounded bg-accent-100 px-1.5 py-0.5 text-xs text-accent-900 dark:bg-accent-900/30 dark:text-accent-200">AC</span>}
                       {room.hasWifi && <span className="rounded bg-green-100 px-1.5 py-0.5 text-xs dark:bg-green-900/30">WiFi</span>}
                     </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <button type="button" className="btn-ghost" onClick={() => startEdit(room)}>
+                      Edit
+                    </button>
                   </td>
                 </tr>
               ))}

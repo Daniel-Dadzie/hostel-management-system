@@ -13,3 +13,11 @@ export function createRoom(payload) {
     headers: getAuthHeaders()
   });
 }
+
+export function updateRoom(id, payload) {
+  return apiRequest(`/api/admin/rooms/${id}`, {
+    method: 'PUT',
+    body: payload,
+    headers: getAuthHeaders()
+  });
+}

@@ -15,6 +15,11 @@ if (-not $env:SERVER_PORT) {
 	$env:SERVER_PORT = "8081"
 }
 
+# Set Spring profile for development (enables CORS for localhost)
+if (-not $env:SPRING_PROFILES_ACTIVE) {
+	$env:SPRING_PROFILES_ACTIVE = "dev"
+}
+
 # Run the Spring Boot application
 Write-Host "Starting Hostel Management System with MySQL..."
 Write-Host "Database: hostel_db"

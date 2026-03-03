@@ -49,7 +49,7 @@ export default function RegisterPage() {
         gender: form.gender,
         password: form.password
       });
-      navigate('/student');
+      navigate('/student/hostels');
     } catch (err) {
       setError(err.message || 'Registration failed. Please try again.');
     } finally {
@@ -59,10 +59,13 @@ export default function RegisterPage() {
 
   return (
     <PublicLayout>
-      <div className="flex min-h-[70vh] items-center justify-center">
-        <div className="w-full max-w-md">
-          <div className="card">
-            <h2 className="page-title mb-6 text-center text-neutral-900 dark:text-white">
+      <div className="relative flex min-h-[70vh] items-center justify-center overflow-hidden">
+        <div className="pointer-events-none absolute -top-24 right-0 h-64 w-64 animate-float rounded-full bg-primary-100/50 blur-3xl dark:bg-primary-900/10" />
+        <div className="pointer-events-none absolute -bottom-24 left-0 h-64 w-64 animate-float-delayed rounded-full bg-amber-100/40 blur-3xl dark:bg-amber-900/10" />
+        <div className="relative z-10 w-full max-w-md">
+          <div className="card relative animate-scale-in overflow-hidden">
+            <div className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-primary-500 via-emerald-400 to-primary-600" />
+            <h2 className="page-title mb-6 mt-3 text-center text-neutral-900 dark:text-white">
               Create Account
             </h2>
 

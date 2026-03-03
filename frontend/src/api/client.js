@@ -1,4 +1,4 @@
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080').replace(/\/$/, '');
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081').replace(/\/$/, '');
 
 export { API_BASE_URL };
 
@@ -9,7 +9,8 @@ export async function apiRequest(path, { method = 'GET', body, headers } = {}) {
       'Content-Type': 'application/json',
       ...headers
     },
-    body: body ? JSON.stringify(body) : undefined
+    body: body ? JSON.stringify(body) : undefined,
+    credentials: 'include'
   });
 
   const payload = await response.json().catch(() => null);

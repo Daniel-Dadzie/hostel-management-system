@@ -66,9 +66,11 @@ export default function LandingPage() {
       {/* Navigation */}
       <nav className="sticky top-0 z-50 border-b border-neutral-200 bg-white/80 backdrop-blur-md dark:border-neutral-700 dark:bg-neutral-900/80">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-          <Link to="/" className="flex items-center gap-2">
-            <span className="text-2xl">🏠</span>
-            <span className="text-xl font-bold text-primary-700 dark:text-primary-400">
+          <Link to="/" className="flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-primary-800 text-sm font-bold text-white shadow-md ring-1 ring-white/20">
+              H
+            </div>
+            <span className="text-[17px] font-bold tracking-tight text-neutral-900 dark:text-white">
               UniHostel
             </span>
           </Link>
@@ -104,26 +106,28 @@ export default function LandingPage() {
       <section className="relative overflow-hidden py-20 sm:py-32">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h1 className="text-4xl font-bold tracking-tight text-neutral-900 dark:text-white sm:text-5xl lg:text-6xl">
-              Your Home Away From Home
+            <h1 className="animate-slide-up text-4xl font-bold tracking-tight text-neutral-900 dark:text-white sm:text-5xl lg:text-6xl">
+              Your Home{' '}
+              <span className="bg-gradient-to-r from-primary-600 via-primary-500 to-emerald-500 bg-clip-text text-transparent dark:from-primary-400 dark:via-primary-300 dark:to-emerald-400">
+                Away From Home
+              </span>
             </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-lg text-neutral-600 dark:text-neutral-300 sm:text-xl">
+            <p className="animate-slide-up delay-150 mx-auto mt-6 max-w-2xl text-lg text-neutral-600 dark:text-neutral-300 sm:text-xl">
               Experience comfortable and secure hostel accommodation designed for students. 
               Apply online, track your booking, and manage your stay all in one place.
             </p>
-            <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+            <div className="animate-slide-up delay-300 mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
               {!isAuthenticated && (
                 <>
                   <Link
                     to="/register"
-                    className="btn-primary inline-flex items-center gap-2 px-8 py-3 text-lg"
+                    className="btn-primary group inline-flex items-center gap-2.5 px-8 py-3.5 text-base shadow-lg shadow-primary-900/20"
                   >
-                    Apply for Hostel
-                    <span>→</span>
+                    {'Apply for Hostel'}<span className="transition-transform duration-200 group-hover:translate-x-1">{'→'}</span>
                   </Link>
                   <Link
                     to="/login"
-                    className="btn-ghost inline-flex items-center gap-2 px-8 py-3 text-lg"
+                    className="btn-ghost inline-flex items-center gap-2 px-7 py-3.5 text-base ring-1 ring-neutral-200 dark:ring-neutral-700"
                   >
                     Already have an account?
                   </Link>
@@ -132,19 +136,18 @@ export default function LandingPage() {
               {isAuthenticated && (
                 <Link
                   to={dashboardPath}
-                  className="btn-primary inline-flex items-center gap-2 px-8 py-3 text-lg"
+                  className="btn-primary group inline-flex items-center gap-2.5 px-8 py-3.5 text-base shadow-lg shadow-primary-900/20"
                 >
-                  Go to Dashboard
-                  <span>→</span>
+                  {'Go to Dashboard'}<span className="transition-transform duration-200 group-hover:translate-x-1">{'→'}</span>
                 </Link>
               )}
             </div>
           </div>
         </div>
 
-        {/* Decorative elements */}
-        <div className="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-primary-200/30 dark:bg-primary-900/20"></div>
-        <div className="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-accent-200/30 dark:bg-accent-900/20"></div>
+        {/* Decorative floating blobs */}
+        <div className="absolute -right-40 -top-40 h-96 w-96 animate-float rounded-full bg-primary-200/20 blur-3xl dark:bg-primary-900/15"></div>
+        <div className="absolute -bottom-40 -left-40 h-96 w-96 animate-float-delayed rounded-full bg-accent-200/20 blur-3xl dark:bg-accent-900/15"></div>
       </section>
 
       {/* Features Section */}
@@ -160,12 +163,12 @@ export default function LandingPage() {
           </div>
 
           <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {features.map((feature, index) => (
+            {features.map((feature) => (
               <div
-                key={index}
-                className="card group hover:border-primary-300 dark:hover:border-primary-700"
+                key={feature.title}
+                className="card group cursor-default hover:-translate-y-1.5 hover:border-primary-200 hover:shadow-xl dark:hover:border-primary-800 dark:hover:shadow-primary-900/20"
               >
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary-100 text-2xl dark:bg-primary-900/30">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-50 to-primary-100 text-2xl shadow-sm ring-1 ring-primary-200/60 transition-transform duration-300 group-hover:scale-110 dark:from-primary-900/30 dark:to-primary-900/50 dark:ring-primary-800/40">
                   {feature.icon}
                 </div>
                 <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">
@@ -193,9 +196,9 @@ export default function LandingPage() {
           </div>
 
           <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {steps.map((step, index) => (
-              <div key={index} className="relative text-center">
-                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary-700 text-xl font-bold text-white shadow-lg">
+            {steps.map((step, idx) => (
+              <div key={step.number} className="relative text-center">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-600 to-primary-800 text-xl font-bold text-white shadow-lg shadow-primary-900/25">
                   {step.number}
                 </div>
                 <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">
@@ -204,7 +207,7 @@ export default function LandingPage() {
                 <p className="mt-2 text-neutral-600 dark:text-neutral-300">
                   {step.description}
                 </p>
-                {index < steps.length - 1 && (
+                {idx < steps.length - 1 && (
                   <div className="absolute left-1/2 top-8 hidden h-0.5 w-full -translate-y-1/2 bg-primary-200 dark:bg-primary-800 lg:block"></div>
                 )}
               </div>
@@ -224,21 +227,19 @@ export default function LandingPage() {
             Start your application today and secure your spot.
           </p>
           <div className="mt-10">
-            {!isAuthenticated ? (
+            {isAuthenticated ? (
               <Link
-                to="/register"
-                className="inline-flex items-center gap-2 rounded-lg bg-white px-8 py-3 text-lg font-semibold text-primary-700 shadow-lg transition-all hover:bg-primary-50 hover:shadow-xl"
+                to={dashboardPath}
+                className="group inline-flex items-center gap-2.5 rounded-xl bg-white px-8 py-3.5 text-base font-bold text-primary-700 shadow-xl transition-all hover:-translate-y-0.5 hover:bg-primary-50 hover:shadow-2xl"
               >
-                Create Your Account
-                <span>→</span>
+                {'Go to Dashboard'}<span className="transition-transform duration-200 group-hover:translate-x-1">{'→'}</span>
               </Link>
             ) : (
               <Link
-                to={dashboardPath}
-                className="inline-flex items-center gap-2 rounded-lg bg-white px-8 py-3 text-lg font-semibold text-primary-700 shadow-lg transition-all hover:bg-primary-50 hover:shadow-xl"
+                to="/register"
+                className="group inline-flex items-center gap-2.5 rounded-xl bg-white px-8 py-3.5 text-base font-bold text-primary-700 shadow-xl transition-all hover:-translate-y-0.5 hover:bg-primary-50 hover:shadow-2xl"
               >
-                Go to Dashboard
-                <span>→</span>
+                {'Create Your Account'}<span className="transition-transform duration-200 group-hover:translate-x-1">{'→'}</span>
               </Link>
             )}
           </div>
@@ -249,9 +250,11 @@ export default function LandingPage() {
       <footer className="border-t border-neutral-200 bg-white py-12 dark:border-neutral-700 dark:bg-neutral-800">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col items-center justify-between gap-6 sm:flex-row">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl">🏠</span>
-              <span className="text-lg font-bold text-primary-700 dark:text-primary-400">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-primary-800 text-xs font-bold text-white">
+                H
+              </div>
+              <span className="text-[16px] font-bold tracking-tight text-neutral-900 dark:text-white">
                 UniHostel
               </span>
             </div>

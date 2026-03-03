@@ -1,20 +1,24 @@
 package com.hostelmanagement.repository;
 
-import com.hostelmanagement.domain.Gender;
-import com.hostelmanagement.domain.Room;
-import com.hostelmanagement.domain.RoomStatus;
 import java.util.List;
 import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+import com.hostelmanagement.domain.Gender;
+import com.hostelmanagement.domain.Room;
+import com.hostelmanagement.domain.RoomStatus;
 
 import jakarta.persistence.LockModeType;
 
 public interface RoomRepository extends JpaRepository<Room, Long> {
 
   List<Room> findByHostelId(Long hostelId);
+
+    List<Room> findByHostelIdAndFloorNumber(Long hostelId, int floorNumber);
 
   @Query(
       "SELECT r FROM Room r "
@@ -39,6 +43,23 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
 
   @Query("SELECT r FROM Room r JOIN FETCH r.hostel h WHERE h.id = :hostelId")
   List<Room> findByHostelIdWithHostel(@Param("hostelId") Long hostelId);
+
+  @Query(
+      "SELECT r FROM Room r JOIN FETCH r.hostel h "
+          + "WHERE h.id = :hostelId "
+          + "AND h.active = true "
+          + "AND r.status = com.hostelmanagement.domain.RoomStatus.AVAILABLE "
+          + "AND r.currentOccupancy < r.capacity")
+  List<Room> findAvailableByHostelIdWithHostel(@Param("hostelId") Long hostelId);
+
+  @Query(
+      "SELECT r FROM Room r JOIN FETCH r.hostel h "
+          + "WHERE h.id = :hostelId "
+          + "AND h.active = true "
+          + "AND r.roomGender = :gender "
+          + "AND r.status = com.hostelmanagement.domain.RoomStatus.AVAILABLE "
+          + "AND r.currentOccupancy < r.capacity")
+  List<Room> findAvailableByHostelIdAndGenderWithHostel(@Param("hostelId") Long hostelId, @Param("gender") Gender gender);
 
   @Query("SELECT r FROM Room r JOIN FETCH r.hostel h WHERE r.id = :id")
   Optional<Room> findByIdWithHostel(@Param("id") Long id);

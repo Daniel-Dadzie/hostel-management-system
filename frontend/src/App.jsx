@@ -13,11 +13,15 @@ import RegisterPage from './pages/RegisterPage.jsx';
 
 // Student Pages
 import StudentDashboard from './pages/student/StudentDashboard.jsx';
+import HostelListPage from './pages/student/HostelListPage.jsx';
+import HostelFloorsPage from './pages/student/HostelFloorsPage.jsx';
+import HostelRoomsPage from './pages/student/HostelRoomsPage.jsx';
 import ApplyHostelPage from './pages/student/ApplyHostelPage.jsx';
 import RoomPreferencesPage from './pages/student/RoomPreferencesPage.jsx';
 import MyBookingPage from './pages/student/MyBookingPage.jsx';
 import MyPaymentsPage from './pages/student/MyPaymentsPage.jsx';
 import ProfilePage from './pages/student/ProfilePage.jsx';
+import ComplaintsPage from './pages/student/ComplaintsPage.jsx';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard.jsx';
@@ -60,10 +64,14 @@ export default function App() {
           }
         >
           <Route index element={<StudentDashboard />} />
+          <Route path="hostels" element={<HostelListPage />} />
+          <Route path="hostels/:hostelId/floors" element={<HostelFloorsPage />} />
+          <Route path="hostels/:hostelId/floors/:floorNumber/rooms" element={<HostelRoomsPage />} />
           <Route path="apply" element={<ApplyHostelPage />} />
           <Route path="preferences" element={<RoomPreferencesPage />} />
           <Route path="booking" element={<MyBookingPage />} />
           <Route path="payments" element={<MyPaymentsPage />} />
+          <Route path="complaints" element={<ComplaintsPage />} />
           <Route path="profile" element={<ProfilePage />} />
         </Route>
 

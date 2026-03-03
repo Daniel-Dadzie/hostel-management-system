@@ -1,17 +1,30 @@
 package com.hostelmanagement.service;
 
-import com.hostelmanagement.domain.*;
-import com.hostelmanagement.repository.*;
-import com.hostelmanagement.web.dto.ApplyRequest;
-import com.hostelmanagement.web.dto.BookingResponse;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.hostelmanagement.domain.Booking;
+import com.hostelmanagement.domain.BookingStatus;
+import com.hostelmanagement.domain.Payment;
+import com.hostelmanagement.domain.PaymentStatus;
+import com.hostelmanagement.domain.Room;
+import com.hostelmanagement.domain.RoomStatus;
+import com.hostelmanagement.domain.Student;
+import com.hostelmanagement.repository.BookingRepository;
+import com.hostelmanagement.repository.HostelRepository;
+import com.hostelmanagement.repository.PaymentRepository;
+import com.hostelmanagement.repository.RoomRepository;
+import com.hostelmanagement.repository.StudentRepository;
+import com.hostelmanagement.web.dto.ApplyRequest;
+import com.hostelmanagement.web.dto.BookingResponse;
 
 @Service
 public class BookingService {
@@ -41,15 +54,20 @@ public class BookingService {
 
   @Transactional
   public BookingResponse apply(Long studentId, ApplyRequest request) {
+    Long requiredStudentId = Objects.requireNonNull(studentId, "studentId is required");
+    Long requiredHostelId = Objects.requireNonNull(request.hostelId(), "hostelId is required");
+    Integer requiredFloorNumber = Objects.requireNonNull(request.floorNumber(), "floorNumber is required");
+    Long requiredRoomId = Objects.requireNonNull(request.roomId(), "roomId is required");
+
     Student student =
         studentRepository
-            .findById(studentId)
+        .findById(requiredStudentId)
             .orElseThrow(() -> new IllegalArgumentException("Student not found"));
 
     // Enforce one active booking at a time
     var active =
         bookingRepository.findFirstByStudentIdAndStatusInOrderByIdDesc(
-            studentId,
+            requiredStudentId,
             List.of(
                 BookingStatus.PENDING_PAYMENT,
                 BookingStatus.APPROVED));
@@ -57,18 +75,49 @@ public class BookingService {
       throw new IllegalArgumentException("Student already has an active booking");
     }
 
-    Room allocated = allocateRoom(student, request);
-    if (allocated == null) {
-      Booking rejected = new Booking();
-      rejected.setStudent(student);
-      rejected.setStatus(BookingStatus.REJECTED);
-      rejected.setSpecialRequests(request.specialRequests());
-      Booking saved = bookingRepository.save(rejected);
-      return new BookingResponse(saved.getId(), saved.getStatus(), null, null, null);
+    var hostelOpt = hostelRepository.findById(requiredHostelId);
+    if (hostelOpt.isEmpty() || !hostelOpt.get().isActive()) {
+      throw new IllegalArgumentException("Selected hostel is not available");
     }
 
-    // Lock & update occupancy safely
-    Room locked = roomRepository.findByIdForUpdate(allocated.getId());
+    // Lock selected room and validate the exact student choice
+    Room locked = roomRepository.findByIdForUpdate(requiredRoomId);
+    if (locked == null) {
+      throw new IllegalArgumentException("Selected room not found");
+    }
+
+    if (locked.getHostel() == null || !locked.getHostel().getId().equals(requiredHostelId)) {
+      throw new IllegalArgumentException("Selected room does not belong to selected hostel");
+    }
+
+    if (locked.getFloorNumber() != requiredFloorNumber) {
+      throw new IllegalArgumentException("Selected room does not belong to selected floor");
+    }
+
+    if (!locked.getHostel().isActive()) {
+      throw new IllegalArgumentException("Selected hostel is not active");
+    }
+
+    if (locked.getStatus() != RoomStatus.AVAILABLE || locked.getCurrentOccupancy() >= locked.getCapacity()) {
+      throw new IllegalArgumentException("Selected room is full or unavailable");
+    }
+
+    if (locked.getRoomGender() != student.getGender()) {
+      throw new IllegalArgumentException("Selected room does not match student gender");
+    }
+
+    if (locked.isHasAc() != request.hasAc()) {
+      throw new IllegalArgumentException("Selected room does not match AC preference");
+    }
+
+    if (locked.isHasWifi() != request.hasWifi()) {
+      throw new IllegalArgumentException("Selected room does not match WiFi preference");
+    }
+
+    if (locked.getMattressType() != request.mattressType()) {
+      throw new IllegalArgumentException("Selected room does not match mattress preference");
+    }
+
     locked.incrementOccupancy();
     roomRepository.save(locked);
 
@@ -124,9 +173,11 @@ public class BookingService {
 
   @Transactional
   public Booking updateStatus(Long bookingId, BookingStatus status) {
+    Long requiredBookingId = Objects.requireNonNull(bookingId, "bookingId is required");
+
     Booking booking =
         bookingRepository
-            .findById(bookingId)
+        .findById(requiredBookingId)
             .orElseThrow(() -> new IllegalArgumentException("Booking not found"));
 
     BookingStatus current = booking.getStatus();
@@ -191,40 +242,5 @@ public class BookingService {
     }
 
     return updated;
-  }
-
-  private Room allocateRoom(Student student, ApplyRequest request) {
-    // Students do NOT choose hostel; we scan all active hostels.
-    // For MVP, we just pick the first matching available room.
-
-    // If hostels empty, no room.
-    if (hostelRepository.findByActiveTrue().isEmpty()) {
-      return null;
-    }
-
-    List<Room> candidates =
-        roomRepository.findMatchingRooms(
-            RoomStatus.AVAILABLE,
-            student.getGender(),
-            request.hasAc(),
-            request.hasWifi(),
-            request.mattressType());
-
-    if (candidates.isEmpty()) {
-      return null;
-    }
-
-    // Simple selection: pick the room with the lowest occupancy ratio.
-    Room best = null;
-    double bestScore = Double.MAX_VALUE;
-    for (Room r : candidates) {
-      double score = (double) r.getCurrentOccupancy() / Math.max(1, r.getCapacity());
-      if (score < bestScore) {
-        bestScore = score;
-        best = r;
-      }
-    }
-
-    return best;
   }
 }

@@ -21,3 +21,15 @@ export function updateHostel(id, payload) {
     headers: getAuthHeaders()
   });
 }
+
+export function listStudentHostels() {
+  return apiRequest('/api/student/hostels', {
+    headers: getAuthHeaders()
+  });
+}
+
+export function listStudentHostelRooms(hostelId) {
+  return apiRequest(`/api/student/hostels/${hostelId}/rooms`, {
+    headers: getAuthHeaders()
+  });
+}

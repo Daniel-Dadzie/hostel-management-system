@@ -7,13 +7,13 @@ export default function PublicLayout({ children, title }) {
     <div className="flex min-h-screen flex-col bg-cream-50 dark:bg-neutral-950">
       <header className="sticky top-0 z-40 border-b border-neutral-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/85 dark:border-neutral-800 dark:bg-surface-dark/95 dark:supports-[backdrop-filter]:bg-surface-dark/85">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-4">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-700 font-bold text-white shadow-sm">
+          <Link to="/" className="flex items-center gap-2.5">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-primary-800 font-bold text-white shadow-md ring-1 ring-white/20">
               H
             </div>
             <div>
-              <h1 className="text-base font-semibold text-neutral-900 dark:text-white sm:text-lg">Hostel Management</h1>
-              <p className="hidden text-xs text-neutral-500 dark:text-neutral-400 sm:block">University System</p>
+              <h1 className="text-base font-bold tracking-tight text-neutral-900 dark:text-white sm:text-[17px]">Hostel Management</h1>
+              <p className="hidden text-xs font-medium text-neutral-500 dark:text-neutral-400 sm:block">University System</p>
             </div>
           </Link>
           <div className="flex w-full items-center justify-end gap-3 sm:w-auto sm:gap-4">

@@ -1,12 +1,14 @@
 package com.hostelmanagement.service;
 
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.hostelmanagement.domain.Hostel;
 import com.hostelmanagement.repository.HostelRepository;
 import com.hostelmanagement.web.admin.dto.UpsertHostelRequest;
 import com.hostelmanagement.web.dto.HostelResponse;
-import java.util.List;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AdminHostelService {
@@ -36,6 +38,8 @@ public class AdminHostelService {
     Hostel h = new Hostel();
     h.setName(request.name());
     h.setLocation(request.location());
+    h.setImageUrl(request.imageUrl());
+    h.setDistanceToCampusKm(request.distanceToCampusKm());
     h.setActive(request.active());
     h.setTotalRooms(0);
 
@@ -47,6 +51,8 @@ public class AdminHostelService {
     Hostel h = hostelRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Hostel not found"));
     h.setName(request.name());
     h.setLocation(request.location());
+    h.setImageUrl(request.imageUrl());
+    h.setDistanceToCampusKm(request.distanceToCampusKm());
     h.setActive(request.active());
     return toDto(hostelRepository.save(h));
   }
@@ -59,6 +65,13 @@ public class AdminHostelService {
   }
 
   private static HostelResponse toDto(Hostel h) {
-    return new HostelResponse(h.getId(), h.getName(), h.getLocation(), h.getTotalRooms(), h.isActive());
+    return new HostelResponse(
+        h.getId(),
+        h.getName(),
+        h.getLocation(),
+        h.getImageUrl(),
+        h.getDistanceToCampusKm(),
+        h.getTotalRooms(),
+        h.isActive());
   }
 }

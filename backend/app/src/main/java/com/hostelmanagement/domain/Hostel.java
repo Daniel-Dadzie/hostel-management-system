@@ -1,7 +1,16 @@
 package com.hostelmanagement.domain;
 
-import jakarta.persistence.*;
+import java.math.BigDecimal;
 import java.time.Instant;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "hostels")
@@ -16,6 +25,12 @@ public class Hostel {
 
   @Column(length = 200)
   private String location;
+
+  @Column(name = "image_url", length = 500)
+  private String imageUrl;
+
+  @Column(name = "distance_to_campus_km", precision = 6, scale = 2)
+  private BigDecimal distanceToCampusKm;
 
   @Column(name = "total_rooms", nullable = false)
   private int totalRooms;
@@ -59,6 +74,22 @@ public class Hostel {
 
   public void setLocation(String location) {
     this.location = location;
+  }
+
+  public String getImageUrl() {
+    return imageUrl;
+  }
+
+  public void setImageUrl(String imageUrl) {
+    this.imageUrl = imageUrl;
+  }
+
+  public BigDecimal getDistanceToCampusKm() {
+    return distanceToCampusKm;
+  }
+
+  public void setDistanceToCampusKm(BigDecimal distanceToCampusKm) {
+    this.distanceToCampusKm = distanceToCampusKm;
   }
 
   public int getTotalRooms() {
