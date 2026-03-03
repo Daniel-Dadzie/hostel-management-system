@@ -30,6 +30,39 @@ spring:
       # Default below is a random UUID hashed - check startup logs for the generated password
       adminPasswordHash: ${ADMIN_PASSWORD_HASH:}
 
+  # ── Redis cache ──────────────────────────────────────────────────────────
+  # Set CACHE_TYPE=none to disable caching (useful in tests / local dev without Redis).
+  # Per-cache TTLs are configured in CacheConfig.java.
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+  cache:
+    type: ${CACHE_TYPE:redis}
+
+  # ── Email (SMTP) ─────────────────────────────────────────────────────────
+  # Leave MAIL_HOST unset to run without sending emails (logs to console instead).
+  # Example for Gmail: MAIL_HOST=smtp.gmail.com, MAIL_USERNAME=you@gmail.com,
+  #   MAIL_PASSWORD=<app-password>
+  mail:
+    host: ${MAIL_HOST:}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+
+# ── Spring Boot Actuator ─────────────────────────────────────────────────────
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
+
 logging:
   level:
     org.hibernate.SQL: INFO

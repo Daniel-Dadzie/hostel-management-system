@@ -1,7 +1,10 @@
 services:
+
+  # ─── MySQL ──────────────────────────────────────────────────────────────────
   mysql:
     image: mysql:8.4
     container_name: hostel-mysql
+    restart: unless-stopped
     ports:
       - "3306:3306"
     environment:
@@ -17,5 +20,76 @@ services:
       timeout: 3s
       retries: 20
 
+  # ─── Redis ──────────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7.4-alpine
+    container_name: hostel-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    # Persist snapshots: save if at least 1 key changed in 60 s
+    command: redis-server --save 60 1 --loglevel warning
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # ─── Spring Boot Backend ─────────────────────────────────────────────────────
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hostel-backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/hostel_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      DB_USERNAME: hostel_user
+      DB_PASSWORD: hostel_pass
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      FRONTEND_URL: http://localhost
+      JWT_SECRET: ${JWT_SECRET:-change-this-to-a-secure-secret-minimum-32-chars}
+      ADMIN_PASSWORD_HASH: ${ADMIN_PASSWORD_HASH:-}
+      # Optional SMTP – leave unset to run without email sending
+      MAIL_HOST: ${MAIL_HOST:-}
+      MAIL_PORT: ${MAIL_PORT:-587}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+    healthcheck:
+      test:
+        - "CMD-SHELL"
+        - >
+          wget -qO- http://localhost:8080/actuator/health 2>/dev/null
+          | grep -c '"status":"UP"' || exit 1
+      interval: 15s
+      timeout: 5s
+      start_period: 60s
+      retries: 5
+
+  # ─── React Frontend (Nginx) ──────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ../../frontend
+      dockerfile: Dockerfile
+    container_name: hostel-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+
 volumes:
   mysql_data:
+  redis_data:
+

@@ -32,6 +32,7 @@ public class SecurityConfig {
     http.authorizeHttpRequests(
         auth ->
             auth.requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/actuator/health").permitAll() // load-balancer & Docker health probes
                 .anyRequest().authenticated());
 
     http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
