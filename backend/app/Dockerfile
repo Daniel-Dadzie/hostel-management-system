@@ -1,18 +1,17 @@
 # ─── Stage 1: Build ────────────────────────────────────────────────────────
-FROM eclipse-temurin:21-jdk-alpine AS builder
+FROM maven:3.9.9-eclipse-temurin-21-alpine AS builder
 WORKDIR /app
 
 # Resolve Maven dependencies before copying source code.
 # Because pom.xml changes far less often than source files this layer is
 # cached until the dependency manifest changes – drastically speeding up
 # successive builds.
-COPY pom.xml mvnw ./
-COPY .mvn .mvn
-RUN ./mvnw dependency:go-offline -q
+COPY pom.xml ./
+RUN mvn dependency:go-offline -q
 
 # Compile & package (tests run in CI; skip here for fast image builds)
 COPY src src
-RUN ./mvnw package -DskipTests -q
+RUN mvn package -DskipTests -q
 
 # ─── Stage 2: Minimal runtime image ─────────────────────────────────────────
 FROM eclipse-temurin:21-jre-alpine
