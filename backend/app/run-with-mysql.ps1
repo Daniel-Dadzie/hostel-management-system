@@ -32,3 +32,4 @@ Write-Host "Server Port: $env:SERVER_PORT"
 Write-Host ""
 
 & ./mvnw.cmd spring-boot:run
+

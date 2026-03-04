@@ -1,5 +1,5 @@
 # ─── Stage 1: Build ────────────────────────────────────────────────────────
-FROM maven:3.9.9-eclipse-temurin-21-alpine AS builder
+FROM maven:3.9.11-eclipse-temurin-21 AS builder
 WORKDIR /app
 
 # Resolve Maven dependencies before copying source code.
@@ -14,11 +14,15 @@ COPY src src
 RUN mvn package -DskipTests -q
 
 # ─── Stage 2: Minimal runtime image ─────────────────────────────────────────
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:21-jre-noble
 WORKDIR /app
 
 # Principle of least privilege – never run as root inside the container
-RUN addgroup -S spring && adduser -S spring -G spring
+RUN apt-get update \
+    && apt-get dist-upgrade -y \
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd --system spring \
+    && useradd --system --gid spring --create-home spring
 USER spring:spring
 
 COPY --from=builder /app/target/*.jar app.jar
