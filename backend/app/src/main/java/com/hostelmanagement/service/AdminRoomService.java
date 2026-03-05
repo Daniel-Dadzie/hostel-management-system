@@ -55,6 +55,7 @@ public class AdminRoomService {
     r.setHasWifi(request.hasWifi());
     r.setPrice(request.price());
     r.setFloorNumber(request.floorNumber());
+    r.setRoomType(request.roomType() != null ? request.roomType() : com.hostelmanagement.domain.RoomType.STANDARD);
     r.recalculateStatus();
 
     Room saved = roomRepository.save(r);
@@ -105,6 +106,7 @@ public class AdminRoomService {
     r.setHasWifi(request.hasWifi());
     r.setPrice(request.price());
     r.setFloorNumber(request.floorNumber());
+    r.setRoomType(request.roomType() != null ? request.roomType() : com.hostelmanagement.domain.RoomType.STANDARD);
     r.recalculateStatus();
 
     return toDto(roomRepository.save(r));
@@ -141,7 +143,8 @@ public class AdminRoomService {
         r.isHasWifi(),
         r.getStatus(),
         r.getPrice(),
-        r.getFloorNumber());
+        r.getFloorNumber(),
+        r.getRoomType());
   }
 
   private void validateFloorGenderConsistency(Long hostelId, int floorNumber, Gender roomGender, Long excludeRoomId) {

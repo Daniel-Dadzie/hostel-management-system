@@ -1,9 +1,11 @@
 package com.hostelmanagement.web.dto;
 
+import java.math.BigDecimal;
+
 import com.hostelmanagement.domain.Gender;
 import com.hostelmanagement.domain.MattressType;
 import com.hostelmanagement.domain.RoomStatus;
-import java.math.BigDecimal;
+import com.hostelmanagement.domain.RoomType;
 
 public record RoomResponse(
     Long id,
@@ -18,4 +20,5 @@ public record RoomResponse(
     boolean hasWifi,
     RoomStatus status,
     BigDecimal price,
-    int floorNumber) {}
+    int floorNumber,
+    RoomType roomType) {}

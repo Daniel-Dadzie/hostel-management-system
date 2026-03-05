@@ -93,6 +93,7 @@ public class StudentHostelService {
         room.isHasWifi(),
         room.getStatus(),
         room.getPrice(),
-        room.getFloorNumber());
+        room.getFloorNumber(),
+        room.getRoomType());
   }
 }

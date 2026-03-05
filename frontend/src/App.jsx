@@ -16,6 +16,8 @@ import StudentDashboard from './pages/student/StudentDashboard.jsx';
 import HostelListPage from './pages/student/HostelListPage.jsx';
 import HostelFloorsPage from './pages/student/HostelFloorsPage.jsx';
 import HostelRoomsPage from './pages/student/HostelRoomsPage.jsx';
+import RoomDetailPage from './pages/student/RoomDetailPage.jsx';
+import ConfirmBookingPage from './pages/student/ConfirmBookingPage.jsx';
 import ApplyHostelPage from './pages/student/ApplyHostelPage.jsx';
 import RoomPreferencesPage from './pages/student/RoomPreferencesPage.jsx';
 import MyBookingPage from './pages/student/MyBookingPage.jsx';
@@ -63,10 +65,13 @@ export default function App() {
             </ProtectedRoute>
           }
         >
-          <Route index element={<StudentDashboard />} />
+          <Route index element={<Navigate to="hostels" replace />} />
+          <Route path="dashboard" element={<StudentDashboard />} />
           <Route path="hostels" element={<HostelListPage />} />
           <Route path="hostels/:hostelId/floors" element={<HostelFloorsPage />} />
           <Route path="hostels/:hostelId/floors/:floorNumber/rooms" element={<HostelRoomsPage />} />
+          <Route path="hostels/:hostelId/floors/:floorNumber/rooms/:roomId" element={<RoomDetailPage />} />
+          <Route path="confirm" element={<ConfirmBookingPage />} />
           <Route path="apply" element={<ApplyHostelPage />} />
           <Route path="preferences" element={<RoomPreferencesPage />} />
           <Route path="booking" element={<MyBookingPage />} />

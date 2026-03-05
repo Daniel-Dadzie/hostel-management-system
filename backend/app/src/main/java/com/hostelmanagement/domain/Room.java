@@ -1,8 +1,24 @@
 package com.hostelmanagement.domain;
 
-import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.Instant;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.Version;
 
 @Entity
 @Table(
@@ -57,6 +73,10 @@ public class Room {
 
   @Column(name = "floor_number", nullable = false)
   private int floorNumber = 1;
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = "room_type", nullable = false, length = 20)
+  private RoomType roomType = RoomType.STANDARD;
 
   @Version
   @Column(nullable = false)
@@ -162,6 +182,14 @@ public class Room {
 
   public void setFloorNumber(int floorNumber) {
     this.floorNumber = floorNumber;
+  }
+
+  public RoomType getRoomType() {
+    return roomType;
+  }
+
+  public void setRoomType(RoomType roomType) {
+    this.roomType = roomType;
   }
 
   public void recalculateStatus() {

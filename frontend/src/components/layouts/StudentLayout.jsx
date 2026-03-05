@@ -1,13 +1,12 @@
 import { Link, NavLink, Outlet } from 'react-router-dom';
-import { FaBed, FaBuilding, FaChartBar, FaCreditCard, FaExclamationCircle, FaHome, FaSignOutAlt, FaUser, FaWrench } from 'react-icons/fa';
+import { FaBed, FaBuilding, FaChartBar, FaCreditCard, FaExclamationCircle, FaSignOutAlt, FaUser, FaWrench } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext.jsx';
 import ThemeToggle from '../ThemeToggle.jsx';
 import UserAvatar from '../UserAvatar.jsx';
 
 const navItems = [
-  { to: '/student', label: 'Dashboard', icon: FaChartBar },
-  { to: '/student/hostels', label: 'Browse Hostels', icon: FaBuilding },
-  { to: '/student/apply', label: 'Apply for Hostel', icon: FaHome },
+  { to: '/student/dashboard', label: 'Dashboard', icon: FaChartBar },
+  { to: '/student/hostels', label: 'Apply for Hostel', icon: FaBuilding },
   { to: '/student/preferences', label: 'Room Preferences', icon: FaWrench },
   { to: '/student/booking', label: 'My Booking', icon: FaBed },
   { to: '/student/payments', label: 'My Payments', icon: FaCreditCard },
@@ -23,7 +22,7 @@ export default function StudentLayout() {
       {/* Header */}
       <header className="sticky top-0 z-50 border-b border-neutral-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/85 dark:border-neutral-800 dark:bg-surface-dark/95 dark:supports-[backdrop-filter]:bg-surface-dark/85">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3">
-          <Link to="/student" className="flex items-center gap-2.5">
+          <Link to="/student/hostels" className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 text-sm font-bold text-white shadow-md ring-1 ring-white/20">
               H
             </div>
@@ -59,7 +58,7 @@ export default function StudentLayout() {
                 <NavLink
                   key={item.to}
                   to={item.to}
-                  end={item.to === '/student'}
+                  end={item.to === '/student/dashboard'}
                   className={({ isActive }) =>
                     `inline-flex min-w-max items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 md:flex md:px-4 md:py-2.5 ${
                       isActive

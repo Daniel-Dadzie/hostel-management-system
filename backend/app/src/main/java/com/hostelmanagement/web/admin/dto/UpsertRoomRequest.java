@@ -1,12 +1,15 @@
 package com.hostelmanagement.web.admin.dto;
 
+import java.math.BigDecimal;
+
 import com.hostelmanagement.domain.Gender;
 import com.hostelmanagement.domain.MattressType;
+import com.hostelmanagement.domain.RoomType;
+
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import java.math.BigDecimal;
 
 public record UpsertRoomRequest(
     @NotNull Long hostelId,
@@ -17,4 +20,5 @@ public record UpsertRoomRequest(
     boolean hasAc,
     boolean hasWifi,
     @NotNull BigDecimal price,
-    @Min(1) int floorNumber) {}
+    @Min(1) int floorNumber,
+    RoomType roomType) {}
