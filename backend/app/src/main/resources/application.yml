@@ -14,9 +14,9 @@ spring:
       enabled: true
 
   datasource:
-    url: ${DB_URL:jdbc:mysql://localhost:3306/hostel_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
-    username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:}
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -43,8 +43,8 @@ spring:
   # Per-cache TTLs are configured in CacheConfig.java.
   data:
     redis:
-      host: ${REDIS_HOST:localhost}
-      port: ${REDIS_PORT:6379}
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
   cache:
     type: ${CACHE_TYPE:redis}
 
@@ -76,7 +76,7 @@ logging:
     org.hibernate.SQL: INFO
 
 app:
-  frontend-url: ${FRONTEND_URL:http://localhost:3000}
+  frontend-url: ${FRONTEND_URL}
 
   auth:
     # Forgot-password rate limit window in seconds.
@@ -86,9 +86,8 @@ app:
     reset-token-cleanup-ms: ${RESET_TOKEN_CLEANUP_MS:3600000}
 
   jwt:
-    # IMPORTANT: Set JWT_SECRET environment variable in production!
-    # Default value is for development only and should never be used in production.
-    secret: ${JWT_SECRET:dev-only-secret-change-in-production-min-32-chars}
+    # REQUIRED: JWT secret must be provided via environment variable.
+    secret: ${JWT_SECRET}
     expiration-seconds: ${JWT_EXPIRATION_SECONDS:86400}
 
   booking:
@@ -99,5 +98,5 @@ app:
     paystack:
       base-url: ${PAYSTACK_BASE_URL:https://api.paystack.co}
       secret-key: ${PAYSTACK_SECRET_KEY:}
-      callback-url: ${PAYSTACK_CALLBACK_URL:http://localhost:3000/student/payments}
+      callback-url: ${PAYSTACK_CALLBACK_URL}
       webhook-secret: ${PAYSTACK_WEBHOOK_SECRET:}

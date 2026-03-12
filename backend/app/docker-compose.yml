@@ -57,7 +57,7 @@ services:
       MANAGEMENT_HEALTH_REDIS_ENABLED: "false"
       REDIS_HOST: redis
       REDIS_PORT: "6379"
-      FRONTEND_URL: http://localhost
+      FRONTEND_URL: ${FRONTEND_URL}
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
       ADMIN_PASSWORD_HASH: ${ADMIN_PASSWORD_HASH:?ADMIN_PASSWORD_HASH is required}
       # Optional SMTP – leave unset to run without email sending
