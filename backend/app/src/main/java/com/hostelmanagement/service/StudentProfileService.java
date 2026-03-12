@@ -21,7 +21,7 @@ public class StudentProfileService {
   public StudentProfileResponse get(Long studentId) {
     Student s = studentRepository.findById(studentId).orElseThrow(() -> new IllegalArgumentException("Student not found"));
     return new StudentProfileResponse(
-        s.getId(), s.getFullName(), s.getEmail(), s.getPhone(), s.getGender(), s.getProfileImageUrl());
+      s.getId(), s.getFullName(), s.getEmail(), s.getPhone(), s.getGender(), s.getProfileImagePath());
   }
 
   @Transactional
@@ -29,7 +29,7 @@ public class StudentProfileService {
     Student s = studentRepository.findById(studentId).orElseThrow(() -> new IllegalArgumentException("Student not found"));
     s.setFullName(request.fullName());
     s.setPhone(request.phone());
-    s.setProfileImageUrl(request.profileImageUrl());
+    s.setProfileImagePath(request.profileImagePath());
     Student saved = studentRepository.save(s);
     return new StudentProfileResponse(
         saved.getId(),
@@ -37,6 +37,6 @@ public class StudentProfileService {
         saved.getEmail(),
         saved.getPhone(),
         saved.getGender(),
-        saved.getProfileImageUrl());
+        saved.getProfileImagePath());
   }
 }

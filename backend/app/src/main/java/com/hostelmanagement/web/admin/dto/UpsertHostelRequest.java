@@ -10,7 +10,7 @@ import jakarta.validation.constraints.Size;
 public record UpsertHostelRequest(
     @NotBlank @Size(max = 100) String name,
     @Size(max = 200) String location,
-    @Size(max = 200000) String imageUrl,
+    @Size(max = 500) String imagePath,
     @DecimalMin(value = "0.0", inclusive = true)
     @Digits(integer = 4, fraction = 2)
     BigDecimal distanceToCampusKm,

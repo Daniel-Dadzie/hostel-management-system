@@ -6,7 +6,7 @@ public record HostelResponse(
 	Long id,
 	String name,
 	String location,
-	String imageUrl,
+	String imagePath,
 	BigDecimal distanceToCampusKm,
 	int totalRooms,
 	boolean active) {}

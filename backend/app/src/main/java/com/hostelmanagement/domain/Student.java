@@ -35,8 +35,8 @@ public class Student {
   @Column(length = 30)
   private String phone;
 
-  @Column(name = "profile_image_url", columnDefinition = "MEDIUMTEXT")
-  private String profileImageUrl;
+  @Column(name = "profile_image_path", columnDefinition = "MEDIUMTEXT")
+  private String profileImagePath;
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 10)
@@ -102,12 +102,12 @@ public class Student {
     this.phone = phone;
   }
 
-  public String getProfileImageUrl() {
-    return profileImageUrl;
+  public String getProfileImagePath() {
+    return profileImagePath;
   }
 
-  public void setProfileImageUrl(String profileImageUrl) {
-    this.profileImageUrl = profileImageUrl;
+  public void setProfileImagePath(String profileImagePath) {
+    this.profileImagePath = profileImagePath;
   }
 
   public Gender getGender() {

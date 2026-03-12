@@ -8,4 +8,4 @@ public record StudentProfileResponse(
 	String email,
 	String phone,
 	Gender gender,
-	String profileImageUrl) {}
+	String profileImagePath) {}

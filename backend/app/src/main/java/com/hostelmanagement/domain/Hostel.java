@@ -26,8 +26,8 @@ public class Hostel {
   @Column(length = 200)
   private String location;
 
-  @Column(name = "image_url", columnDefinition = "MEDIUMTEXT")
-  private String imageUrl;
+  @Column(name = "image_path", columnDefinition = "MEDIUMTEXT")
+  private String imagePath;
 
   @Column(name = "distance_to_campus_km", precision = 6, scale = 2)
   private BigDecimal distanceToCampusKm;
@@ -76,12 +76,12 @@ public class Hostel {
     this.location = location;
   }
 
-  public String getImageUrl() {
-    return imageUrl;
+  public String getImagePath() {
+    return imagePath;
   }
 
-  public void setImageUrl(String imageUrl) {
-    this.imageUrl = imageUrl;
+  public void setImagePath(String imagePath) {
+    this.imagePath = imagePath;
   }
 
   public BigDecimal getDistanceToCampusKm() {

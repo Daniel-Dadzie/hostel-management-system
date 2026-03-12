@@ -38,7 +38,7 @@ public class AuthService {
       JwtService jwtService,
       NotificationService notificationService,
       PasswordResetRateLimiter passwordResetRateLimiter,
-      @Value("${app.frontend-url:http://localhost:3000}") String frontendUrl,
+      @Value("${app.frontend-url}") String frontendUrl,
       @Value("${app.auth.reset-rate-limit-seconds:60}") long resetRateLimitSeconds) {
     this.studentRepository = studentRepository;
     this.passwordEncoder = passwordEncoder;
@@ -61,7 +61,7 @@ public class AuthService {
     s.setEmail(email);
     s.setPhone(request.phone());
     s.setGender(request.gender());
-    s.setProfileImageUrl(request.profileImageUrl());
+    s.setProfileImagePath(request.profileImagePath());
     s.setPassword(passwordEncoder.encode(request.password()));
     s.setRole(Role.STUDENT);
 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { updateStudentProfile } from '../../services/studentService.js';
+import { uploadImage } from '../../services/uploadService.js';
 import UserAvatar from '../../components/UserAvatar.jsx';
 import ImageUploadField from '../../components/ImageUploadField.jsx';
 
@@ -9,7 +10,9 @@ export default function ProfilePage() {
   const [form, setForm] = useState({
     fullName: '',
     phone: '',
-    profileImageUrl: ''
+    profileImagePath: '',
+    profileImagePreview: '',
+    profileImageFile: null
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -20,7 +23,9 @@ export default function ProfilePage() {
       setForm({
         fullName: user.fullName || '',
         phone: user.phone || '',
-        profileImageUrl: user.profileImageUrl || ''
+        profileImagePath: user.profileImagePath || user.profileImageUrl || '',
+        profileImagePreview: '',
+        profileImageFile: null
       });
     }
   }, [user]);
@@ -32,7 +37,12 @@ export default function ProfilePage() {
 
   function handleRemovePhoto() {
     setSuccess('');
-    setForm((prev) => ({ ...prev, profileImageUrl: '' }));
+    setForm((prev) => ({
+      ...prev,
+      profileImagePath: '',
+      profileImagePreview: '',
+      profileImageFile: null
+    }));
   }
 
   async function handleSubmit(e) {
@@ -43,7 +53,16 @@ export default function ProfilePage() {
     setLoading(true);
 
     try {
-      await updateStudentProfile(form);
+      let profileImagePath = form.profileImagePath || null;
+      if (form.profileImageFile) {
+        profileImagePath = await uploadImage(form.profileImageFile);
+      }
+
+      await updateStudentProfile({
+        fullName: form.fullName,
+        phone: form.phone,
+        profileImagePath
+      });
       setSuccess('Profile updated successfully!');
       loadProfile();
     } catch (err) {
@@ -60,7 +79,7 @@ export default function ProfilePage() {
       <div className="card">
         {/* Avatar Section */}
         <div className="mb-6 flex items-center gap-4">
-          <UserAvatar user={{ ...user, profileImageUrl: form.profileImageUrl }} fallbackName={form.fullName || user?.fullName || 'Student'} className="h-16 w-16 text-xl" />
+          <UserAvatar user={{ ...user, profileImagePath: form.profileImagePreview || form.profileImagePath }} fallbackName={form.fullName || user?.fullName || 'Student'} className="h-16 w-16 text-xl" />
           <div>
             <h2 className="card-header text-neutral-900 dark:text-white">
               {user?.fullName || 'Student'}
@@ -130,12 +149,19 @@ export default function ProfilePage() {
             <ImageUploadField
               id="profile-image"
               label="Profile Photo"
-              value={form.profileImageUrl}
-              onChange={(value) => handleChange('profileImageUrl', value)}
+              value={form.profileImagePreview || form.profileImagePath}
+              onChange={(file, previewUrl) => {
+                setSuccess('');
+                setError('');
+                setForm((prev) => ({
+                  ...prev,
+                  profileImageFile: file,
+                  profileImagePreview: previewUrl
+                }));
+              }}
               onError={setError}
               onClear={handleRemovePhoto}
               helperText="Upload an image or take a picture with your camera."
-              maxDataUrlLength={50000}
             />
           </div>
 

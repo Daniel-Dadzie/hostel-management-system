@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import PublicLayout from '../components/layouts/PublicLayout.jsx';
 import LoadingOverlay from '../components/LoadingOverlay.jsx';
 import ImageUploadField from '../components/ImageUploadField.jsx';
+import { uploadImage } from '../services/uploadService.js';
 
 export default function RegisterPage() {
   const [form, setForm] = useState({
@@ -12,7 +13,9 @@ export default function RegisterPage() {
     email: '',
     phone: '',
     gender: 'MALE',
-    profileImageUrl: '',
+    profileImagePath: '',
+    profileImagePreview: '',
+    profileImageFile: null,
     password: '',
     confirmPassword: ''
   });
@@ -44,12 +47,17 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
+      let profileImagePath = form.profileImagePath || null;
+      if (form.profileImageFile) {
+        profileImagePath = await uploadImage(form.profileImageFile);
+      }
+
       await register({
         fullName: form.fullName,
         email: form.email,
         phone: form.phone,
         gender: form.gender,
-        profileImageUrl: form.profileImageUrl || null,
+        profileImagePath,
         password: form.password
       });
       navigate('/login', {
@@ -145,12 +153,26 @@ export default function RegisterPage() {
               <ImageUploadField
                 id="register-profile-image"
                 label="Profile Photo (optional)"
-                value={form.profileImageUrl}
-                onChange={(value) => handleChange('profileImageUrl', value)}
+                value={form.profileImagePreview}
+                onChange={(file, previewUrl) => {
+                  setError('');
+                  setForm((prev) => ({
+                    ...prev,
+                    profileImageFile: file,
+                    profileImagePreview: previewUrl,
+                    profileImagePath: ''
+                  }));
+                }}
                 onError={setError}
-                onClear={() => handleChange('profileImageUrl', '')}
+                onClear={() =>
+                  setForm((prev) => ({
+                    ...prev,
+                    profileImageFile: null,
+                    profileImagePreview: '',
+                    profileImagePath: ''
+                  }))
+                }
                 helperText="Upload an image or take a picture with your camera."
-                maxDataUrlLength={50000}
               />
 
               <div>

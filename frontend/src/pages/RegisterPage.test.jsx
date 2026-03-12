@@ -60,7 +60,7 @@ describe('RegisterPage', () => {
         email: 'student@example.com',
         phone: '1234567890',
         gender: 'MALE',
-        profileImageUrl: null,
+        profileImagePath: null,
         password: 'secret12'
       });
       expect(navigateMock).toHaveBeenCalledWith('/login', {

@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { listStudentHostels } from '../../services/hostelService.js';
+import { resolveAssetUrl } from '../../utils/assetUrl.js';
 
 function estimateTimeToCampus(distanceToCampusKm) {
   if (distanceToCampusKm == null) return null;
@@ -72,16 +73,17 @@ export default function HostelListPage() {
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {hostels.map((hostel) => {
             const time = estimateTimeToCampus(hostel.distanceToCampusKm);
+            const hostelImage = resolveAssetUrl(hostel.imagePath || hostel.imageUrl);
             return (
               <div
                 key={hostel.id}
                 className="group flex flex-col overflow-hidden rounded-2xl border border-neutral-200/70 bg-white shadow-[0_2px_8px_0_rgb(0_0_0/0.07)] transition-all duration-300 hover:-translate-y-1.5 hover:border-primary-300 hover:shadow-xl dark:border-neutral-800 dark:bg-surface-dark dark:hover:border-primary-600 dark:hover:shadow-primary-900/20"
               >
                 {/* ── Image / Icon area ── */}
-                {hostel.imageUrl ? (
+                {hostelImage ? (
                   <div className="h-48 w-full overflow-hidden">
                     <img
-                      src={hostel.imageUrl}
+                      src={hostelImage}
                       alt={hostel.name}
                       className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       onError={(ev) => {

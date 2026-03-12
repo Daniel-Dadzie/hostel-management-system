@@ -72,7 +72,7 @@ public class StudentHostelService {
         hostel.getId(),
         hostel.getName(),
         hostel.getLocation(),
-      hostel.getImageUrl(),
+      hostel.getImagePath(),
         hostel.getDistanceToCampusKm(),
         hostel.getTotalRooms(),
         hostel.isActive());

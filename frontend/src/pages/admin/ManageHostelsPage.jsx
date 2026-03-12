@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { FaPencilAlt, FaTimes } from 'react-icons/fa';
 import { createHostel, listHostels, updateHostel } from '../../services/hostelService.js';
+import { uploadImage } from '../../services/uploadService.js';
 import ImageUploadField from '../../components/ImageUploadField.jsx';
 
 export default function ManageHostelsPage() {
@@ -11,7 +12,15 @@ export default function ManageHostelsPage() {
   const [error, setError] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingHostel, setEditingHostel] = useState(null);
-  const [form, setForm] = useState({ name: '', location: '', distanceToCampusKm: '', imageUrl: '', active: true });
+  const [form, setForm] = useState({
+    name: '',
+    location: '',
+    distanceToCampusKm: '',
+    imagePath: '',
+    imagePreview: '',
+    imageFile: null,
+    active: true
+  });
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -35,11 +44,16 @@ export default function ManageHostelsPage() {
     setError('');
 
     try {
+      let imagePath = form.imagePath || null;
+      if (form.imageFile) {
+        imagePath = await uploadImage(form.imageFile);
+      }
+
       const payload = {
         name: form.name,
         location: form.location,
         active: form.active,
-        imageUrl: form.imageUrl.trim() || null,
+        imagePath,
         distanceToCampusKm:
           form.distanceToCampusKm === '' || form.distanceToCampusKm == null
             ? null
@@ -53,7 +67,15 @@ export default function ManageHostelsPage() {
         await createHostel(payload);
         setShowForm(false);
       }
-      setForm({ name: '', location: '', distanceToCampusKm: '', imageUrl: '', active: true });
+      setForm({
+        name: '',
+        location: '',
+        distanceToCampusKm: '',
+        imagePath: '',
+        imagePreview: '',
+        imageFile: null,
+        active: true
+      });
       loadHostels();
     } catch (err) {
       setError(err.message);
@@ -71,7 +93,9 @@ export default function ManageHostelsPage() {
         hostel.distanceToCampusKm === null || hostel.distanceToCampusKm === undefined
           ? ''
           : String(hostel.distanceToCampusKm),
-      imageUrl: hostel.imageUrl || '',
+      imagePath: hostel.imagePath || hostel.imageUrl || '',
+      imagePreview: '',
+      imageFile: null,
       active: hostel.active
     });
     setShowForm(false);
@@ -79,7 +103,15 @@ export default function ManageHostelsPage() {
 
   function cancelEdit() {
     setEditingHostel(null);
-    setForm({ name: '', location: '', distanceToCampusKm: '', imageUrl: '', active: true });
+    setForm({
+      name: '',
+      location: '',
+      distanceToCampusKm: '',
+      imagePath: '',
+      imagePreview: '',
+      imageFile: null,
+      active: true
+    });
   }
 
   async function toggleActive(hostel) {
@@ -88,7 +120,7 @@ export default function ManageHostelsPage() {
         name: hostel.name,
         location: hostel.location,
         distanceToCampusKm: hostel.distanceToCampusKm ?? null,
-        imageUrl: hostel.imageUrl || null,
+        imagePath: hostel.imagePath || hostel.imageUrl || null,
         active: !hostel.active
       });
       loadHostels();
@@ -235,12 +267,17 @@ export default function ManageHostelsPage() {
               <ImageUploadField
                 id="hostel-image"
                 label="Hostel Photo"
-                value={form.imageUrl}
-                onChange={(value) => setForm({ ...form, imageUrl: value })}
+                value={form.imagePreview || form.imagePath}
+                onChange={(file, previewUrl) =>
+                  setForm({
+                    ...form,
+                    imageFile: file,
+                    imagePreview: previewUrl
+                  })
+                }
                 onError={setError}
-                onClear={() => setForm({ ...form, imageUrl: '' })}
+                onClear={() => setForm({ ...form, imagePath: '', imagePreview: '', imageFile: null })}
                 helperText="Upload an image or take a picture with your camera."
-                maxDataUrlLength={120000}
               />
             </div>
             <div className="flex items-center gap-2">

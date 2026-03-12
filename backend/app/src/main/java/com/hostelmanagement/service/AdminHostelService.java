@@ -41,7 +41,7 @@ public class AdminHostelService {
     Hostel h = new Hostel();
     h.setName(request.name());
     h.setLocation(request.location());
-    h.setImageUrl(request.imageUrl());
+    h.setImagePath(request.imagePath());
     h.setDistanceToCampusKm(request.distanceToCampusKm());
     h.setActive(request.active());
     h.setTotalRooms(0);
@@ -55,7 +55,7 @@ public class AdminHostelService {
     Hostel h = hostelRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Hostel not found"));
     h.setName(request.name());
     h.setLocation(request.location());
-    h.setImageUrl(request.imageUrl());
+    h.setImagePath(request.imagePath());
     h.setDistanceToCampusKm(request.distanceToCampusKm());
     h.setActive(request.active());
     return toDto(hostelRepository.save(h));
@@ -77,7 +77,7 @@ public class AdminHostelService {
         h.getId(),
         h.getName(),
         h.getLocation(),
-        h.getImageUrl(),
+        h.getImagePath(),
         h.getDistanceToCampusKm(),
         h.getTotalRooms(),
         h.isActive());

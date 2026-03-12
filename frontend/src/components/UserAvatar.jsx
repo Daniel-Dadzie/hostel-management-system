@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import { useMemo, useState } from 'react';
+import { resolveAssetUrl } from '../utils/assetUrl.js';
 
 function getInitials(name) {
   if (!name) return '?';
@@ -10,6 +11,8 @@ function getInitials(name) {
 
 function resolveImageUrl(user, fallbackName) {
   const directImage =
+    user?.profileImagePath ||
+    user?.imagePath ||
     user?.profileImageUrl ||
     user?.imageUrl ||
     user?.avatarUrl ||
@@ -20,7 +23,7 @@ function resolveImageUrl(user, fallbackName) {
 
   // Return the direct image if available, otherwise null (use local initials)
   // Privacy: We don't send user data to third-party avatar services
-  return directImage || null;
+  return resolveAssetUrl(directImage || null);
 }
 
 export default function UserAvatar({ user, fallbackName = 'User', className = '' }) {
@@ -55,6 +58,8 @@ UserAvatar.propTypes = {
   user: PropTypes.shape({
     fullName: PropTypes.string,
     name: PropTypes.string,
+    imagePath: PropTypes.string,
+    profileImagePath: PropTypes.string,
     imageUrl: PropTypes.string,
     profileImageUrl: PropTypes.string,
     avatarUrl: PropTypes.string,
