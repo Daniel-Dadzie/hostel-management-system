@@ -18,6 +18,9 @@
 # VS Code
 /.vscode/
 
+# Local generated classpath dump
+cp.txt
+
 # OS
 .DS_Store
 Thumbs.db

@@ -11,16 +11,16 @@ services:
     ports:
       - "3307:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: rootpass
-      MYSQL_DATABASE: hostel_db
-      MYSQL_USER: hostel_user
-      MYSQL_PASSWORD: hostelpass
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?MYSQL_ROOT_PASSWORD is required}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-hostel_db}
+      MYSQL_USER: ${MYSQL_USER:-hostel_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?MYSQL_PASSWORD is required}
     volumes:
       - mysql_data:/var/lib/mysql
       - ./scripts/mysql-init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
       - ./scripts/create-database.sql:/docker-entrypoint-initdb.d/02-create-db.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -prootpass"]
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$${MYSQL_ROOT_PASSWORD}"]
       interval: 5s
       timeout: 3s
       retries: 20
@@ -58,14 +58,14 @@ services:
         condition: service_healthy
     environment:
       DB_URL: jdbc:mysql://mysql:3306/hostel_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-      DB_USERNAME: hostel_user
-      DB_PASSWORD: hostelpass
+      DB_USERNAME: ${DB_USERNAME:-hostel_user}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
       CACHE_TYPE: none
       MANAGEMENT_HEALTH_REDIS_ENABLED: "false"
       REDIS_HOST: redis
       REDIS_PORT: "6379"
-      FRONTEND_URL: http://localhost:3000
-      JWT_SECRET: dev-secret-key-change-in-production-min-32-chars
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
     command: >
       /bin/sh -c "apt-get update && apt-get install -y curl > /dev/null 2>&1 && mvn spring-boot:run -Dspring-boot.run.jvmArguments=\"-Dspring.devtools.restart.enabled=true -Dspring.devtools.livereload.enabled=true\""
     healthcheck:

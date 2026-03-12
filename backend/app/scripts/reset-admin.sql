@@ -1,11 +1,16 @@
--- Reset admin password to a known working value.
--- Login after running this script:
---   Email: admin@university.edu
---   Password: admin123
+-- Reset admin password template.
+-- Replace placeholders before execution.
+
+SET @admin_email = 'PLACEHOLDER_ADMIN_EMAIL';
+SET @new_bcrypt_hash = 'PLACEHOLDER_BCRYPT_HASH';
+
 UPDATE students
-SET password = '$2a$10$r0B10wtJG5G15eufG7zjv.QY6X4l3fcDkJBuh0GjVCh6lCjxvUH.q'
-WHERE email = 'admin@university.edu' AND role = 'ADMIN';
+SET password = @new_bcrypt_hash
+WHERE email = @admin_email
+	AND role = 'ADMIN'
+	AND @admin_email <> 'PLACEHOLDER_ADMIN_EMAIL'
+	AND @new_bcrypt_hash <> 'PLACEHOLDER_BCRYPT_HASH';
 
 SELECT id, email, role
 FROM students
-WHERE email = 'admin@university.edu';
+WHERE email = @admin_email;
