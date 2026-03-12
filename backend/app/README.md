@@ -53,6 +53,7 @@ $env:DB_USERNAME='hostel_user'
 $env:DB_PASSWORD='<set-app-password>'
 $env:JWT_SECRET='change-me-in-env-please-change-me-32-chars-min'
 $env:FRONTEND_URL='http://localhost:5173'
+$env:SERVER_PORT='8081'
 ```
 
 Or copy values from [.env.example](.env.example).
@@ -69,10 +70,20 @@ On Windows:
 ./mvnw.cmd spring-boot:run
 ```
 
+If you start with `mvnw` directly, set `SERVER_PORT=8081` first to match frontend defaults.
+
 ## Notes
 
 - Booking status uses `PENDING_PAYMENT` for the 30-minute hold.
 - Payment status uses `PENDING`/`COMPLETED`/etc.
+- Forgot-password rate limiting is Redis-backed when Redis is available.
+	If Redis is unavailable, the app falls back to in-memory per-instance limiting.
+	In distributed deployments, keep Redis enabled so limits are enforced globally.
+- Expired password-reset tokens are cleaned up automatically by a scheduler
+	(default every 1 hour, configurable via `RESET_TOKEN_CLEANUP_MS`).
+- One-shot room-price migration helper is available at
+	`scripts/migrate-room-prices-yearly.sql` with `REDO` (x2) and `REVERT` (/2)
+	modes for cross-environment rollout/rollback.
 
 ## Troubleshooting: Flyway checksum validation errors
 

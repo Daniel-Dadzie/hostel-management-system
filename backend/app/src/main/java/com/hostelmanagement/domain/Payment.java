@@ -34,6 +34,25 @@ public class Payment {
   @Column(name = "due_at", nullable = false)
   private Instant dueAt;
 
+  @Enumerated(EnumType.STRING)
+  @Column(name = "payment_method", length = 30)
+  private PaymentMethod paymentMethod;
+
+  @Column(name = "transaction_reference", length = 120)
+  private String transactionReference;
+
+  @Column(name = "receipt_filename", length = 255)
+  private String receiptFilename;
+
+  @Column(name = "receipt_content_type", length = 120)
+  private String receiptContentType;
+
+  @Column(name = "receipt_storage_path", length = 500)
+  private String receiptStoragePath;
+
+  @Column(name = "paid_at")
+  private Instant paidAt;
+
   @Column(name = "created_at", nullable = false, updatable = false)
   private Instant createdAt;
 
@@ -94,5 +113,53 @@ public class Payment {
 
   public void setDueAt(Instant dueAt) {
     this.dueAt = dueAt;
+  }
+
+  public PaymentMethod getPaymentMethod() {
+    return paymentMethod;
+  }
+
+  public void setPaymentMethod(PaymentMethod paymentMethod) {
+    this.paymentMethod = paymentMethod;
+  }
+
+  public String getTransactionReference() {
+    return transactionReference;
+  }
+
+  public void setTransactionReference(String transactionReference) {
+    this.transactionReference = transactionReference;
+  }
+
+  public String getReceiptFilename() {
+    return receiptFilename;
+  }
+
+  public void setReceiptFilename(String receiptFilename) {
+    this.receiptFilename = receiptFilename;
+  }
+
+  public String getReceiptContentType() {
+    return receiptContentType;
+  }
+
+  public void setReceiptContentType(String receiptContentType) {
+    this.receiptContentType = receiptContentType;
+  }
+
+  public String getReceiptStoragePath() {
+    return receiptStoragePath;
+  }
+
+  public void setReceiptStoragePath(String receiptStoragePath) {
+    this.receiptStoragePath = receiptStoragePath;
+  }
+
+  public Instant getPaidAt() {
+    return paidAt;
+  }
+
+  public void setPaidAt(Instant paidAt) {
+    this.paidAt = paidAt;
   }
 }

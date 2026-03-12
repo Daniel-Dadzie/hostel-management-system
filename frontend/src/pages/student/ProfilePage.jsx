@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { updateStudentProfile } from '../../services/studentService.js';
 import UserAvatar from '../../components/UserAvatar.jsx';
+import ImageUploadField from '../../components/ImageUploadField.jsx';
 
 export default function ProfilePage() {
   const { user, loadProfile } = useAuth();
@@ -13,8 +14,6 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-
-  const imageUrlValidationError = validateProfileImageUrl(form.profileImageUrl);
 
   useEffect(() => {
     if (user) {
@@ -40,11 +39,6 @@ export default function ProfilePage() {
     e.preventDefault();
     setError('');
     setSuccess('');
-
-    if (imageUrlValidationError) {
-      setError(imageUrlValidationError);
-      return;
-    }
 
     setLoading(true);
 
@@ -133,33 +127,16 @@ export default function ProfilePage() {
           </div>
 
           <div>
-            <label htmlFor="profile-image-url" className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-              Profile Image URL
-            </label>
-            <div className="flex gap-2">
-              <input
-                id="profile-image-url"
-                type="url"
-                className={`input-field ${imageUrlValidationError ? 'border-red-400 focus:border-red-500 focus:ring-red-100 dark:border-red-500 dark:focus:ring-red-900/30' : ''}`}
-                placeholder="https://example.com/my-photo.jpg"
-                value={form.profileImageUrl}
-                onChange={(e) => handleChange('profileImageUrl', e.target.value)}
-              />
-              <button
-                type="button"
-                className="btn-ghost whitespace-nowrap"
-                onClick={handleRemovePhoto}
-                disabled={!form.profileImageUrl}
-              >
-                Remove
-              </button>
-            </div>
-            <p className="section-subtitle text-neutral-500 dark:text-neutral-400">
-              Add a public image link to show your photo in the navbar.
-            </p>
-            {imageUrlValidationError && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{imageUrlValidationError}</p>
-            )}
+            <ImageUploadField
+              id="profile-image"
+              label="Profile Photo"
+              value={form.profileImageUrl}
+              onChange={(value) => handleChange('profileImageUrl', value)}
+              onError={setError}
+              onClear={handleRemovePhoto}
+              helperText="Upload an image or take a picture with your camera."
+              maxDataUrlLength={50000}
+            />
           </div>
 
           <div>
@@ -181,7 +158,7 @@ export default function ProfilePage() {
           <button
             type="submit"
             className="btn-primary w-full"
-            disabled={loading || Boolean(imageUrlValidationError)}
+            disabled={loading}
           >
             {loading ? 'Saving...' : 'Save Changes'}
           </button>
@@ -189,29 +166,4 @@ export default function ProfilePage() {
       </div>
     </div>
   );
-}
-
-function validateProfileImageUrl(value) {
-  if (!value) return '';
-
-  // Data URIs are allowed but with size limit to prevent database bloat
-  // 50KB limit for base64 encoded images (approximately 37KB of actual image data)
-  if (value.startsWith('data:image/')) {
-    const MAX_DATA_URI_LENGTH = 50000; // 50KB
-    if (value.length > MAX_DATA_URI_LENGTH) {
-      return 'Image data URL is too large (max 50KB). Please use a hosted image URL instead.';
-    }
-    return '';
-  }
-
-  try {
-    const parsed = new URL(value);
-    if (!['http:', 'https:'].includes(parsed.protocol)) {
-      return 'Image URL must start with http:// or https://';
-    }
-  } catch {
-    return 'Please enter a valid image URL';
-  }
-
-  return '';
 }

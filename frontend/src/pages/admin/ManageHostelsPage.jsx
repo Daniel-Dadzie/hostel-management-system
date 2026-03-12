@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { FaPencilAlt, FaTimes } from 'react-icons/fa';
 import { createHostel, listHostels, updateHostel } from '../../services/hostelService.js';
+import ImageUploadField from '../../components/ImageUploadField.jsx';
 
 export default function ManageHostelsPage() {
   const [hostels, setHostels] = useState([]);
@@ -231,28 +232,16 @@ export default function ManageHostelsPage() {
               </div>
             </div>
             <div>
-              <label htmlFor="hostel-image-url" className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                Photo URL <span className="font-normal text-neutral-400">(optional — paste a direct image link)</span>
-              </label>
-              <input
-                id="hostel-image-url"
-                type="url"
-                className="input-field"
-                placeholder="https://example.com/hostel-photo.jpg"
+              <ImageUploadField
+                id="hostel-image"
+                label="Hostel Photo"
                 value={form.imageUrl}
-                onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
+                onChange={(value) => setForm({ ...form, imageUrl: value })}
+                onError={setError}
+                onClear={() => setForm({ ...form, imageUrl: '' })}
+                helperText="Upload an image or take a picture with your camera."
+                maxDataUrlLength={120000}
               />
-              {form.imageUrl.trim() && (
-                <div className="mt-2 flex items-center gap-3">
-                  <img
-                    src={form.imageUrl.trim()}
-                    alt="Preview"
-                    className="h-16 w-24 rounded-lg object-cover"
-                    onError={(ev) => { ev.currentTarget.style.display = 'none'; }}
-                  />
-                  <p className="body-text text-neutral-500 dark:text-neutral-400">Preview</p>
-                </div>
-              )}
             </div>
             <div className="flex items-center gap-2">
               <input

@@ -107,7 +107,7 @@ export default function ApplyPreferencesForm({ form, hostels, floors, rooms, loa
                 <option value="">Select a room</option>
                 {rooms.map((room) => (
                   <option key={room.id} value={String(room.id)}>
-                    Room {room.roomNumber} - GHS {room.price ?? 0}
+                    Room {room.roomNumber} - ₵ {room.price ?? 0} (GHS) / year
                   </option>
                 ))}
               </select>
@@ -118,7 +118,7 @@ export default function ApplyPreferencesForm({ form, hostels, floors, rooms, loa
             <div className="rounded-lg border border-neutral-200 p-3 dark:border-neutral-700">
               <p className="font-medium text-neutral-900 dark:text-white">Selected Room Details</p>
               <p className="body-text mt-1 text-neutral-600 dark:text-neutral-300">
-                Price: GHS {selectedRoom.price ?? 0}
+                Price (per year): ₵ {selectedRoom.price ?? 0} (GHS)
               </p>
               <p className="body-text text-neutral-600 dark:text-neutral-300">
                 Occupancy: {selectedRoom.currentOccupancy}/{selectedRoom.capacity}

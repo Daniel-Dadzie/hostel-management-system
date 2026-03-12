@@ -160,6 +160,12 @@ export default function AdminDashboard() {
     return acc;
   }, {});
 
+  const totalFloors = new Set(
+    rooms
+      .filter((room) => room.hostelId != null && room.floorNumber != null)
+      .map((room) => `${room.hostelId}-${room.floorNumber}`)
+  ).size;
+
   const q = bookingSearch.toLowerCase();
   const filteredBookings = bookings.filter(
     (b) =>
@@ -214,7 +220,7 @@ export default function AdminDashboard() {
     {
       label: 'Hostels',
       value: loading ? '…' : hostels.length,
-      sub: `${rooms.length} total rooms`,
+      sub: `${totalFloors} floors · ${rooms.length} rooms`,
       icon: FaBuilding,
       gradient: 'from-violet-500 to-violet-700',
       bar: null

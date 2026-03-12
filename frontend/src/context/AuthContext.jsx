@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { loginUser, registerUser } from '../services/authService.js';
+import { loginUser, registerUser, forgotPassword as fp, resetPassword as rp } from '../services/authService.js';
 import { getStudentProfile } from '../services/studentService.js';
 
 const AuthContext = createContext(null);
@@ -62,17 +62,11 @@ export function AuthProvider({ children }) {
     return data;
   }
 
-  async function register(userData) {
-    const data = await registerUser(userData);
-    setToken(data.token);
-    setRole(data.role);
-    localStorage.setItem(TOKEN_KEY, data.token);
-    localStorage.setItem(ROLE_KEY, data.role);
-    if (data.role === 'STUDENT') {
-      await loadProfile();
-    }
-    return data;
-  }
+  const register = registerUser;
+
+  const forgotPassword = fp;
+
+  const resetPassword = rp;
 
   const value = useMemo(
     () => ({
@@ -85,6 +79,8 @@ export function AuthProvider({ children }) {
       register,
       logout,
       loadProfile,
+      forgotPassword,
+      resetPassword,
       getAuthHeaders: () => ({ Authorization: `Bearer ${token}` })
     }),
     [token, role, user, isAuthenticated, loading, logout, loadProfile]

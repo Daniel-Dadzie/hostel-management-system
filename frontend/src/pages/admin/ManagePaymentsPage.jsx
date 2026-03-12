@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import {
   cancelPaymentByBooking,
   confirmPaymentByBooking,
+  fetchPaymentReceiptBlob,
   listPaymentRecords
 } from '../../services/paymentService.js';
 
@@ -11,6 +12,7 @@ export default function ManagePaymentsPage() {
   const [error, setError] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [processing, setProcessing] = useState(null);
+  const [receiptLoading, setReceiptLoading] = useState('');
 
   useEffect(() => {
     loadPayments();
@@ -41,6 +43,41 @@ export default function ManagePaymentsPage() {
       setError(err.message);
     } finally {
       setProcessing(null);
+    }
+  }
+
+  async function previewReceipt(bookingId) {
+    setReceiptLoading(`preview-${bookingId}`);
+    setError('');
+    try {
+      const { blob } = await fetchPaymentReceiptBlob(bookingId, false);
+      const url = URL.createObjectURL(blob);
+      window.open(url, '_blank', 'noopener,noreferrer');
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setReceiptLoading('');
+    }
+  }
+
+  async function downloadReceipt(bookingId) {
+    setReceiptLoading(`download-${bookingId}`);
+    setError('');
+    try {
+      const { blob, filename } = await fetchPaymentReceiptBlob(bookingId, true);
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = filename;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setReceiptLoading('');
     }
   }
 
@@ -88,11 +125,28 @@ export default function ManagePaymentsPage() {
               <p className="font-medium text-neutral-900 dark:text-white">Booking #{row.id}</p>
               <p className="body-text text-neutral-500 dark:text-neutral-400">{row.studentName} · {row.studentEmail}</p>
               <p className="body-text mt-2 text-neutral-600 dark:text-neutral-300">Status: {row.paymentStatus || 'N/A'}</p>
+              <p className="body-text text-neutral-600 dark:text-neutral-300">Method: {row.paymentMethod ? row.paymentMethod.replace('_', ' ') : 'N/A'}</p>
               <p className="body-text text-neutral-600 dark:text-neutral-300">Amount: {row.paymentAmount ?? 'N/A'}</p>
+              <p className="body-text text-neutral-600 dark:text-neutral-300">Reference: {row.transactionReference || 'N/A'}</p>
+              <p className="body-text text-neutral-600 dark:text-neutral-300">Receipt: {row.receiptFilename || 'Not uploaded'}</p>
               <p className="body-text text-neutral-600 dark:text-neutral-300">
                 Due: {row.paymentDueAt ? new Date(row.paymentDueAt).toLocaleString() : '-'}
               </p>
               <div className="mt-2 flex gap-2">
+                <button
+                  className="rounded border border-neutral-300 px-2 py-1 text-xs font-medium text-neutral-700 hover:bg-neutral-100 disabled:opacity-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
+                  onClick={() => previewReceipt(row.id)}
+                  disabled={!row.receiptFilename || receiptLoading === `preview-${row.id}`}
+                >
+                  {receiptLoading === `preview-${row.id}` ? 'Opening...' : 'Preview'}
+                </button>
+                <button
+                  className="rounded border border-neutral-300 px-2 py-1 text-xs font-medium text-neutral-700 hover:bg-neutral-100 disabled:opacity-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
+                  onClick={() => downloadReceipt(row.id)}
+                  disabled={!row.receiptFilename || receiptLoading === `download-${row.id}`}
+                >
+                  {receiptLoading === `download-${row.id}` ? 'Downloading...' : 'Download'}
+                </button>
                 <button
                   className="rounded bg-primary-700 px-2 py-1 text-xs font-medium text-white hover:bg-primary-800 disabled:opacity-50"
                   onClick={() => updateBookingStatus(row.id, 'APPROVED')}
@@ -125,6 +179,7 @@ export default function ManagePaymentsPage() {
                 <th className="px-3 py-2 text-left font-semibold text-neutral-800 dark:text-neutral-100">Student</th>
                 <th className="px-3 py-2 text-left font-semibold text-neutral-800 dark:text-neutral-100">Payment</th>
                 <th className="px-3 py-2 text-left font-semibold text-neutral-800 dark:text-neutral-100">Due</th>
+                <th className="px-3 py-2 text-left font-semibold text-neutral-800 dark:text-neutral-100">Proof</th>
                 <th className="px-3 py-2 text-left font-semibold text-neutral-800 dark:text-neutral-100">Actions</th>
               </tr>
             </thead>
@@ -141,11 +196,38 @@ export default function ManagePaymentsPage() {
                   <td className="px-3 py-2">
                     <div className="space-y-0.5 text-neutral-600 dark:text-neutral-300">
                       <p>Status: {row.paymentStatus || 'N/A'}</p>
+                      <p>Method: {row.paymentMethod ? row.paymentMethod.replace('_', ' ') : 'N/A'}</p>
                       <p>Amount: {row.paymentAmount ?? 'N/A'}</p>
+                      <p>Ref: {row.transactionReference || 'N/A'}</p>
                     </div>
                   </td>
                   <td className="px-3 py-2 text-neutral-600 dark:text-neutral-300">
                     {row.paymentDueAt ? new Date(row.paymentDueAt).toLocaleString() : '-'}
+                  </td>
+                  <td className="px-3 py-2">
+                    {row.receiptFilename ? (
+                      <div className="space-y-2">
+                        <p className="text-xs text-neutral-500 dark:text-neutral-400">{row.receiptFilename}</p>
+                        <div className="flex gap-2">
+                          <button
+                            className="rounded border border-neutral-300 px-2 py-1 text-xs font-medium text-neutral-700 hover:bg-neutral-100 disabled:opacity-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
+                            onClick={() => previewReceipt(row.id)}
+                            disabled={receiptLoading === `preview-${row.id}`}
+                          >
+                            {receiptLoading === `preview-${row.id}` ? 'Opening...' : 'Preview'}
+                          </button>
+                          <button
+                            className="rounded border border-neutral-300 px-2 py-1 text-xs font-medium text-neutral-700 hover:bg-neutral-100 disabled:opacity-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
+                            onClick={() => downloadReceipt(row.id)}
+                            disabled={receiptLoading === `download-${row.id}`}
+                          >
+                            {receiptLoading === `download-${row.id}` ? 'Downloading...' : 'Download'}
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <span className="text-xs text-neutral-500 dark:text-neutral-400">No receipt</span>
+                    )}
                   </td>
                   <td className="px-3 py-2">
                     <div className="flex gap-2">
@@ -169,7 +251,7 @@ export default function ManagePaymentsPage() {
               ))}
               {filteredRows.length === 0 && (
                 <tr>
-                  <td className="px-3 py-3 text-neutral-500 dark:text-neutral-400" colSpan={5}>
+                  <td className="px-3 py-3 text-neutral-500 dark:text-neutral-400" colSpan={6}>
                     No payment records available.
                   </td>
                 </tr>

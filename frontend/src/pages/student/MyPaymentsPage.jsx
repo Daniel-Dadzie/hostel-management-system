@@ -1,6 +1,18 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { getMyBooking } from '../../services/studentService.js';
+import {
+  getMyBooking,
+  initiateGatewayPayment,
+  submitPaymentReceipt,
+  verifyGatewayPayment
+} from '../../services/studentService.js';
+
+const PAYMENT_METHOD_OPTIONS = [
+  { value: 'MTN_MOMO', label: 'MTN Mobile Money' },
+  { value: 'TELECEL_CASH', label: 'Telecel Cash' },
+  { value: 'VISA_CARD', label: 'Visa Card' },
+  { value: 'BANK_CARD', label: 'Other Bank Card' }
+];
 
 function getPaymentBadgeClass(status) {
   if (status === 'PENDING_PAYMENT') return 'badge-pending';
@@ -32,6 +44,13 @@ export default function MyPaymentsPage() {
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
+  const [submittingReceipt, setSubmittingReceipt] = useState(false);
+  const [processingGateway, setProcessingGateway] = useState(false);
+  const [verifyingGateway, setVerifyingGateway] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState('MTN_MOMO');
+  const [transactionReference, setTransactionReference] = useState('');
+  const [receiptFile, setReceiptFile] = useState(null);
 
   useEffect(() => {
     loadPaymentContext();
@@ -48,6 +67,76 @@ export default function MyPaymentsPage() {
     }
   }
 
+  async function handleReceiptSubmit(event) {
+    event.preventDefault();
+    if (!booking?.id) return;
+
+    if (!receiptFile) {
+      setError('Please choose a receipt file before submitting.');
+      return;
+    }
+
+    setSubmittingReceipt(true);
+    setError('');
+    setNotice('');
+
+    try {
+      const result = await submitPaymentReceipt({
+        bookingId: booking.id,
+        paymentMethod,
+        transactionReference,
+        receipt: receiptFile
+      });
+
+      setNotice(result?.message || 'Receipt submitted successfully.');
+      setTransactionReference('');
+      setReceiptFile(null);
+      await loadPaymentContext();
+    } catch (err) {
+      setError(err.message || 'Unable to submit receipt.');
+    } finally {
+      setSubmittingReceipt(false);
+    }
+  }
+
+  async function handleGatewayPay() {
+    if (!booking?.id) return;
+    setProcessingGateway(true);
+    setError('');
+    setNotice('');
+
+    try {
+      const result = await initiateGatewayPayment({
+        bookingId: booking.id,
+        paymentMethod
+      });
+      if (result?.authorizationUrl) {
+        window.open(result.authorizationUrl, '_blank', 'noopener,noreferrer');
+      }
+      setNotice(result?.message || 'Gateway initialized. Complete payment and verify.');
+    } catch (err) {
+      setError(err.message || 'Gateway payment failed.');
+    } finally {
+      setProcessingGateway(false);
+    }
+  }
+
+  async function handleGatewayVerify() {
+    if (!booking?.id) return;
+    setVerifyingGateway(true);
+    setError('');
+    setNotice('');
+    try {
+      const result = await verifyGatewayPayment({ bookingId: booking.id });
+      setNotice(result?.message || 'Verification complete.');
+      await loadPaymentContext();
+    } catch (err) {
+      setError(err.message || 'Unable to verify payment status.');
+    } finally {
+      setVerifyingGateway(false);
+    }
+  }
+
   const paymentSummary = useMemo(() => {
     if (!booking) {
       return {
@@ -59,8 +148,8 @@ export default function MyPaymentsPage() {
 
     return {
       status: booking.status,
-      amount: 'Calculated from allocated room',
-      reference: `Booking #${booking.id}`
+      amount: booking.paymentAmount == null ? 'N/A' : `GHS ${booking.paymentAmount}`,
+      reference: booking.transactionReference || `Booking #${booking.id}`
     };
   }, [booking]);
 
@@ -89,6 +178,12 @@ export default function MyPaymentsPage() {
         </div>
       )}
 
+      {notice && (
+        <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-300">
+          {notice}
+        </div>
+      )}
+
       <div className="card">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 className="card-header text-neutral-900 dark:text-white">Latest Payment</h2>
@@ -97,6 +192,8 @@ export default function MyPaymentsPage() {
         <div className="body-text mt-4 space-y-2 text-neutral-600 dark:text-neutral-300">
           <p>Amount: {paymentSummary.amount}</p>
           <p>Reference: {paymentSummary.reference}</p>
+          <p>Method: {booking?.paymentMethod ? booking.paymentMethod.replace('_', ' ') : 'Not selected'}</p>
+          <p>Payment State: {booking?.paymentStatus || 'N/A'}</p>
           {booking?.paymentDueAt && (
             <p>Due At: {new Date(booking.paymentDueAt).toLocaleString()}</p>
           )}
@@ -110,6 +207,76 @@ export default function MyPaymentsPage() {
           </Link>
         </div>
       </div>
+
+      {booking?.status === 'PENDING_PAYMENT' && (
+        <div className="card">
+          <h2 className="card-header text-neutral-900 dark:text-white">Pay For This Booking</h2>
+          <p className="section-subtitle mt-2 dark:text-neutral-300">
+            Choose MTN, Telecel, or card payment. You can upload a receipt or pay through the real gateway flow.
+          </p>
+
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <label className="space-y-2">
+              <span className="text-sm font-medium text-neutral-700 dark:text-neutral-200">Payment Method</span>
+              <select
+                className="input-field"
+                value={paymentMethod}
+                onChange={(e) => setPaymentMethod(e.target.value)}
+              >
+                {PAYMENT_METHOD_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="space-y-2">
+              <span className="text-sm font-medium text-neutral-700 dark:text-neutral-200">Transaction Reference</span>
+              <input
+                className="input-field"
+                value={transactionReference}
+                onChange={(e) => setTransactionReference(e.target.value)}
+                placeholder="e.g. MOMO123456 or VISAAUTH2026"
+              />
+            </label>
+          </div>
+
+          <form className="mt-4 space-y-3" onSubmit={handleReceiptSubmit}>
+            <label className="space-y-2">
+              <span className="text-sm font-medium text-neutral-700 dark:text-neutral-200">Upload Receipt (JPG, PNG, PDF)</span>
+              <input
+                className="input-field"
+                type="file"
+                accept=".jpg,.jpeg,.png,.pdf"
+                onChange={(e) => setReceiptFile(e.target.files?.[0] || null)}
+              />
+            </label>
+
+            <div className="flex flex-wrap gap-3">
+              <button className="btn-primary" type="submit" disabled={submittingReceipt}>
+                {submittingReceipt ? 'Submitting...' : 'Submit Receipt'}
+              </button>
+              <button
+                className="btn-ghost"
+                type="button"
+                disabled={processingGateway}
+                onClick={handleGatewayPay}
+              >
+                {processingGateway ? 'Initializing...' : 'Pay With Gateway'}
+              </button>
+              <button
+                className="btn-ghost"
+                type="button"
+                disabled={verifyingGateway || !booking?.transactionReference}
+                onClick={handleGatewayVerify}
+              >
+                {verifyingGateway ? 'Verifying...' : 'Verify Gateway Payment'}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
 
       <div className="card">
         <h2 className="card-header text-neutral-900 dark:text-white">Payment History</h2>

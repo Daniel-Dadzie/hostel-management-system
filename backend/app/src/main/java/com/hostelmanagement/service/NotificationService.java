@@ -79,6 +79,18 @@ public class NotificationService {
         paymentApprovalBody(name, hostel, room));
   }
 
+  /**
+   * Called after a password-reset token is generated for an account.
+   */
+  @Async("taskExecutor")
+  public void sendPasswordReset(String email, String name, String resetUrl, Instant expiresAt) {
+    log.info("[NOTIFICATION] Queuing password-reset → {}", email);
+    send(
+        email,
+        "Password Reset Request",
+        passwordResetBody(name, resetUrl, expiresAt));
+  }
+
   // ─── private helpers ────────────────────────────────────────────────────
 
   private void send(String to, String subject, String body) {
@@ -132,5 +144,22 @@ public class NotificationService {
 
         University Hostel Management System
         """.formatted(name, hostel, room);
+  }
+
+  private static String passwordResetBody(String name, String resetUrl, Instant expiresAt) {
+    return """
+        Dear %s,
+
+        We received a request to reset your password.
+
+        Reset your password using this secure link:
+        %s
+
+        This link expires at: %s
+
+        If you did not request this change, you can ignore this email safely.
+
+        University Hostel Management System
+        """.formatted(name, resetUrl, FMT.format(expiresAt));
   }
 }

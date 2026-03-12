@@ -282,9 +282,9 @@ export default function ConfirmBookingPage() {
         {/* price row */}
         {room.price != null && (
           <div className="flex items-center justify-between px-4 py-3 border-t border-neutral-100 bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-800/60">
-            <span className="text-sm text-neutral-500 dark:text-neutral-400">Semester fee</span>
+            <span className="text-sm text-neutral-500 dark:text-neutral-400">Annual fee (₵ / GHS)</span>
             <span className="text-xl font-extrabold text-primary-700 dark:text-primary-400">
-              GHS {Number(room.price).toLocaleString()}
+              ₵ {Number(room.price).toLocaleString()} (GHS)
             </span>
           </div>
         )}

@@ -283,8 +283,8 @@ export default function RoomDetailPage() {
           {room.price != null && (
             <InfoRow
               icon={<span className="font-bold text-sm">₵</span>}
-              label="Price / semester"
-              value={`GHS ${Number(room.price).toLocaleString()}`}
+              label="Price / year"
+              value={`₵ ${Number(room.price).toLocaleString()} (GHS)`}
             />
           )}
         </div>

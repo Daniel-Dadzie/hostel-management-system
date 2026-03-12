@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import { useEffect, useState } from 'react';
 import { listHostels } from '../../services/hostelService.js';
 import { createRoom, listRooms, updateRoom } from '../../services/roomService.js';
@@ -30,6 +31,120 @@ function filterRooms(rooms, selectedHostel, selectedStatus, selectedGender, sear
       );
     });
 }
+
+function getToggleFormLabel(showForm, editingRoom) {
+  if (showForm && editingRoom) return 'Cancel Edit';
+  if (showForm) return 'Cancel';
+  return 'Add Room';
+}
+
+function getSaveButtonLabel(saving, editingRoom) {
+  if (saving) return 'Saving...';
+  if (editingRoom) return 'Update Room';
+  return 'Save Room';
+}
+
+function RoomResults({ filteredRooms, statusColors, onEdit }) {
+  if (filteredRooms.length === 0) {
+    return (
+      <div className="empty-state">
+        <div className="empty-state-icon">
+          <span className="text-3xl">🛏️</span>
+        </div>
+        <h3 className="empty-state-title">No Rooms Found</h3>
+        <p className="section-subtitle">
+          Add rooms or adjust the current filters.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="grid gap-3 md:hidden">
+        {filteredRooms.map((room) => (
+          <div key={room.id} className="card space-y-2">
+            <div className="flex items-center justify-between gap-3">
+              <p className="font-medium text-neutral-900 dark:text-white">Room {room.roomNumber}</p>
+              <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusColors[room.status] || statusColors.AVAILABLE}`}>
+                {room.status}
+              </span>
+            </div>
+            <p className="body-text text-neutral-600 dark:text-neutral-300">Hostel: {room.hostelName}</p>
+            <p className="body-text text-neutral-600 dark:text-neutral-300">Gender: {room.roomGender} · Floor: {room.floorNumber}</p>
+            <p className="body-text text-neutral-600 dark:text-neutral-300">Capacity: {room.currentOccupancy || 0}/{room.capacity}</p>
+            <div className="flex gap-1">
+              {room.hasAc && <span className="rounded bg-accent-100 px-1.5 py-0.5 text-xs text-accent-900 dark:bg-accent-900/30 dark:text-accent-200">AC</span>}
+              {room.hasWifi && <span className="rounded bg-green-100 px-1.5 py-0.5 text-xs dark:bg-green-900/30">WiFi</span>}
+            </div>
+            <button
+              type="button"
+              className="btn-ghost mt-2"
+              onClick={() => onEdit(room)}
+            >
+              Edit
+            </button>
+          </div>
+        ))}
+      </div>
+
+      <div className="card hidden overflow-x-auto md:block">
+      <table className="w-full min-w-[960px] text-left text-sm">
+        <thead className="border-b border-neutral-200 dark:border-neutral-700">
+          <tr>
+            <th className="px-4 py-3 font-medium text-neutral-900 dark:text-white">Room</th>
+            <th className="px-4 py-3 font-medium text-neutral-900 dark:text-white">Hostel</th>
+            <th className="px-4 py-3 font-medium text-neutral-900 dark:text-white">Gender</th>
+            <th className="px-4 py-3 font-medium text-neutral-900 dark:text-white">Floor</th>
+            <th className="px-4 py-3 font-medium text-neutral-900 dark:text-white">Capacity</th>
+            <th className="px-4 py-3 font-medium text-neutral-900 dark:text-white">Status</th>
+            <th className="px-4 py-3 font-medium text-neutral-900 dark:text-white">Amenities</th>
+            <th className="px-4 py-3 font-medium text-neutral-900 dark:text-white">Actions</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-neutral-200 dark:divide-neutral-700">
+          {filteredRooms.map((room) => (
+            <tr key={room.id}>
+              <td className="px-4 py-3 font-medium">{room.roomNumber}</td>
+              <td className="px-4 py-3 text-neutral-600 dark:text-neutral-400">{room.hostelName}</td>
+              <td className="px-4 py-3">{room.roomGender}</td>
+              <td className="px-4 py-3">{room.floorNumber}</td>
+              <td className="px-4 py-3">
+                {room.currentOccupancy || 0}/{room.capacity}
+              </td>
+              <td className="px-4 py-3">
+                <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusColors[room.status] || statusColors.AVAILABLE}`}>
+                  {room.status}
+                </span>
+              </td>
+              <td className="px-4 py-3">
+                <div className="flex gap-1">
+                  {room.hasAc && <span className="rounded bg-accent-100 px-1.5 py-0.5 text-xs text-accent-900 dark:bg-accent-900/30 dark:text-accent-200">AC</span>}
+                  {room.hasWifi && <span className="rounded bg-green-100 px-1.5 py-0.5 text-xs dark:bg-green-900/30">WiFi</span>}
+                </div>
+              </td>
+              <td className="px-4 py-3">
+                <button type="button" className="btn-ghost" onClick={() => onEdit(room)}>
+                  Edit
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      </div>
+    </div>
+  );
+}
+
+RoomResults.propTypes = {
+  filteredRooms: PropTypes.arrayOf(PropTypes.object).isRequired,
+  statusColors: PropTypes.shape({
+    AVAILABLE: PropTypes.string,
+    FULL: PropTypes.string
+  }).isRequired,
+  onEdit: PropTypes.func.isRequired
+};
 
 export default function ManageRoomsPage() {
   const [rooms, setRooms] = useState([]);
@@ -162,19 +277,20 @@ export default function ManageRoomsPage() {
   const hasFloorGenderConflict =
     floorAssignedGender != null && form.roomGender !== floorAssignedGender;
 
-  let toggleFormLabel = 'Add Room';
-  if (showForm && editingRoom) {
-    toggleFormLabel = 'Cancel Edit';
-  } else if (showForm) {
-    toggleFormLabel = 'Cancel';
-  }
+  const normalizedRoomNumber = (form.roomNumber || '').trim().toLowerCase();
+  const hasDuplicateRoomNumber =
+    selectedHostelId != null &&
+    normalizedRoomNumber.length > 0 &&
+    rooms.some(
+      (room) =>
+        room.hostelId === selectedHostelId &&
+        String(room.roomNumber || '').trim().toLowerCase() === normalizedRoomNumber &&
+        (!editingRoom || room.id !== editingRoom.id)
+    );
 
-  let saveButtonLabel = 'Save Room';
-  if (saving) {
-    saveButtonLabel = 'Saving...';
-  } else if (editingRoom) {
-    saveButtonLabel = 'Update Room';
-  }
+  const toggleFormLabel = getToggleFormLabel(showForm, editingRoom);
+
+  const saveButtonLabel = getSaveButtonLabel(saving, editingRoom);
 
   if (loading) {
     return (
@@ -219,6 +335,15 @@ export default function ManageRoomsPage() {
           {error}
         </div>
       )}
+
+      <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800 dark:border-blue-900/40 dark:bg-blue-900/20 dark:text-blue-300">
+        <p className="font-semibold">Floor Management</p>
+        <p className="mt-1">
+          Floors are added from this page. Click <span className="font-semibold">Add Room</span> and set a new value in{' '}
+          <span className="font-semibold">Floor Number</span>. If that floor does not exist yet for the selected hostel,
+          it will be created automatically.
+        </p>
+      </div>
 
       {/* Add Room Form */}
       {showForm && hostels.length > 0 && (
@@ -292,12 +417,12 @@ export default function ManageRoomsPage() {
                 </select>
               </div>
               <div>
-                <label htmlFor="room-price" className="mb-1 block text-sm font-medium">Price (per semester)</label>
+                <label htmlFor="room-price" className="mb-1 block text-sm font-medium">Price (per year, ₵ / GHS)</label>
                 <input
                   id="room-price"
                   type="number"
                   className="input-field"
-                  placeholder="e.g., 500"
+                  placeholder="e.g., 5000"
                   value={form.price}
                   onChange={(e) => setForm({ ...form, price: e.target.value })}
                 />
@@ -329,6 +454,12 @@ export default function ManageRoomsPage() {
                   : `Floor ${selectedFloorNumber} has no rooms yet. You can set the gender for this floor.`}
               </div>
             ) : null}
+
+            {hasDuplicateRoomNumber ? (
+              <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700 dark:bg-red-900/20 dark:text-red-300">
+                This room number already exists in the selected hostel. Use a unique room number.
+              </div>
+            ) : null}
             
             <div className="flex flex-wrap gap-4 sm:gap-6">
               <label className="flex items-center gap-2">
@@ -351,7 +482,11 @@ export default function ManageRoomsPage() {
               </label>
             </div>
 
-            <button type="submit" className="btn-primary" disabled={saving || hasFloorGenderConflict}>
+            <button
+              type="submit"
+              className="btn-primary"
+              disabled={saving || hasFloorGenderConflict || hasDuplicateRoomNumber}
+            >
               {saveButtonLabel}
             </button>
             {editingRoom ? (
@@ -410,92 +545,7 @@ export default function ManageRoomsPage() {
         </div>
       )}
 
-      {filteredRooms.length === 0 ? (
-        <div className="empty-state">
-          <div className="empty-state-icon">
-            <span className="text-3xl">🛏️</span>
-          </div>
-          <h3 className="empty-state-title">No Rooms Found</h3>
-          <p className="section-subtitle">
-            Add rooms or adjust the current filters.
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          <div className="grid gap-3 md:hidden">
-            {filteredRooms.map((room) => (
-              <div key={room.id} className="card space-y-2">
-                <div className="flex items-center justify-between gap-3">
-                  <p className="font-medium text-neutral-900 dark:text-white">Room {room.roomNumber}</p>
-                  <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusColors[room.status] || statusColors.AVAILABLE}`}>
-                    {room.status}
-                  </span>
-                </div>
-                <p className="body-text text-neutral-600 dark:text-neutral-300">Hostel: {room.hostelName}</p>
-                <p className="body-text text-neutral-600 dark:text-neutral-300">Gender: {room.roomGender} · Floor: {room.floorNumber}</p>
-                <p className="body-text text-neutral-600 dark:text-neutral-300">Capacity: {room.currentOccupancy || 0}/{room.capacity}</p>
-                <div className="flex gap-1">
-                  {room.hasAc && <span className="rounded bg-accent-100 px-1.5 py-0.5 text-xs text-accent-900 dark:bg-accent-900/30 dark:text-accent-200">AC</span>}
-                  {room.hasWifi && <span className="rounded bg-green-100 px-1.5 py-0.5 text-xs dark:bg-green-900/30">WiFi</span>}
-                </div>
-                <button
-                  type="button"
-                  className="btn-ghost mt-2"
-                  onClick={() => startEdit(room)}
-                >
-                  Edit
-                </button>
-              </div>
-            ))}
-          </div>
-
-          <div className="card hidden overflow-x-auto md:block">
-          <table className="w-full min-w-[960px] text-left text-sm">
-            <thead className="border-b border-neutral-200 dark:border-neutral-700">
-              <tr>
-                <th className="px-4 py-3 font-medium text-neutral-900 dark:text-white">Room</th>
-                <th className="px-4 py-3 font-medium text-neutral-900 dark:text-white">Hostel</th>
-                <th className="px-4 py-3 font-medium text-neutral-900 dark:text-white">Gender</th>
-                <th className="px-4 py-3 font-medium text-neutral-900 dark:text-white">Floor</th>
-                <th className="px-4 py-3 font-medium text-neutral-900 dark:text-white">Capacity</th>
-                <th className="px-4 py-3 font-medium text-neutral-900 dark:text-white">Status</th>
-                <th className="px-4 py-3 font-medium text-neutral-900 dark:text-white">Amenities</th>
-                <th className="px-4 py-3 font-medium text-neutral-900 dark:text-white">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-neutral-200 dark:divide-neutral-700">
-              {filteredRooms.map((room) => (
-                <tr key={room.id}>
-                  <td className="px-4 py-3 font-medium">{room.roomNumber}</td>
-                  <td className="px-4 py-3 text-neutral-600 dark:text-neutral-400">{room.hostelName}</td>
-                  <td className="px-4 py-3">{room.roomGender}</td>
-                  <td className="px-4 py-3">{room.floorNumber}</td>
-                  <td className="px-4 py-3">
-                    {room.currentOccupancy || 0}/{room.capacity}
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusColors[room.status] || statusColors.AVAILABLE}`}>
-                      {room.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex gap-1">
-                      {room.hasAc && <span className="rounded bg-accent-100 px-1.5 py-0.5 text-xs text-accent-900 dark:bg-accent-900/30 dark:text-accent-200">AC</span>}
-                      {room.hasWifi && <span className="rounded bg-green-100 px-1.5 py-0.5 text-xs dark:bg-green-900/30">WiFi</span>}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <button type="button" className="btn-ghost" onClick={() => startEdit(room)}>
-                      Edit
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          </div>
-        </div>
-      )}
+      <RoomResults filteredRooms={filteredRooms} statusColors={statusColors} onEdit={startEdit} />
     </div>
   );
 }

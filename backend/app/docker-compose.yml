@@ -8,10 +8,10 @@ services:
     ports:
       - "${MYSQL_HOST_PORT:-3307}:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD in your shell or .env}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?MYSQL_ROOT_PASSWORD is required}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-hostel_db}
       MYSQL_USER: ${MYSQL_USER:-hostel_user}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD in your shell or .env}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?MYSQL_PASSWORD is required}
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
@@ -45,21 +45,21 @@ services:
     container_name: hostel-backend
     restart: unless-stopped
     ports:
-      - "8080:8080"
+      - "8081:8080"
     depends_on:
       mysql:
         condition: service_healthy
     environment:
       DB_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE:-hostel_db}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       DB_USERNAME: ${MYSQL_USER:-hostel_user}
-      DB_PASSWORD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD in your shell or .env}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
       CACHE_TYPE: ${CACHE_TYPE:-none}
       MANAGEMENT_HEALTH_REDIS_ENABLED: "false"
       REDIS_HOST: redis
       REDIS_PORT: "6379"
       FRONTEND_URL: http://localhost
-      JWT_SECRET: ${JWT_SECRET:-change-this-to-a-secure-secret-minimum-32-chars}
-      ADMIN_PASSWORD_HASH: ${ADMIN_PASSWORD_HASH:-}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      ADMIN_PASSWORD_HASH: ${ADMIN_PASSWORD_HASH:?ADMIN_PASSWORD_HASH is required}
       # Optional SMTP – leave unset to run without email sending
       MAIL_HOST: ${MAIL_HOST:-}
       MAIL_PORT: ${MAIL_PORT:-587}
@@ -68,7 +68,7 @@ services:
     healthcheck:
       test:
         - "CMD-SHELL"
-        - "nc -z localhost 8080"
+        - "wget -qO- http://localhost:8080 || exit 1"
       interval: 15s
       timeout: 5s
       start_period: 60s

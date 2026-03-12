@@ -4,6 +4,7 @@ import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext.jsx';
 import PublicLayout from '../components/layouts/PublicLayout.jsx';
 import LoadingOverlay from '../components/LoadingOverlay.jsx';
+import ImageUploadField from '../components/ImageUploadField.jsx';
 
 export default function RegisterPage() {
   const [form, setForm] = useState({
@@ -11,6 +12,7 @@ export default function RegisterPage() {
     email: '',
     phone: '',
     gender: 'MALE',
+    profileImageUrl: '',
     password: '',
     confirmPassword: ''
   });
@@ -47,9 +49,13 @@ export default function RegisterPage() {
         email: form.email,
         phone: form.phone,
         gender: form.gender,
+        profileImageUrl: form.profileImageUrl || null,
         password: form.password
       });
-      navigate('/student/hostels');
+      navigate('/login', {
+        replace: true,
+        state: { justRegistered: true }
+      });
     } catch (err) {
       setError(err.message || 'Registration failed. Please try again.');
     } finally {
@@ -135,6 +141,17 @@ export default function RegisterPage() {
                   <option value="FEMALE">Female</option>
                 </select>
               </div>
+
+              <ImageUploadField
+                id="register-profile-image"
+                label="Profile Photo (optional)"
+                value={form.profileImageUrl}
+                onChange={(value) => handleChange('profileImageUrl', value)}
+                onError={setError}
+                onClear={() => handleChange('profileImageUrl', '')}
+                helperText="Upload an image or take a picture with your camera."
+                maxDataUrlLength={50000}
+              />
 
               <div>
                 <label htmlFor="register-password" className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">

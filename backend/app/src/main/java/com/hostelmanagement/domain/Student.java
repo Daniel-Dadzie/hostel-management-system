@@ -35,7 +35,7 @@ public class Student {
   @Column(length = 30)
   private String phone;
 
-  @Column(name = "profile_image_url", length = 500)
+  @Column(name = "profile_image_url", columnDefinition = "MEDIUMTEXT")
   private String profileImageUrl;
 
   @Enumerated(EnumType.STRING)
@@ -54,6 +54,13 @@ public class Student {
 
   @Column(name = "updated_at", nullable = false)
   private Instant updatedAt;
+
+  // Password reset fields
+  @Column(name = "reset_token")
+  private String resetToken;
+
+  @Column(name = "reset_token_expiry")
+  private Instant resetTokenExpiry;
 
   @PrePersist
   void onCreate() {
@@ -125,5 +132,22 @@ public class Student {
 
   public void setRole(Role role) {
     this.role = role;
+  }
+
+  // Password reset getters and setters
+  public String getResetToken() {
+    return resetToken;
+  }
+
+  public void setResetToken(String resetToken) {
+    this.resetToken = resetToken;
+  }
+
+  public Instant getResetTokenExpiry() {
+    return resetTokenExpiry;
+  }
+
+  public void setResetTokenExpiry(Instant resetTokenExpiry) {
+    this.resetTokenExpiry = resetTokenExpiry;
   }
 }

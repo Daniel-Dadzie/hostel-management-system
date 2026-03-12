@@ -1,6 +1,7 @@
 package com.hostelmanagement.web.admin.dto;
 
 import com.hostelmanagement.domain.BookingStatus;
+import com.hostelmanagement.domain.PaymentMethod;
 import com.hostelmanagement.domain.PaymentStatus;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -16,5 +17,9 @@ public record AdminBookingResponse(
     String hostelName,
     String roomNumber,
     PaymentStatus paymentStatus,
+    PaymentMethod paymentMethod,
     BigDecimal paymentAmount,
-    Instant paymentDueAt) {}
+    Instant paymentDueAt,
+    String transactionReference,
+    String receiptFilename,
+    Instant paidAt) {}

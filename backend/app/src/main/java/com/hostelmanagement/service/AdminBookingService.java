@@ -4,6 +4,8 @@ import com.hostelmanagement.domain.*;
 import com.hostelmanagement.repository.BookingRepository;
 import com.hostelmanagement.repository.PaymentRepository;
 import com.hostelmanagement.web.admin.dto.AdminBookingResponse;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +57,37 @@ public class AdminBookingService {
     return toDto(booking, payment);
   }
 
+  @Transactional(readOnly = true)
+  public ReceiptFile getReceiptFile(Long bookingId) {
+    Payment payment =
+        paymentRepository
+            .findByBookingId(bookingId)
+            .orElseThrow(() -> new IllegalArgumentException("Payment record not found"));
+
+    if (payment.getReceiptStoragePath() == null || payment.getReceiptStoragePath().isBlank()) {
+      throw new IllegalArgumentException("No receipt uploaded for this booking");
+    }
+
+    String filename =
+        payment.getReceiptFilename() == null || payment.getReceiptFilename().isBlank()
+            ? "receipt"
+            : payment.getReceiptFilename();
+
+    Path baseDir = Path.of("uploads/payment-receipts").toAbsolutePath().normalize();
+    Path target = Path.of(payment.getReceiptStoragePath()).toAbsolutePath().normalize();
+
+    if (!target.startsWith(baseDir)) {
+      throw new IllegalArgumentException("Invalid receipt file location");
+    }
+    if (!Files.exists(target) || !Files.isRegularFile(target)) {
+      throw new IllegalArgumentException("Receipt file not found on server");
+    }
+
+    return new ReceiptFile(target, payment.getReceiptContentType(), filename);
+  }
+
+  public record ReceiptFile(Path path, String contentType, String filename) {}
+
   private static AdminBookingResponse toDto(Booking booking, Payment payment) {
     Room room = booking.getRoom();
     Hostel hostel = room == null ? null : room.getHostel();
@@ -71,7 +104,11 @@ public class AdminBookingService {
         hostel == null ? null : hostel.getName(),
         room == null ? null : room.getRoomNumber(),
         payment == null ? null : payment.getStatus(),
+        payment == null ? null : payment.getPaymentMethod(),
         payment == null ? null : payment.getAmount(),
-        payment == null ? null : payment.getDueAt());
+        payment == null ? null : payment.getDueAt(),
+        payment == null ? null : payment.getTransactionReference(),
+        payment == null ? null : payment.getReceiptFilename(),
+        payment == null ? null : payment.getPaidAt());
   }
 }

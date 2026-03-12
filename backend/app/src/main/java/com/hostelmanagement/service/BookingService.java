@@ -148,7 +148,13 @@ public class BookingService {
         savedBooking.getStatus(),
         locked.getHostel().getName(),
         locked.getRoomNumber(),
-        dueAt);
+      dueAt,
+      payment.getStatus(),
+      payment.getAmount(),
+      payment.getPaymentMethod(),
+      payment.getTransactionReference(),
+      payment.getReceiptFilename(),
+      payment.getPaidAt());
   }
 
   @Transactional(readOnly = true)
@@ -168,9 +174,21 @@ public class BookingService {
     String hostelName = booking.getRoom() == null ? null : booking.getRoom().getHostel().getName();
     String roomNumber = booking.getRoom() == null ? null : booking.getRoom().getRoomNumber();
 
-    Instant dueAt = paymentRepository.findByBookingId(booking.getId()).map(Payment::getDueAt).orElse(null);
+    Payment payment = paymentRepository.findByBookingId(booking.getId()).orElse(null);
+    Instant dueAt = payment == null ? null : payment.getDueAt();
 
-    return new BookingResponse(booking.getId(), booking.getStatus(), hostelName, roomNumber, dueAt);
+    return new BookingResponse(
+      booking.getId(),
+      booking.getStatus(),
+      hostelName,
+      roomNumber,
+      dueAt,
+      payment == null ? null : payment.getStatus(),
+      payment == null ? null : payment.getAmount(),
+      payment == null ? null : payment.getPaymentMethod(),
+      payment == null ? null : payment.getTransactionReference(),
+      payment == null ? null : payment.getReceiptFilename(),
+      payment == null ? null : payment.getPaidAt());
   }
 
   @CacheEvict(value = "available-rooms", allEntries = true)
@@ -206,6 +224,19 @@ public class BookingService {
           .ifPresent(
               p -> {
                 p.setStatus(PaymentStatus.CANCELLED);
+                paymentRepository.save(p);
+              });
+    }
+
+    if (status == BookingStatus.APPROVED) {
+      paymentRepository
+          .findByBookingId(booking.getId())
+          .ifPresent(
+              p -> {
+                p.setStatus(PaymentStatus.COMPLETED);
+                if (p.getPaidAt() == null) {
+                  p.setPaidAt(Instant.now());
+                }
                 paymentRepository.save(p);
               });
     }

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { getMyBooking } from '../../services/studentService.js';
 
 export default function MyBookingPage() {
@@ -154,9 +155,9 @@ export default function MyBookingPage() {
                 Pay now to confirm your booking
               </p>
             </div>
-            <button className="btn-primary">
+            <Link to="/student/payments" className="btn-primary">
               Pay Now
-            </button>
+            </Link>
           </div>
         </div>
       )}

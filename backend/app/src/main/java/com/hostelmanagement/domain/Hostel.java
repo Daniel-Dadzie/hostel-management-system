@@ -26,7 +26,7 @@ public class Hostel {
   @Column(length = 200)
   private String location;
 
-  @Column(name = "image_url", length = 500)
+  @Column(name = "image_url", columnDefinition = "MEDIUMTEXT")
   private String imageUrl;
 
   @Column(name = "distance_to_campus_km", precision = 6, scale = 2)

@@ -16,6 +16,7 @@ const navItems = [
   { to: '/admin', label: 'Dashboard', icon: FaChartBar },
   { to: '/admin/hostels', label: 'Manage Hostels', icon: FaUniversity },
   { to: '/admin/rooms', label: 'Manage Rooms', icon: FaBed },
+  { to: '/admin/floors', label: 'Manage Floors', icon: FaBed },
   { to: '/admin/students', label: 'Manage Students', icon: FaGraduationCap },
   { to: '/admin/bookings', label: 'Manage Bookings', icon: FaFileAlt },
   { to: '/admin/payments', label: 'Manage Payments', icon: FaCreditCard },

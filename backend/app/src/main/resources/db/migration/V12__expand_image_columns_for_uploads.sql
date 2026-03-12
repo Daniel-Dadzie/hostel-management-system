@@ -1,0 +1,5 @@
+ALTER TABLE students
+  MODIFY COLUMN profile_image_url MEDIUMTEXT NULL;
+
+ALTER TABLE hostels
+  MODIFY COLUMN image_url MEDIUMTEXT NULL;

@@ -10,6 +10,8 @@ import AdminLayout from './components/layouts/AdminLayout.jsx';
 import LandingPage from './pages/LandingPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
+import ForgotPasswordPage from './pages/ForgotPasswordPage.jsx';
+import ResetPasswordPage from './pages/ResetPasswordPage.jsx';
 
 // Student Pages
 import StudentDashboard from './pages/student/StudentDashboard.jsx';
@@ -29,6 +31,7 @@ import ComplaintsPage from './pages/student/ComplaintsPage.jsx';
 import AdminDashboard from './pages/admin/AdminDashboard.jsx';
 import ManageHostelsPage from './pages/admin/ManageHostelsPage.jsx';
 import ManageRoomsPage from './pages/admin/ManageRoomsPage.jsx';
+import ManageFloorsPage from './pages/admin/ManageFloorsPage.jsx';
 import ManageStudentsPage from './pages/admin/ManageStudentsPage.jsx';
 import ManageBookingsPage from './pages/admin/ManageBookingsPage.jsx';
 import ManagePaymentsPage from './pages/admin/ManagePaymentsPage.jsx';
@@ -52,6 +55,22 @@ export default function App() {
           element={
             <PublicRoute>
               <RegisterPage />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/forgot-password"
+          element={
+            <PublicRoute>
+              <ForgotPasswordPage />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/reset-password"
+          element={
+            <PublicRoute>
+              <ResetPasswordPage />
             </PublicRoute>
           }
         />
@@ -92,6 +111,7 @@ export default function App() {
           <Route index element={<AdminDashboard />} />
           <Route path="hostels" element={<ManageHostelsPage />} />
           <Route path="rooms" element={<ManageRoomsPage />} />
+          <Route path="floors" element={<ManageFloorsPage />} />
           <Route path="students" element={<ManageStudentsPage />} />
           <Route path="bookings" element={<ManageBookingsPage />} />
           <Route path="payments" element={<ManagePaymentsPage />} />

@@ -1,0 +1,19 @@
+# Development Dockerfile with Vite HMR (Hot Module Replacement)
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install dependencies (this layer is cached)
+COPY package.json package-lock.json* ./
+RUN npm install
+
+# Copy source code
+COPY . .
+
+# Expose Vite dev server port
+EXPOSE 3000
+
+# Run Vite in development mode with HMR
+# Volume mount /app/src from docker-compose will override local files
+# Use npm run dev directly with host flag for Docker compatibility
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "3000"]

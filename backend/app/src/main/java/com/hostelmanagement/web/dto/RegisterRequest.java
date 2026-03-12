@@ -11,4 +11,5 @@ public record RegisterRequest(
     @NotBlank @Email @Size(max = 200) String email,
     @Size(max = 30) String phone,
     @NotNull Gender gender,
+    @Size(max = 200000) String profileImageUrl,
     @NotBlank @Size(min = 6, max = 100) String password) {}

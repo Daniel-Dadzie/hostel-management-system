@@ -5,6 +5,14 @@ spring:
   application:
     name: hostel-management-system
 
+  # Spring Boot DevTools configuration for hot reload
+  devtools:
+    restart:
+      enabled: true
+      additional-paths: src/main/java
+    livereload:
+      enabled: true
+
   datasource:
     url: ${DB_URL:jdbc:mysql://localhost:3306/hostel_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
     username: ${DB_USERNAME:root}
@@ -70,6 +78,13 @@ logging:
 app:
   frontend-url: ${FRONTEND_URL:http://localhost:3000}
 
+  auth:
+    # Forgot-password rate limit window in seconds.
+    # Uses Redis when available and falls back to in-memory per-instance limiter.
+    reset-rate-limit-seconds: ${RESET_RATE_LIMIT_SECONDS:60}
+    # Cleanup interval for expired password-reset tokens (default: 1 hour).
+    reset-token-cleanup-ms: ${RESET_TOKEN_CLEANUP_MS:3600000}
+
   jwt:
     # IMPORTANT: Set JWT_SECRET environment variable in production!
     # Default value is for development only and should never be used in production.
@@ -79,3 +94,10 @@ app:
   booking:
     payment-hold-minutes: ${BOOKING_PAYMENT_HOLD_MINUTES:30}
     expiration-cron-ms: ${BOOKING_EXPIRATION_FIXED_DELAY_MS:300000}
+
+  payments:
+    paystack:
+      base-url: ${PAYSTACK_BASE_URL:https://api.paystack.co}
+      secret-key: ${PAYSTACK_SECRET_KEY:}
+      callback-url: ${PAYSTACK_CALLBACK_URL:http://localhost:3000/student/payments}
+      webhook-secret: ${PAYSTACK_WEBHOOK_SECRET:}

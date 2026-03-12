@@ -13,3 +13,17 @@ export function registerUser(userData) {
     body: userData
   });
 }
+
+export function forgotPassword(email) {
+  return apiRequest('/api/auth/forgot-password', {
+    method: 'POST',
+    body: { email }
+  });
+}
+
+export function resetPassword(token, newPassword) {
+  return apiRequest('/api/auth/reset-password', {
+    method: 'POST',
+    body: { token, newPassword }
+  });
+}

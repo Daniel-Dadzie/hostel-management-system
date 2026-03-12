@@ -1,18 +1,20 @@
 package com.hostelmanagement.service;
 
 import com.hostelmanagement.domain.Gender;
-import com.hostelmanagement.domain.Role;
 import com.hostelmanagement.domain.Student;
 import com.hostelmanagement.repository.StudentRepository;
 import com.hostelmanagement.security.JwtService;
+import com.hostelmanagement.security.PasswordResetRateLimiter;
 import com.hostelmanagement.web.dto.AuthResponse;
 import com.hostelmanagement.web.dto.RegisterRequest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.time.Instant;
 
 import java.util.Optional;
 
@@ -31,14 +33,32 @@ class AuthServiceTest {
     
     @Mock
     private JwtService jwtService;
+
+    @Mock
+    private NotificationService notificationService;
+
+    @Mock
+    private PasswordResetRateLimiter passwordResetRateLimiter;
     
-    @InjectMocks
     private AuthService authService;
+
+    @BeforeEach
+    void setUp() {
+        authService = new AuthService(
+            studentRepository,
+            passwordEncoder,
+            jwtService,
+            notificationService,
+            passwordResetRateLimiter,
+            "http://localhost:5173",
+            60L
+        );
+    }
 
     @Test
     void register_shouldThrowException_whenEmailExists() {
         // Given
-        RegisterRequest request = new RegisterRequest("John", "john@test.com", "123", Gender.MALE, "pass");
+        RegisterRequest request = new RegisterRequest("John", "john@test.com", "123", Gender.MALE, null, "pass");
         when(studentRepository.findByEmail("john@test.com")).thenReturn(Optional.of(new Student()));
         
         // When/Then
@@ -50,7 +70,7 @@ class AuthServiceTest {
     @Test
     void register_shouldCreateStudent_whenEmailNotExists() {
         // Given
-        RegisterRequest request = new RegisterRequest("John", "john@test.com", "123", Gender.MALE, "pass");
+        RegisterRequest request = new RegisterRequest("John", "john@test.com", "123", Gender.MALE, null, "pass");
         when(studentRepository.findByEmail(any())).thenReturn(Optional.empty());
         when(passwordEncoder.encode("pass")).thenReturn("encodedPass");
         when(studentRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
@@ -62,5 +82,37 @@ class AuthServiceTest {
         // Then
         assertThat(response.token()).isEqualTo("token");
         assertThat(response.role()).isEqualTo("STUDENT");
+    }
+
+    @Test
+    void forgotPassword_shouldDoNothing_whenEmailDoesNotExist() {
+        when(passwordResetRateLimiter.tryAcquire(any(), anyLong())).thenReturn(true);
+        when(studentRepository.findByEmail("missing@test.com")).thenReturn(Optional.empty());
+
+        authService.forgotPassword("missing@test.com");
+
+        verify(studentRepository, never()).save(any());
+        verify(notificationService, never()).sendPasswordReset(any(), any(), any(), any(Instant.class));
+    }
+
+    @Test
+    void forgotPassword_shouldStoreTokenAndSendEmail_whenEmailExists() {
+        when(passwordResetRateLimiter.tryAcquire(any(), anyLong())).thenReturn(true);
+        Student student = new Student();
+        student.setEmail("john@test.com");
+        student.setFullName("John Doe");
+        when(studentRepository.findByEmail("john@test.com")).thenReturn(Optional.of(student));
+
+        authService.forgotPassword("john@test.com");
+
+        assertThat(student.getResetToken()).isNotBlank();
+        assertThat(student.getResetTokenExpiry()).isNotNull();
+        verify(studentRepository).save(student);
+        verify(notificationService).sendPasswordReset(
+            eq("john@test.com"),
+            eq("John Doe"),
+            contains("/reset-password?token="),
+            any(Instant.class)
+        );
     }
 }

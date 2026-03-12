@@ -110,12 +110,14 @@ Set environment variables before running the app:
 ```cmd
 set DB_USERNAME=root
 set DB_PASSWORD=your_actual_password
+set SERVER_PORT=8081
 ```
 
 **PowerShell:**
 ```powershell
 $env:DB_USERNAME="root"
 $env:DB_PASSWORD="your_actual_password"
+$env:SERVER_PORT="8081"
 ```
 
 ---

@@ -14,6 +14,7 @@ export default function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const justRegistered = Boolean(location.state?.justRegistered);
   const from = location.state?.from?.pathname || null;
 
   async function handleSubmit(e) {
@@ -44,6 +45,12 @@ export default function LoginPage() {
             <h2 className="page-title mb-6 mt-3 text-center text-neutral-900 dark:text-white">
               Welcome Back
             </h2>
+
+            {justRegistered && (
+              <div className="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-900/20 dark:text-emerald-300">
+                Registration successful. Please sign in with your new account.
+              </div>
+            )}
 
             {error && (
               <div className="alert-error mb-4">
@@ -90,6 +97,15 @@ export default function LoginPage() {
                     {showPassword ? <FaEye className="text-lg" /> : <FaEyeSlash className="text-lg" />}
                   </button>
                 </div>
+              </div>
+
+              <div className="flex items-center justify-end">
+                <Link
+                  to="/forgot-password"
+                  className="text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
+                >
+                  Forgot Password?
+                </Link>
               </div>
 
               <button

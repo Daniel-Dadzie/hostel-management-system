@@ -1,0 +1,15 @@
+# Development Dockerfile for Spring Boot with DevTools and live restart
+FROM maven:3.9.11-eclipse-temurin-21
+
+WORKDIR /app
+
+# Prime Maven cache for faster container startup on first run.
+COPY pom.xml ./
+RUN mvn -q -DskipTests dependency:go-offline
+
+# Include source so image can run even without a bind mount.
+COPY src ./src
+
+EXPOSE 8080
+
+CMD ["mvn", "-DskipTests", "spring-boot:run", "-Dspring-boot.run.jvmArguments=-Dspring.devtools.restart.enabled=true -Dspring.devtools.livereload.enabled=true"]
