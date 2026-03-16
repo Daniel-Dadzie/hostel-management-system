@@ -24,7 +24,7 @@ spring:
       ddl-auto: validate
     properties:
       hibernate:
-        format_sql: true
+        "[format_sql]": true
     open-in-view: false
 
   flyway:
@@ -43,8 +43,8 @@ spring:
   # Per-cache TTLs are configured in CacheConfig.java.
   data:
     redis:
-      host: ${REDIS_HOST}
-      port: ${REDIS_PORT}
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
   cache:
     type: ${CACHE_TYPE:redis}
 
@@ -58,8 +58,8 @@ spring:
     username: ${MAIL_USERNAME:}
     password: ${MAIL_PASSWORD:}
     properties:
-      mail.smtp.auth: true
-      mail.smtp.starttls.enable: true
+      "[mail.smtp.auth]": true
+      "[mail.smtp.starttls.enable]": true
 
 # ── Spring Boot Actuator ─────────────────────────────────────────────────────
 management:
@@ -73,10 +73,10 @@ management:
 
 logging:
   level:
-    org.hibernate.SQL: INFO
+    "[org.hibernate.SQL]": INFO
 
 app:
-  frontend-url: ${FRONTEND_URL}
+  frontend-url: ${FRONTEND_URL:http://localhost:3000}
 
   upload:
     root-dir: ${UPLOAD_ROOT_DIR:uploads}
@@ -102,5 +102,5 @@ app:
     paystack:
       base-url: ${PAYSTACK_BASE_URL:https://api.paystack.co}
       secret-key: ${PAYSTACK_SECRET_KEY:}
-      callback-url: ${PAYSTACK_CALLBACK_URL}
+      callback-url: ${PAYSTACK_CALLBACK_URL:http://localhost:3000}
       webhook-secret: ${PAYSTACK_WEBHOOK_SECRET:}

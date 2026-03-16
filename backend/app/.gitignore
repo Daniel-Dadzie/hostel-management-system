@@ -4,6 +4,9 @@
 # Logs
 *.log
 
+# Runtime uploads
+/uploads/
+
 # Environment files
 .env
 .env.*

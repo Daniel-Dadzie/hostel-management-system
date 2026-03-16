@@ -4,8 +4,6 @@ import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext.jsx';
 import PublicLayout from '../components/layouts/PublicLayout.jsx';
 import LoadingOverlay from '../components/LoadingOverlay.jsx';
-import ImageUploadField from '../components/ImageUploadField.jsx';
-import { uploadImage } from '../services/uploadService.js';
 
 export default function RegisterPage() {
   const [form, setForm] = useState({
@@ -13,9 +11,6 @@ export default function RegisterPage() {
     email: '',
     phone: '',
     gender: 'MALE',
-    profileImagePath: '',
-    profileImagePreview: '',
-    profileImageFile: null,
     password: '',
     confirmPassword: ''
   });
@@ -47,17 +42,12 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      let profileImagePath = form.profileImagePath || null;
-      if (form.profileImageFile) {
-        profileImagePath = await uploadImage(form.profileImageFile);
-      }
-
       await register({
         fullName: form.fullName,
         email: form.email,
         phone: form.phone,
         gender: form.gender,
-        profileImagePath,
+        profileImagePath: null,
         password: form.password
       });
       navigate('/login', {
@@ -149,31 +139,6 @@ export default function RegisterPage() {
                   <option value="FEMALE">Female</option>
                 </select>
               </div>
-
-              <ImageUploadField
-                id="register-profile-image"
-                label="Profile Photo (optional)"
-                value={form.profileImagePreview}
-                onChange={(file, previewUrl) => {
-                  setError('');
-                  setForm((prev) => ({
-                    ...prev,
-                    profileImageFile: file,
-                    profileImagePreview: previewUrl,
-                    profileImagePath: ''
-                  }));
-                }}
-                onError={setError}
-                onClear={() =>
-                  setForm((prev) => ({
-                    ...prev,
-                    profileImageFile: null,
-                    profileImagePreview: '',
-                    profileImagePath: ''
-                  }))
-                }
-                helperText="Upload an image or take a picture with your camera."
-              />
 
               <div>
                 <label htmlFor="register-password" className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">

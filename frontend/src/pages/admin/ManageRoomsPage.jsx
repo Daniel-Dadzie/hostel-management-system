@@ -44,6 +44,47 @@ function getSaveButtonLabel(saving, editingRoom) {
   return 'Save Room';
 }
 
+function getFloorGenderState(rooms, selectedHostelId, selectedFloorNumber, editingRoomId, roomGender) {
+  if (selectedHostelId == null || selectedFloorNumber == null) {
+    return { floorAssignedGender: null, hasFloorGenderConflict: false };
+  }
+
+  const floorRooms = rooms.filter(
+    (room) =>
+      room.hostelId === selectedHostelId &&
+      Number(room.floorNumber) === selectedFloorNumber &&
+      (editingRoomId == null || room.id !== editingRoomId)
+  );
+
+  const floorAssignedGender = floorRooms.length > 0 ? floorRooms[0].roomGender || null : null;
+  return {
+    floorAssignedGender,
+    hasFloorGenderConflict: floorAssignedGender != null && roomGender !== floorAssignedGender
+  };
+}
+
+function hasDuplicateRoomNumberInHostel(rooms, selectedHostelId, roomNumber, editingRoomId) {
+  const normalizedRoomNumber = (roomNumber || '').trim().toLowerCase();
+  if (selectedHostelId == null || normalizedRoomNumber.length === 0) {
+    return false;
+  }
+
+  return rooms.some(
+    (room) =>
+      room.hostelId === selectedHostelId &&
+      String(room.roomNumber || '').trim().toLowerCase() === normalizedRoomNumber &&
+      (editingRoomId == null || room.id !== editingRoomId)
+  );
+}
+
+function toggleRoomForm(showForm, editingRoom, cancelEdit, setShowForm) {
+  if (showForm && editingRoom) {
+    cancelEdit();
+    return;
+  }
+  setShowForm(!showForm);
+}
+
 function RoomResults({ filteredRooms, statusColors, onEdit }) {
   if (filteredRooms.length === 0) {
     return (
@@ -258,35 +299,19 @@ export default function ManageRoomsPage() {
 
   const selectedHostelId = form.hostelId ? Number(form.hostelId) : null;
   const selectedFloorNumber = form.floorNumber ? Number(form.floorNumber) : null;
-
-  const floorRooms =
-    selectedHostelId == null || selectedFloorNumber == null
-      ? []
-      : rooms.filter(
-          (room) =>
-            room.hostelId === selectedHostelId &&
-            Number(room.floorNumber) === selectedFloorNumber &&
-            (!editingRoom || room.id !== editingRoom.id)
-        );
-
-  let floorAssignedGender = null;
-  if (floorRooms.length > 0) {
-    floorAssignedGender = floorRooms[0].roomGender || null;
-  }
-
-  const hasFloorGenderConflict =
-    floorAssignedGender != null && form.roomGender !== floorAssignedGender;
-
-  const normalizedRoomNumber = (form.roomNumber || '').trim().toLowerCase();
-  const hasDuplicateRoomNumber =
-    selectedHostelId != null &&
-    normalizedRoomNumber.length > 0 &&
-    rooms.some(
-      (room) =>
-        room.hostelId === selectedHostelId &&
-        String(room.roomNumber || '').trim().toLowerCase() === normalizedRoomNumber &&
-        (!editingRoom || room.id !== editingRoom.id)
-    );
+  const { floorAssignedGender, hasFloorGenderConflict } = getFloorGenderState(
+    rooms,
+    selectedHostelId,
+    selectedFloorNumber,
+    editingRoom?.id ?? null,
+    form.roomGender
+  );
+  const hasDuplicateRoomNumber = hasDuplicateRoomNumberInHostel(
+    rooms,
+    selectedHostelId,
+    form.roomNumber,
+    editingRoom?.id ?? null
+  );
 
   const toggleFormLabel = getToggleFormLabel(showForm, editingRoom);
 
@@ -310,13 +335,7 @@ export default function ManageRoomsPage() {
           </p>
         </div>
         <button
-          onClick={() => {
-            if (showForm && editingRoom) {
-              cancelEdit();
-              return;
-            }
-            setShowForm(!showForm);
-          }}
+          onClick={() => toggleRoomForm(showForm, editingRoom, cancelEdit, setShowForm)}
           className="btn-primary"
           disabled={hostels.length === 0}
         >

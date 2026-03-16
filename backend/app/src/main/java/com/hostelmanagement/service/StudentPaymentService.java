@@ -23,6 +23,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.security.GeneralSecurityException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
@@ -44,6 +45,12 @@ public class StudentPaymentService {
   private static final String RECEIPTS_DIR = "uploads/payment-receipts";
   private static final HttpClient HTTP_CLIENT = HttpClient.newBuilder().build();
   private static final String REF_KEY = "reference";
+  private static final String AMOUNT_KEY = "amount";
+  private static final String CURRENCY_KEY = "currency";
+  private static final String METADATA_KEY = "metadata";
+  private static final String BOOKING_ID_KEY = "bookingId";
+  private static final String STUDENT_ID_KEY = "studentId";
+  private static final String PAYMENT_METHOD_KEY = "paymentMethod";
 
   private final BookingRepository bookingRepository;
   private final PaymentRepository paymentRepository;
@@ -133,16 +140,16 @@ public class StudentPaymentService {
     Map<String, Object> payload =
         Map.of(
             "email", student.getEmail(),
-            "amount", amountInPesewas,
-            "currency", "GHS",
-            "reference", reference,
+        AMOUNT_KEY, amountInPesewas,
+        CURRENCY_KEY, "GHS",
+        REF_KEY, reference,
             "callback_url", paystackCallbackUrl,
             "channels", channels,
-            "metadata",
+        METADATA_KEY,
                 Map.of(
-                    "bookingId", bookingId,
-                    "studentId", studentId,
-                    "paymentMethod", paymentMethod.name()));
+            BOOKING_ID_KEY, bookingId,
+            STUDENT_ID_KEY, studentId,
+            PAYMENT_METHOD_KEY, paymentMethod.name()));
 
     JsonNode data = callPaystack("/transaction/initialize", payload);
 
@@ -359,18 +366,12 @@ public class StudentPaymentService {
       JsonNode data = root.path("data");
 
       switch (event) {
-        case "charge.success":
-          handleSuccessfulCharge(data);
-          break;
-        case "charge.failed":
-          handleFailedCharge(data);
-          break;
-        case "transaction.failed":
-          handleFailedTransaction(data);
-          break;
-        default:
+        case "charge.success" -> handleSuccessfulCharge(data);
+        case "charge.failed" -> handleFailedCharge(data);
+        case "transaction.failed" -> handleFailedTransaction(data);
+        default -> {
           // Ignore other events
-          break;
+        }
       }
     } catch (IOException ex) {
       throw new IllegalArgumentException("Unable to parse webhook payload");
@@ -481,30 +482,30 @@ public class StudentPaymentService {
       throw new IllegalArgumentException("Gateway payment reference mismatch");
     }
 
-    long gatewayAmount = data.path("amount").asLong(-1);
+    long gatewayAmount = data.path(AMOUNT_KEY).asLong(-1);
     long expectedAmount = toMinorUnits(payment.getAmount());
     if (gatewayAmount != expectedAmount) {
       throw new IllegalArgumentException("Gateway payment amount mismatch");
     }
 
-    String gatewayCurrency = data.path("currency").asText("").toUpperCase(Locale.ROOT);
+    String gatewayCurrency = data.path(CURRENCY_KEY).asText("").toUpperCase(Locale.ROOT);
     if (!"GHS".equals(gatewayCurrency)) {
       throw new IllegalArgumentException("Gateway payment currency mismatch");
     }
 
-    JsonNode metadata = data.path("metadata");
+    JsonNode metadata = data.path(METADATA_KEY);
     if (!metadata.isMissingNode() && !metadata.isNull()) {
-      Long bookingId = parseLongMetadata(metadata, "bookingId");
+      Long bookingId = parseLongMetadata(metadata, BOOKING_ID_KEY);
       if (bookingId != null && !Objects.equals(bookingId, payment.getBooking().getId())) {
         throw new IllegalArgumentException("Gateway payment booking metadata mismatch");
       }
 
-      Long studentId = parseLongMetadata(metadata, "studentId");
+      Long studentId = parseLongMetadata(metadata, STUDENT_ID_KEY);
       if (studentId != null && !Objects.equals(studentId, payment.getStudent().getId())) {
         throw new IllegalArgumentException("Gateway payment student metadata mismatch");
       }
 
-      String paymentMethod = metadata.path("paymentMethod").asText("");
+      String paymentMethod = metadata.path(PAYMENT_METHOD_KEY).asText("");
       if (!paymentMethod.isBlank() && payment.getPaymentMethod() != null
           && !payment.getPaymentMethod().name().equals(paymentMethod)) {
         throw new IllegalArgumentException("Gateway payment method metadata mismatch");
@@ -518,32 +519,32 @@ public class StudentPaymentService {
       return false;
     }
 
-    long amount = data.path("amount").asLong(-1);
+    long amount = data.path(AMOUNT_KEY).asLong(-1);
     if (amount != toMinorUnits(payment.getAmount())) {
       return false;
     }
 
-    String currency = data.path("currency").asText("").toUpperCase(Locale.ROOT);
+    String currency = data.path(CURRENCY_KEY).asText("").toUpperCase(Locale.ROOT);
     if (!"GHS".equals(currency)) {
       return false;
     }
 
-    JsonNode metadata = data.path("metadata");
+    JsonNode metadata = data.path(METADATA_KEY);
     if (metadata.isMissingNode() || metadata.isNull()) {
       return true;
     }
 
-    Optional<Long> bookingId = parseLongMetadataOptional(metadata, "bookingId");
+    Optional<Long> bookingId = parseLongMetadataOptional(metadata, BOOKING_ID_KEY);
     if (bookingId.isPresent() && !Objects.equals(bookingId.get(), payment.getBooking().getId())) {
       return false;
     }
 
-    Optional<Long> studentId = parseLongMetadataOptional(metadata, "studentId");
+    Optional<Long> studentId = parseLongMetadataOptional(metadata, STUDENT_ID_KEY);
     if (studentId.isPresent() && !Objects.equals(studentId.get(), payment.getStudent().getId())) {
       return false;
     }
 
-    String paymentMethod = metadata.path("paymentMethod").asText("");
+    String paymentMethod = metadata.path(PAYMENT_METHOD_KEY).asText("");
     return paymentMethod.isBlank()
         || payment.getPaymentMethod() == null
         || payment.getPaymentMethod().name().equals(paymentMethod);
@@ -567,7 +568,7 @@ public class StudentPaymentService {
       return Optional.empty();
     }
     try {
-      return Optional.of(Long.parseLong(value));
+      return Optional.of(Long.valueOf(value));
     } catch (NumberFormatException ex) {
       throw new IllegalArgumentException("Invalid webhook metadata field: " + field);
     }
@@ -590,7 +591,7 @@ public class StudentPaymentService {
       return java.security.MessageDigest.isEqual(
           hexString.toString().toLowerCase(Locale.ROOT).getBytes(StandardCharsets.UTF_8),
           signature.toLowerCase(Locale.ROOT).getBytes(StandardCharsets.UTF_8));
-    } catch (Exception ex) {
+    } catch (GeneralSecurityException ex) {
       return false;
     }
   }

@@ -20,6 +20,7 @@ import com.hostelmanagement.repository.PaymentRepository;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.security.GeneralSecurityException;
 import java.util.Optional;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -43,6 +44,7 @@ class StudentPaymentServiceTest {
   private StudentPaymentService service;
   private Payment payment;
 
+  @SuppressWarnings({"java:S1144", "unused"}) // Invoked by JUnit lifecycle.
   @BeforeEach
   void setUp() {
     service =
@@ -176,7 +178,7 @@ class StudentPaymentServiceTest {
         hex.append(segment);
       }
       return hex.toString();
-    } catch (Exception ex) {
+    } catch (GeneralSecurityException ex) {
       throw new IllegalStateException("Unable to sign payload", ex);
     }
   }

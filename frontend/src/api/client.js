@@ -4,6 +4,10 @@ export { API_BASE_URL };
 
 export async function apiRequest(path, { method = 'GET', body, headers } = {}) {
   const isFormData = typeof FormData !== 'undefined' && body instanceof FormData;
+  let requestBody;
+  if (body) {
+    requestBody = isFormData ? body : JSON.stringify(body);
+  }
 
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method,
@@ -11,7 +15,7 @@ export async function apiRequest(path, { method = 'GET', body, headers } = {}) {
       ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
       ...headers
     },
-    body: body ? (isFormData ? body : JSON.stringify(body)) : undefined,
+    body: requestBody,
     credentials: 'include'
   });
 

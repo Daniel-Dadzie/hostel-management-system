@@ -1,7 +1,7 @@
 Write-Host "Repairing Flyway schema history for local MySQL..." -ForegroundColor Yellow
 
 if (-not $env:DB_URL) {
-    $env:DB_URL = "jdbc:mysql://localhost:3306/hostel_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+    $env:DB_URL = "jdbc:mysql://localhost:3307/hostel_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
 }
 if (-not $env:DB_USERNAME) {
     $env:DB_USERNAME = "root"

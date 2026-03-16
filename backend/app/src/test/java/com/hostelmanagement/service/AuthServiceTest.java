@@ -42,6 +42,7 @@ class AuthServiceTest {
     
     private AuthService authService;
 
+    @SuppressWarnings({"java:S1144", "unused"}) // Invoked by JUnit lifecycle.
     @BeforeEach
     void setUp() {
         authService = new AuthService(

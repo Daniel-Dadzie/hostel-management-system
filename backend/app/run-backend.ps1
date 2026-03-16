@@ -12,7 +12,7 @@ foreach ($processId in $processes) {
 
 # 2️⃣ Set environment variables
 Write-Host "Setting environment variables..."
-$env:DB_URL='jdbc:mysql://localhost:3306/hostel_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC'
+$env:DB_URL='jdbc:mysql://localhost:3307/hostel_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC'
 $env:DB_USERNAME='root'
 if (-not $env:DB_PASSWORD) {
     $secure = Read-Host "Enter MySQL password for DB user '$($env:DB_USERNAME)'" -AsSecureString

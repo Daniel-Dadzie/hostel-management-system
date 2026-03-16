@@ -47,7 +47,7 @@ public class JwtService {
             .parseSignedClaims(token)
             .getPayload();
 
-    Long userId = Long.parseLong(claims.getSubject());
+    long userId = Long.parseLong(claims.getSubject());
     String email = (String) claims.get("email");
     String role = (String) claims.get("role");
 

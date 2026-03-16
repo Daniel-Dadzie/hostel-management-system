@@ -16,12 +16,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
   @Bean
-  PasswordEncoder passwordEncoder() {
+  public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
   }
 
   @Bean
-  SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtFilter)
+  public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtFilter)
       throws Exception {
 
     http.csrf(csrf -> csrf.disable());
@@ -32,7 +32,6 @@ public class SecurityConfig {
     http.authorizeHttpRequests(
         auth ->
             auth.requestMatchers("/api/auth/**").permitAll()
-          .requestMatchers("/api/uploads/images").permitAll()
           .requestMatchers("/uploads/**").permitAll()
           .requestMatchers("/api/payments/webhook/paystack").permitAll()
                 .requestMatchers("/actuator/health").permitAll() // load-balancer & Docker health probes

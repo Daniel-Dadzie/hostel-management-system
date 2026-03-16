@@ -48,7 +48,7 @@ Create the database and app user using [scripts/mysql-init.sql](scripts/mysql-in
 PowerShell example:
 
 ```powershell
-$env:DB_URL='jdbc:mysql://localhost:3306/hostel_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC'
+$env:DB_URL='jdbc:mysql://localhost:3307/hostel_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC'
 $env:DB_USERNAME='hostel_user'
 $env:DB_PASSWORD='<set-app-password>'
 $env:JWT_SECRET='change-me-in-env-please-change-me-32-chars-min'

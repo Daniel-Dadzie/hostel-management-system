@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
+import org.springframework.mail.MailException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -103,7 +104,7 @@ public class NotificationService {
             msg.setText(body);
             sender.send(msg);
             log.info("[NOTIFICATION] Sent '{}' → {}", subject, to);
-          } catch (Exception e) {
+          } catch (MailException e) {
             log.warn("[NOTIFICATION] Failed to send '{}' → {}: {}", subject, to, e.getMessage());
           }
         },

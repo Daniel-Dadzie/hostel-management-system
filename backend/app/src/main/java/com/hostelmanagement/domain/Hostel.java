@@ -14,6 +14,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "hostels")
+@SuppressWarnings({"java:S1068", "java:S1144"})
 public class Hostel {
 
   @Id
@@ -38,13 +39,16 @@ public class Hostel {
   @Column(nullable = false)
   private boolean active = true;
 
+  @SuppressWarnings("unused") // Managed by JPA lifecycle callbacks.
   @Column(name = "created_at", nullable = false, updatable = false)
   private Instant createdAt;
 
+  @SuppressWarnings("unused") // Managed by JPA lifecycle callbacks.
   @Column(name = "updated_at", nullable = false)
   private Instant updatedAt;
 
   @PrePersist
+  @SuppressWarnings("unused") // Invoked reflectively by JPA.
   void onCreate() {
     Instant now = Instant.now();
     this.createdAt = now;
@@ -52,6 +56,7 @@ public class Hostel {
   }
 
   @PreUpdate
+  @SuppressWarnings("unused") // Invoked reflectively by JPA.
   void onUpdate() {
     this.updatedAt = Instant.now();
   }

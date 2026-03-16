@@ -1,0 +1,109 @@
+{
+  "properties": [
+    {
+      "name": "app.frontend-url",
+      "type": "java.lang.String",
+      "description": "Frontend base URL used for links and callbacks."
+    },
+    {
+      "name": "app.upload.root-dir",
+      "type": "java.lang.String",
+      "description": "Filesystem root directory for uploaded files."
+    },
+    {
+      "name": "app.upload.max-image-size-bytes",
+      "type": "java.lang.Long",
+      "description": "Deprecated alias for maximum allowed image upload size in bytes."
+    },
+    {
+      "name": "app.upload.max-image-bytes",
+      "type": "java.lang.Long",
+      "description": "Maximum allowed image upload size in bytes."
+    },
+    {
+      "name": "app.upload.max-receipt-size-bytes",
+      "type": "java.lang.Long",
+      "description": "Maximum allowed payment receipt upload size in bytes."
+    },
+    {
+      "name": "app.jwt.secret",
+      "type": "java.lang.String",
+      "description": "JWT signing secret."
+    },
+    {
+      "name": "app.jwt.expiration-seconds",
+      "type": "java.lang.Long",
+      "description": "JWT token expiration in seconds."
+    },
+    {
+      "name": "app.auth.reset-rate-limit-seconds",
+      "type": "java.lang.Long",
+      "description": "Rate limit window in seconds for password reset requests."
+    },
+    {
+      "name": "app.auth.reset-token-cleanup-ms",
+      "type": "java.lang.Long",
+      "description": "Cleanup interval in milliseconds for expired password reset tokens."
+    },
+    {
+      "name": "app.booking.payment-hold-minutes",
+      "type": "java.lang.Long",
+      "description": "Minutes a booking remains pending before expiration checks."
+    },
+    {
+      "name": "app.booking.expiration-cron-ms",
+      "type": "java.lang.Long",
+      "description": "Fixed-delay interval in milliseconds for booking expiration job."
+    },
+    {
+      "name": "app.payments.payment-window-hours",
+      "type": "java.lang.Long",
+      "description": "Allowed payment window in hours after booking."
+    },
+    {
+      "name": "app.payments.paystack.base-url",
+      "type": "java.lang.String",
+      "description": "Paystack API base URL."
+    },
+    {
+      "name": "app.payments.paystack.secret-key",
+      "type": "java.lang.String",
+      "description": "Paystack API secret key."
+    },
+    {
+      "name": "app.payments.paystack.callback-url",
+      "type": "java.lang.String",
+      "description": "Paystack callback URL after payment."
+    },
+    {
+      "name": "app.payments.paystack.webhook-secret",
+      "type": "java.lang.String",
+      "description": "Paystack webhook signing secret."
+    },
+    {
+      "name": "app.admin.default-email",
+      "type": "java.lang.String",
+      "description": "Default administrator email used for bootstrap login."
+    },
+    {
+      "name": "app.admin.password-hash",
+      "type": "java.lang.String",
+      "description": "Default administrator password hash."
+    },
+    {
+      "name": "app.password-reset.expiry-minutes",
+      "type": "java.lang.Long",
+      "description": "Password reset token validity in minutes."
+    },
+    {
+      "name": "app.password-reset.rate-limit-per-email-per-hour",
+      "type": "java.lang.Integer",
+      "description": "Max password reset requests allowed per email per hour."
+    },
+    {
+      "name": "app.cors.allowed-origins",
+      "type": "java.util.List<java.lang.String>",
+      "description": "Allowed CORS origins."
+    }
+  ]
+}
