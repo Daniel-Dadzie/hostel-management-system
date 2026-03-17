@@ -32,8 +32,9 @@ public class SecurityConfig {
     http.authorizeHttpRequests(
         auth ->
             auth.requestMatchers("/api/auth/**").permitAll()
-          .requestMatchers("/uploads/**").permitAll()
-          .requestMatchers("/api/payments/webhook/paystack").permitAll()
+                .requestMatchers("/api/uploads/**").permitAll()
+                .requestMatchers("/uploads/**").permitAll()
+                .requestMatchers("/api/payments/webhook/paystack").permitAll()
                 .requestMatchers("/actuator/health").permitAll() // load-balancer & Docker health probes
                 .anyRequest().authenticated());
 

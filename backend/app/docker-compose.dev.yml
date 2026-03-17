@@ -66,6 +66,7 @@ services:
       REDIS_PORT: "6379"
       FRONTEND_URL: ${FRONTEND_URL}
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      ADMIN_PASSWORD_HASH: ${ADMIN_PASSWORD_HASH}
     command: >
       /bin/sh -c "apt-get update && apt-get install -y curl > /dev/null 2>&1 && mvn spring-boot:run -Dspring-boot.run.jvmArguments=\"-Dspring.devtools.restart.enabled=true -Dspring.devtools.livereload.enabled=true\""
     healthcheck:

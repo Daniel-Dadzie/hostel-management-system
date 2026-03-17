@@ -4,6 +4,8 @@ import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext.jsx';
 import PublicLayout from '../components/layouts/PublicLayout.jsx';
 import LoadingOverlay from '../components/LoadingOverlay.jsx';
+import ImageUploadField from '../components/ImageUploadField.jsx';
+import { uploadImage } from '../services/uploadService.js';
 
 export default function RegisterPage() {
   const [form, setForm] = useState({
@@ -11,6 +13,9 @@ export default function RegisterPage() {
     email: '',
     phone: '',
     gender: 'MALE',
+    profileImagePath: '',
+    profileImagePreview: '',
+    profileImageFile: null,
     password: '',
     confirmPassword: ''
   });
@@ -42,12 +47,17 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
+      let profileImagePath = form.profileImagePath || null;
+      if (form.profileImageFile) {
+        profileImagePath = await uploadImage(form.profileImageFile);
+      }
+
       await register({
         fullName: form.fullName,
         email: form.email,
         phone: form.phone,
         gender: form.gender,
-        profileImagePath: null,
+        profileImagePath,
         password: form.password
       });
       navigate('/login', {
@@ -162,6 +172,31 @@ export default function RegisterPage() {
                     {showPassword ? <FaEyeSlash /> : <FaEye />}
                   </button>
                 </div>
+              </div>
+
+              <div>
+                <ImageUploadField
+                  id="register-profile-image"
+                  label="Profile Photo"
+                  value={form.profileImagePreview || form.profileImagePath}
+                  onChange={(file, previewUrl) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      profileImageFile: file,
+                      profileImagePreview: previewUrl
+                    }))
+                  }
+                  onError={setError}
+                  onClear={() =>
+                    setForm((prev) => ({
+                      ...prev,
+                      profileImagePath: '',
+                      profileImagePreview: '',
+                      profileImageFile: null
+                    }))
+                  }
+                  helperText="Optional: upload an image or take a picture with your camera."
+                />
               </div>
 
               <div>

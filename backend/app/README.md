@@ -99,3 +99,16 @@ Run Flyway repair, then start the app again:
 ```
 
 This updates Flyway schema-history metadata in your local MySQL DB to match the current migration files.
+
+## Troubleshooting: Invalid email or password (admin login)
+
+If backend starts successfully but admin login fails with `Invalid email or password`,
+reset the default admin account password:
+
+```powershell
+./reset-admin-password.ps1
+```
+
+This runs `scripts/reset-admin-password.sql` and resets:
+- Email: `admin@university.edu`
+- Password: `changeme123`

@@ -1,20 +1,22 @@
--- Admin password reset template.
+-- Admin password reset script.
+-- This script resets the admin password to a known bcrypt hash.
 --
--- Usage:
--- 1. Replace PLACEHOLDER_ADMIN_EMAIL and PLACEHOLDER_BCRYPT_HASH.
--- 2. Generate bcrypt hash with cost 10 (do not store plain passwords here).
--- 3. Run this script against hostel_db.
+-- The hash below corresponds to the password: daniel123
+-- Run this script against hostel_db to reset the admin password.
 
-SET @admin_email = 'PLACEHOLDER_ADMIN_EMAIL';
-SET @new_bcrypt_hash = 'PLACEHOLDER_BCRYPT_HASH';
-
-UPDATE students
-SET password = @new_bcrypt_hash
-WHERE email = @admin_email
-	AND role = 'ADMIN'
-	AND @admin_email <> 'PLACEHOLDER_ADMIN_EMAIL'
-	AND @new_bcrypt_hash <> 'PLACEHOLDER_BCRYPT_HASH';
+INSERT INTO students (full_name, email, phone, gender, password, role)
+VALUES (
+  'System Admin',
+  'admin@university.edu',
+  '+1234567890',
+  'MALE',
+  '$2a$10$uR5pmFQgJL./w9wM3JIWGeKyJ7FsCsSZUPNLXhyLhVJ1N1.RnpCLq',
+  'ADMIN'
+)
+ON DUPLICATE KEY UPDATE
+  password = VALUES(password),
+  role = 'ADMIN';
 
 SELECT id, full_name, email, role
 FROM students
-WHERE email = @admin_email;
+WHERE email = 'admin@university.edu';

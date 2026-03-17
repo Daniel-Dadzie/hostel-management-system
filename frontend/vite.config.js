@@ -33,6 +33,10 @@ export default defineConfig(() => {
               '/api': {
                 target: apiProxyTarget,
                 changeOrigin: true
+              },
+              '/uploads': {
+                target: apiProxyTarget,
+                changeOrigin: true
               }
             }
           })

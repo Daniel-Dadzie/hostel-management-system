@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { applyForHostel } from '../../services/studentService.js';
+import { applyForHostel, getMyBooking } from '../../services/studentService.js';
 import { listStudentHostelRooms, listStudentHostels } from '../../services/hostelService.js';
 import ApplyPreferencesForm from '../../components/student/ApplyPreferencesForm.jsx';
 import ApplyResultCard from '../../components/student/ApplyResultCard.jsx';
@@ -25,6 +25,7 @@ export default function ApplyHostelPage() {
   const [loadingRooms, setLoadingRooms] = useState(false);
   const [error, setError] = useState('');
   const [result, setResult] = useState(null);
+  const [allocatedBooking, setAllocatedBooking] = useState(null);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const paramHostelId = searchParams.get('hostelId') || '';
@@ -32,9 +33,24 @@ export default function ApplyHostelPage() {
   const paramRoomId = searchParams.get('roomId') || '';
 
   useEffect(() => {
-    loadHostels(paramHostelId, paramFloorNumber, paramRoomId);
+    loadInitialState();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  async function loadInitialState() {
+    try {
+      const booking = await getMyBooking();
+      if (booking?.status === 'APPROVED') {
+        setAllocatedBooking(booking);
+        setLoadingHostels(false);
+        return;
+      }
+    } catch {
+      // No booking found is expected for first-time applicants.
+    }
+
+    loadHostels(paramHostelId, paramFloorNumber, paramRoomId);
+  }
 
   async function loadHostels(overrideHostelId, overrideFloorNumber, overrideRoomId) {
     try {
@@ -177,6 +193,22 @@ export default function ApplyHostelPage() {
         onViewBooking={() => navigate('/student/booking')}
         onApplyAgain={() => setResult(null)}
       />
+    );
+  }
+
+  if (allocatedBooking) {
+    return (
+      <div className="card">
+        <h2 className="card-header text-neutral-900 dark:text-white">Room Allocation Confirmed</h2>
+        <p className="section-subtitle mt-2">
+          You already have an approved room allocation and cannot apply for another hostel.
+        </p>
+        <div className="mt-4">
+          <button type="button" className="btn-primary" onClick={() => navigate('/student/booking')}>
+            View My Booking
+          </button>
+        </div>
+      </div>
     );
   }
 

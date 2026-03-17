@@ -1,4 +1,5 @@
 import { Link, NavLink, Outlet } from 'react-router-dom';
+import { useRef, useState } from 'react';
 import {
   FaBed,
   FaChartBar,
@@ -11,6 +12,8 @@ import {
 import { useAuth } from '../../context/AuthContext.jsx';
 import ThemeToggle from '../ThemeToggle.jsx';
 import UserAvatar from '../UserAvatar.jsx';
+import { uploadImage } from '../../services/uploadService.js';
+import { updateMyProfile } from '../../services/profileService.js';
 
 const navItems = [
   { to: '/admin', label: 'Dashboard', icon: FaChartBar },
@@ -24,7 +27,57 @@ const navItems = [
 ];
 
 export default function AdminLayout() {
-  const { user, logout } = useAuth();
+  const { user, setUser, logout } = useAuth();
+  const avatarInputRef = useRef(null);
+  const [photoSaving, setPhotoSaving] = useState(false);
+  const [photoError, setPhotoError] = useState('');
+
+  function triggerAvatarUpload() {
+    if (!photoSaving) {
+      avatarInputRef.current?.click();
+    }
+  }
+
+  async function handleAvatarFileSelect(event) {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+
+    if (!file) {
+      return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      setPhotoError('Please select an image file.');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setPhotoError('Selected image is too large.');
+      return;
+    }
+
+    await handleAdminPhotoChange(file);
+  }
+
+  async function handleAdminPhotoChange(file) {
+    setPhotoError('');
+    setPhotoSaving(true);
+
+    try {
+      const profileImagePath = await uploadImage(file);
+      // Only update profileImagePath, preserve existing name and phone
+      const updatedProfile = await updateMyProfile({
+        fullName: user?.fullName,
+        phone: user?.phone,
+        profileImagePath
+      });
+      setUser(updatedProfile);
+    } catch (error) {
+      setPhotoError(error instanceof Error ? error.message : 'Failed to update admin photo.');
+    } finally {
+      setPhotoSaving(false);
+    }
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-cream-50 dark:bg-neutral-950">
@@ -42,7 +95,23 @@ export default function AdminLayout() {
               Admin
             </span>
             <div className="flex items-center gap-2">
-              <UserAvatar user={user} fallbackName={user?.fullName || 'Administrator'} />
+              <button
+                type="button"
+                onClick={triggerAvatarUpload}
+                disabled={photoSaving}
+                className="rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500/60 disabled:cursor-not-allowed disabled:opacity-70"
+                title={photoSaving ? 'Saving photo...' : 'Tap to upload profile photo'}
+                aria-label="Upload admin profile photo"
+              >
+                <UserAvatar user={user} fallbackName={user?.fullName || 'Administrator'} />
+              </button>
+              <input
+                ref={avatarInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleAvatarFileSelect}
+              />
               <span className="hidden text-sm text-neutral-600 dark:text-neutral-300 sm:inline">
                 {user?.fullName || 'Administrator'}
               </span>
@@ -93,6 +162,12 @@ export default function AdminLayout() {
           <Outlet />
         </main>
       </div>
+
+      {photoError && (
+        <div className="mx-auto mt-2 w-full max-w-7xl px-4">
+          <div className="alert-error">{photoError}</div>
+        </div>
+      )}
 
       <footer className="border-t border-neutral-200 bg-white dark:border-neutral-800 dark:bg-surface-dark">
         <div className="mx-auto max-w-7xl px-4 py-6 text-center text-sm text-neutral-500 dark:text-neutral-400">

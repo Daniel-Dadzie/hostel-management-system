@@ -93,6 +93,7 @@ export default function StudentDashboard() {
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [expandedAnnouncementId, setExpandedAnnouncementId] = useState(null);
   const firstName = user?.fullName?.trim()?.split(/\s+/)?.[0] ?? 'Student';
   const isAllocated = booking?.status === 'APPROVED';
   const isPendingPayment = booking?.status === 'PENDING_PAYMENT';
@@ -354,7 +355,9 @@ export default function StudentDashboard() {
               📢 Announcements
             </h2>
             <div className="space-y-3">
-              {SAMPLE_ANNOUNCEMENTS.map((a) => (
+              {SAMPLE_ANNOUNCEMENTS.map((a) => {
+                const isExpanded = expandedAnnouncementId === a.id;
+                return (
                 <div
                   key={a.id}
                   className="rounded-xl border border-neutral-100 p-3 transition-colors hover:border-primary-200 hover:bg-primary-50/40 dark:border-neutral-800 dark:hover:border-primary-800/40 dark:hover:bg-primary-900/10"
@@ -365,17 +368,19 @@ export default function StudentDashboard() {
                       {a.date}
                     </span>
                   </div>
-                  <p className="line-clamp-2 text-xs text-neutral-500 dark:text-neutral-400">
+                  <p className={`${isExpanded ? '' : 'line-clamp-2'} text-xs text-neutral-500 dark:text-neutral-400`}>
                     {a.preview}
                   </p>
                   <button
                     type="button"
                     className="mt-1.5 text-[11px] font-medium text-primary-600 hover:underline dark:text-primary-400"
+                    onClick={() => setExpandedAnnouncementId(isExpanded ? null : a.id)}
                   >
-                    Read more
+                    {isExpanded ? 'Show less' : 'Read more'}
                   </button>
                 </div>
-              ))}
+                );
+              })}
             </div>
           </section>
         </div>

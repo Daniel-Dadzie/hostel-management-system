@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { loginUser, registerUser, forgotPassword as fp, resetPassword as rp } from '../services/authService.js';
-import { getStudentProfile } from '../services/studentService.js';
+import { getMyProfile } from '../services/profileService.js';
 
 const AuthContext = createContext(null);
 const TOKEN_KEY = 'hms.token';
@@ -25,11 +25,15 @@ export function AuthProvider({ children }) {
 
   const loadProfile = useCallback(async () => {
     try {
-      const data = await getStudentProfile();
+      const data = await getMyProfile();
       setUser(data);
     } catch (error) {
-      console.error('Failed to load profile:', error);
-      logout();
+      // Only logout on auth failures (401/403), not network errors
+      if (error?.response?.status === 401 || error?.response?.status === 403) {
+        logout();
+      } else {
+        console.error('Failed to load profile:', error);
+      }
     } finally {
       setLoading(false);
     }
@@ -41,13 +45,7 @@ export function AuthProvider({ children }) {
       return;
     }
 
-    if (role === 'STUDENT') {
-      loadProfile();
-      return;
-    }
-
-    setUser(null);
-    setLoading(false);
+    loadProfile();
   }, [token, role, loadProfile]);
 
   async function login(email, password) {
@@ -56,9 +54,7 @@ export function AuthProvider({ children }) {
     setRole(data.role);
     localStorage.setItem(TOKEN_KEY, data.token);
     localStorage.setItem(ROLE_KEY, data.role);
-    if (data.role === 'STUDENT') {
-      await loadProfile();
-    }
+    await loadProfile();
     return data;
   }
 
@@ -79,6 +75,7 @@ export function AuthProvider({ children }) {
       register,
       logout,
       loadProfile,
+      setUser,
       forgotPassword,
       resetPassword,
       getAuthHeaders: () => ({ Authorization: `Bearer ${token}` })

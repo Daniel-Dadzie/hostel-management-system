@@ -73,9 +73,7 @@ public class BookingService {
             List.of(
                 BookingStatus.PENDING_PAYMENT,
                 BookingStatus.APPROVED));
-    if (active.isPresent()) {
-      throw new IllegalArgumentException("Student already has an active booking");
-    }
+    validateNoActiveBooking(active.orElse(null));
 
     var hostelOpt = hostelRepository.findById(requiredHostelId);
     if (hostelOpt.isEmpty() || !hostelOpt.get().isActive()) {
@@ -155,6 +153,18 @@ public class BookingService {
       payment.getTransactionReference(),
       payment.getReceiptFilename(),
       payment.getPaidAt());
+  }
+
+  private static void validateNoActiveBooking(Booking activeBooking) {
+    if (activeBooking == null) {
+      return;
+    }
+
+    if (activeBooking.getStatus() == BookingStatus.APPROVED) {
+      throw new IllegalArgumentException("You already have an allocated room and cannot apply for another hostel");
+    }
+
+    throw new IllegalArgumentException("You already have an active hostel application");
   }
 
   @Transactional(readOnly = true)
