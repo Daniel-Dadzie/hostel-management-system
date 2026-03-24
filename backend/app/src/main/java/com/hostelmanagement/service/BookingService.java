@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.hostelmanagement.domain.Booking;
 import com.hostelmanagement.domain.BookingStatus;
+import com.hostelmanagement.domain.AcademicTerm;
 import com.hostelmanagement.domain.Payment;
 import com.hostelmanagement.domain.PaymentStatus;
 import com.hostelmanagement.domain.Room;
@@ -35,6 +36,7 @@ public class BookingService {
   private final StudentRepository studentRepository;
   private final BookingRepository bookingRepository;
   private final PaymentRepository paymentRepository;
+  private final AcademicRolloverService academicRolloverService;
 
   private final long holdMinutes;
 
@@ -44,12 +46,14 @@ public class BookingService {
       StudentRepository studentRepository,
       BookingRepository bookingRepository,
       PaymentRepository paymentRepository,
+      AcademicRolloverService academicRolloverService,
       @Value("${app.booking.payment-hold-minutes}") long holdMinutes) {
     this.hostelRepository = hostelRepository;
     this.roomRepository = roomRepository;
     this.studentRepository = studentRepository;
     this.bookingRepository = bookingRepository;
     this.paymentRepository = paymentRepository;
+    this.academicRolloverService = academicRolloverService;
     this.holdMinutes = holdMinutes;
   }
 
@@ -65,6 +69,10 @@ public class BookingService {
         studentRepository
         .findById(requiredStudentId)
             .orElseThrow(() -> new IllegalArgumentException("Student not found"));
+
+    if (!academicRolloverService.isReapplicationWindowOpen()) {
+      throw new IllegalArgumentException("The portal for next semester is not yet open");
+    }
 
     // Enforce one active booking at a time
     var active =
@@ -122,10 +130,14 @@ public class BookingService {
     roomRepository.save(locked);
 
     Booking booking = new Booking();
+    AcademicTerm activeTerm = academicRolloverService.getRequiredActiveTerm();
     booking.setStudent(student);
     booking.setRoom(locked);
     booking.setStatus(BookingStatus.PENDING_PAYMENT);
     booking.setSpecialRequests(request.specialRequests());
+    booking.setAcademicTerm(activeTerm);
+    booking.setAcademicYear(activeTerm.getAcademicYear());
+    booking.setAcademicSession(activeTerm.getSemester());
     Booking savedBooking = bookingRepository.save(booking);
 
     Instant dueAt = Instant.now().plus(holdMinutes, ChronoUnit.MINUTES);
@@ -176,6 +188,7 @@ public class BookingService {
                 List.of(
                     BookingStatus.PENDING_PAYMENT,
                     BookingStatus.APPROVED,
+                  BookingStatus.CHECKED_OUT,
                     BookingStatus.REJECTED,
                     BookingStatus.EXPIRED,
                     BookingStatus.CANCELLED))

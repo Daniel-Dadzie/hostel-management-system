@@ -98,6 +98,19 @@ app:
     payment-hold-minutes: ${BOOKING_PAYMENT_HOLD_MINUTES:30}
     expiration-cron-ms: ${BOOKING_EXPIRATION_FIXED_DELAY_MS:300000}
 
+  academic:
+    # Month number when a new academic year starts (1-12).
+    year-start-month: ${ACADEMIC_YEAR_START_MONTH:9}
+    # Academic session label stamped onto new booking applications.
+    current-session: ${ACADEMIC_CURRENT_SESSION:REGULAR}
+    # Reapplication window in MM-dd format.
+    reapplication-window-start: ${ACADEMIC_REAPPLICATION_WINDOW_START:08-01}
+    reapplication-window-end: ${ACADEMIC_REAPPLICATION_WINDOW_END:11-30}
+    # Time zone used for academic year and reapplication window checks.
+    time-zone: ${ACADEMIC_TIME_ZONE:Africa/Lagos}
+    # Automatic yearly rollover run time (default: Aug 1st, 2:00 AM).
+    rollover-cron: ${ACADEMIC_ROLLOVER_CRON:0 0 2 1 8 *}
+
   payments:
     paystack:
       base-url: ${PAYSTACK_BASE_URL:https://api.paystack.co}

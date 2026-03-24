@@ -7,6 +7,7 @@ import com.hostelmanagement.security.PasswordResetRateLimiter;
 import com.hostelmanagement.security.JwtService;
 import com.hostelmanagement.web.dto.AuthResponse;
 import com.hostelmanagement.web.dto.LoginRequest;
+import com.hostelmanagement.web.dto.RefreshTokenRequest;
 import com.hostelmanagement.web.dto.RegisterRequest;
 import java.security.SecureRandom;
 import java.time.Instant;
@@ -66,8 +67,9 @@ public class AuthService {
     s.setRole(Role.STUDENT);
 
     Student saved = studentRepository.save(s);
-    String token = jwtService.generateToken(saved.getId(), saved.getEmail(), saved.getRole());
-    return new AuthResponse(token, saved.getRole().name());
+    String accessToken = jwtService.generateAccessToken(saved.getId(), saved.getEmail(), saved.getRole());
+    String refreshToken = jwtService.generateRefreshToken(saved.getId());
+    return new AuthResponse(accessToken, refreshToken, saved.getRole().name());
   }
 
   @Transactional(readOnly = true)
@@ -82,8 +84,9 @@ public class AuthService {
       throw new IllegalArgumentException("Invalid email or password");
     }
 
-    String token = jwtService.generateToken(s.getId(), s.getEmail(), s.getRole());
-    return new AuthResponse(token, s.getRole().name());
+    String accessToken = jwtService.generateAccessToken(s.getId(), s.getEmail(), s.getRole());
+    String refreshToken = jwtService.generateRefreshToken(s.getId());
+    return new AuthResponse(accessToken, refreshToken, s.getRole().name());
   }
 
   @Transactional

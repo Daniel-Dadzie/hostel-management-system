@@ -3,6 +3,13 @@ import { FaPencilAlt, FaTimes } from 'react-icons/fa';
 import { createHostel, listHostels, updateHostel } from '../../services/hostelService.js';
 import { uploadImage } from '../../services/uploadService.js';
 import ImageUploadField from '../../components/ImageUploadField.jsx';
+import { resolveAssetUrl } from '../../utils/assetUrl.js';
+import hostelFallback1 from '../../assets/umat1.jpg';
+import hostelFallback2 from '../../assets/umat2.jpg';
+import hostelFallback3 from '../../assets/umat3.jpg';
+import hostelFallback4 from '../../assets/umat4.jpg';
+
+const hostelFallbackImages = [hostelFallback1, hostelFallback2, hostelFallback3, hostelFallback4];
 
 export default function ManageHostelsPage() {
   const [hostels, setHostels] = useState([]);
@@ -22,6 +29,7 @@ export default function ManageHostelsPage() {
     active: true
   });
   const [saving, setSaving] = useState(false);
+  const [updatingImageHostelId, setUpdatingImageHostelId] = useState(null);
 
   useEffect(() => {
     loadHostels();
@@ -129,6 +137,44 @@ export default function ManageHostelsPage() {
     }
   }
 
+  async function handleQuickImageChange(hostel, event) {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+
+    if (!file) {
+      return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      setError('Please select an image file.');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Selected image is too large (max 5MB).');
+      return;
+    }
+
+    setError('');
+    setUpdatingImageHostelId(hostel.id);
+
+    try {
+      const imagePath = await uploadImage(file);
+      await updateHostel(hostel.id, {
+        name: hostel.name,
+        location: hostel.location,
+        distanceToCampusKm: hostel.distanceToCampusKm ?? null,
+        imagePath,
+        active: hostel.active
+      });
+      await loadHostels();
+    } catch (err) {
+      setError(err.message || 'Failed to update hostel image.');
+    } finally {
+      setUpdatingImageHostelId(null);
+    }
+  }
+
   const filteredHostels = hostels.filter((hostel) => {
     const query = search.trim().toLowerCase();
     if (!query) return true;
@@ -162,6 +208,18 @@ export default function ManageHostelsPage() {
 
     return 0;
   });
+
+  const usedImageUrls = new Set();
+
+  function getHostelImage(hostel, index) {
+    const fallbackImage = hostelFallbackImages[index % hostelFallbackImages.length];
+    const preferredImage = resolveAssetUrl(hostel.imagePath || hostel.imageUrl);
+    const finalImage = !preferredImage || usedImageUrls.has(preferredImage)
+      ? fallbackImage
+      : preferredImage;
+    usedImageUrls.add(finalImage);
+    return finalImage;
+  }
 
   let submitLabel = 'Save Hostel';
   if (saving) {
@@ -347,8 +405,32 @@ export default function ManageHostelsPage() {
       ) : (
         <div className="space-y-4">
           <div className="grid gap-3 md:hidden">
-            {sortedHostels.map((hostel) => (
+            {sortedHostels.map((hostel, index) => (
               <div key={hostel.id} className="card space-y-2">
+                <label
+                  htmlFor={`hostel-photo-mobile-${hostel.id}`}
+                  className="group relative block cursor-pointer overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700"
+                  title="Click to change hostel image"
+                >
+                  <div className="h-32 w-full">
+                    <img
+                      src={getHostelImage(hostel, index)}
+                      alt={hostel.name}
+                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                  </div>
+                  <div className="absolute inset-x-0 bottom-0 bg-black/50 px-2 py-1 text-center text-xs font-medium text-white">
+                    {updatingImageHostelId === hostel.id ? 'Updating image...' : 'Click image to change'}
+                  </div>
+                </label>
+                <input
+                  id={`hostel-photo-mobile-${hostel.id}`}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  disabled={updatingImageHostelId === hostel.id}
+                  onChange={(event) => handleQuickImageChange(hostel, event)}
+                />
                 <div className="flex items-center justify-between gap-3">
                   <p className="font-medium text-neutral-900 dark:text-white">{hostel.name}</p>
                   <span
@@ -388,9 +470,10 @@ export default function ManageHostelsPage() {
           </div>
 
           <div className="card hidden overflow-x-auto md:block">
-          <table className="w-full min-w-[760px] text-sm">
+          <table className="w-full min-w-[860px] text-sm">
             <thead>
               <tr className="border-b border-neutral-200 dark:border-neutral-700">
+                <th className="px-3 py-2 text-left font-semibold text-neutral-800 dark:text-neutral-100">Photo</th>
                 <th className="px-3 py-2 text-left font-semibold text-neutral-800 dark:text-neutral-100">Name</th>
                 <th className="px-3 py-2 text-left font-semibold text-neutral-800 dark:text-neutral-100">Location</th>
                 <th className="px-3 py-2 text-left font-semibold text-neutral-800 dark:text-neutral-100">Distance (km)</th>
@@ -400,8 +483,29 @@ export default function ManageHostelsPage() {
               </tr>
             </thead>
             <tbody>
-              {sortedHostels.map((hostel) => (
+              {sortedHostels.map((hostel, index) => (
                 <tr key={hostel.id} className="border-b border-neutral-100 dark:border-neutral-800">
+                  <td className="px-3 py-2">
+                    <label
+                      htmlFor={`hostel-photo-table-${hostel.id}`}
+                      className="group relative block h-12 w-16 cursor-pointer overflow-hidden rounded-md border border-neutral-200 dark:border-neutral-700"
+                      title="Click to change hostel image"
+                    >
+                      <img
+                        src={getHostelImage(hostel, index)}
+                        alt={hostel.name}
+                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+                      />
+                    </label>
+                    <input
+                      id={`hostel-photo-table-${hostel.id}`}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      disabled={updatingImageHostelId === hostel.id}
+                      onChange={(event) => handleQuickImageChange(hostel, event)}
+                    />
+                  </td>
                   <td className="px-3 py-2 font-medium text-neutral-900 dark:text-white">{hostel.name}</td>
                   <td className="px-3 py-2 text-neutral-600 dark:text-neutral-300">{hostel.location || '-'}</td>
                   <td className="px-3 py-2 text-neutral-600 dark:text-neutral-300">{hostel.distanceToCampusKm ?? '-'}</td>

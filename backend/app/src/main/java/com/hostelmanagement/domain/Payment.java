@@ -8,7 +8,11 @@ import java.time.Instant;
 @Table(
     name = "payments",
     indexes = {
-      @Index(name = "idx_payments_status", columnList = "status")
+      @Index(name = "idx_payments_status", columnList = "status"),
+      @Index(name = "idx_payments_booking", columnList = "booking_id"),
+      @Index(name = "idx_payments_student", columnList = "student_id"),
+      @Index(name = "idx_payments_transaction_ref", columnList = "transaction_reference"),
+      @Index(name = "idx_payments_student_status", columnList = "student_id,status")
     })
 @SuppressWarnings({"java:S1068", "java:S1144"})
 public class Payment {

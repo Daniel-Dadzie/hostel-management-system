@@ -9,7 +9,10 @@ import java.time.Instant;
     indexes = {
       @Index(name = "idx_bookings_student", columnList = "student_id"),
       @Index(name = "idx_bookings_status", columnList = "status"),
-      @Index(name = "idx_bookings_student_status", columnList = "student_id,status")
+      @Index(name = "idx_bookings_student_status", columnList = "student_id,status"),
+      @Index(name = "idx_bookings_created_at", columnList = "created_at"),
+      @Index(name = "idx_bookings_room", columnList = "room_id"),
+      @Index(name = "idx_bookings_academic_term", columnList = "academic_term_id")
     })
 public class Booking {
 
@@ -31,6 +34,19 @@ public class Booking {
 
   @Column(name = "special_requests", length = 500)
   private String specialRequests;
+
+  @Column(name = "academic_year", nullable = false, length = 20)
+  private String academicYear;
+
+  @Column(name = "academic_session", nullable = false, length = 20)
+  private String academicSession = "REGULAR";
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "academic_term_id")
+  private AcademicTerm academicTerm;
+
+  @Column(name = "checked_out_at")
+  private Instant checkedOutAt;
 
   @Column(name = "created_at", nullable = false, updatable = false)
   private Instant createdAt;
@@ -84,6 +100,38 @@ public class Booking {
 
   public void setSpecialRequests(String specialRequests) {
     this.specialRequests = specialRequests;
+  }
+
+  public String getAcademicYear() {
+    return academicYear;
+  }
+
+  public void setAcademicYear(String academicYear) {
+    this.academicYear = academicYear;
+  }
+
+  public String getAcademicSession() {
+    return academicSession;
+  }
+
+  public void setAcademicSession(String academicSession) {
+    this.academicSession = academicSession;
+  }
+
+  public AcademicTerm getAcademicTerm() {
+    return academicTerm;
+  }
+
+  public void setAcademicTerm(AcademicTerm academicTerm) {
+    this.academicTerm = academicTerm;
+  }
+
+  public Instant getCheckedOutAt() {
+    return checkedOutAt;
+  }
+
+  public void setCheckedOutAt(Instant checkedOutAt) {
+    this.checkedOutAt = checkedOutAt;
   }
 
   public Instant getCreatedAt() {

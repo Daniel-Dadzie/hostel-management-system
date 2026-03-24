@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
+import heroImage3 from '../assets/umat3.jpg';
 
 const features = [
   {
@@ -104,19 +105,26 @@ export default function LandingPage() {
 
       {/* Hero Section */}
       <section className="relative overflow-hidden py-20 sm:py-32">
+        <img
+          src={heroImage3}
+          alt="Hostel building and facilities"
+          className="absolute inset-0 h-full w-full scale-105 object-cover blur-[3px]"
+          loading="eager"
+        />
+        <div className="absolute inset-0 bg-white/55 dark:bg-neutral-900/55" />
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="animate-slide-up text-4xl font-bold tracking-tight text-neutral-900 dark:text-white sm:text-5xl lg:text-6xl">
-              Your Home{' '}
-              <span className="bg-gradient-to-r from-primary-600 via-primary-500 to-emerald-500 bg-clip-text text-transparent dark:from-primary-400 dark:via-primary-300 dark:to-emerald-400">
-                Away From Home
-              </span>
-            </h1>
-            <p className="animate-slide-up delay-150 mx-auto mt-6 max-w-2xl text-lg text-neutral-600 dark:text-neutral-300 sm:text-xl">
-              Experience comfortable and secure hostel accommodation designed for students. 
-              Apply online, track your booking, and manage your stay all in one place.
-            </p>
-            <div className="animate-slide-up delay-300 mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+          <div className="relative z-10 text-center">
+              <h1 className="animate-slide-up text-4xl font-bold tracking-tight text-neutral-900 dark:text-white sm:text-5xl lg:text-6xl">
+                Your Home{' '}
+                <span className="bg-gradient-to-r from-primary-600 via-primary-500 to-emerald-500 bg-clip-text text-transparent dark:from-primary-400 dark:via-primary-300 dark:to-emerald-400">
+                  Away From Home
+                </span>
+              </h1>
+              <p className="animate-slide-up delay-150 mx-auto mt-6 max-w-2xl text-lg text-neutral-700 dark:text-neutral-200 sm:text-xl">
+                Experience comfortable and secure hostel accommodation designed for students.
+                Apply online, track your booking, and manage your stay all in one place.
+              </p>
+              <div className="animate-slide-up delay-300 mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
               {!isAuthenticated && (
                 <>
                   <Link

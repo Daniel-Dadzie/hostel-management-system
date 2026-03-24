@@ -3,6 +3,12 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { listStudentHostels } from '../../services/hostelService.js';
 import { resolveAssetUrl } from '../../utils/assetUrl.js';
+import hostelFallback1 from '../../assets/umat1.jpg';
+import hostelFallback2 from '../../assets/umat2.jpg';
+import hostelFallback3 from '../../assets/umat3.jpg';
+import hostelFallback4 from '../../assets/umat4.jpg';
+
+const hostelFallbackImages = [hostelFallback1, hostelFallback2, hostelFallback3, hostelFallback4];
 
 function estimateTimeToCampus(distanceToCampusKm) {
   if (distanceToCampusKm == null) return null;
@@ -71,81 +77,77 @@ export default function HostelListPage() {
       {/* Hostel cards */}
       {!loading && hostels.length > 0 && (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {hostels.map((hostel) => {
-            const time = estimateTimeToCampus(hostel.distanceToCampusKm);
-            const hostelImage = resolveAssetUrl(hostel.imagePath || hostel.imageUrl);
-            return (
-              <div
-                key={hostel.id}
-                className="group flex flex-col overflow-hidden rounded-2xl border border-neutral-200/70 bg-white shadow-[0_2px_8px_0_rgb(0_0_0/0.07)] transition-all duration-300 hover:-translate-y-1.5 hover:border-primary-300 hover:shadow-xl dark:border-neutral-800 dark:bg-surface-dark dark:hover:border-primary-600 dark:hover:shadow-primary-900/20"
-              >
-                {/* ── Image / Icon area ── */}
-                {hostelImage ? (
+          {(() => {
+            const usedImageUrls = new Set();
+
+            return hostels.map((hostel, index) => {
+              const time = estimateTimeToCampus(hostel.distanceToCampusKm);
+              const fallbackImage = hostelFallbackImages[index % hostelFallbackImages.length];
+              const preferredImage = resolveAssetUrl(hostel.imagePath || hostel.imageUrl);
+              const hostelImage = !preferredImage || usedImageUrls.has(preferredImage)
+                ? fallbackImage
+                : preferredImage;
+              usedImageUrls.add(hostelImage);
+
+              return (
+                <div
+                  key={hostel.id}
+                  className="group flex flex-col overflow-hidden rounded-2xl border border-neutral-200/70 bg-white shadow-[0_2px_8px_0_rgb(0_0_0/0.07)] transition-all duration-300 hover:-translate-y-1.5 hover:border-primary-300 hover:shadow-xl dark:border-neutral-800 dark:bg-surface-dark dark:hover:border-primary-600 dark:hover:shadow-primary-900/20"
+                >
+                  {/* ── Image area ── */}
                   <div className="h-48 w-full overflow-hidden">
                     <img
                       src={hostelImage}
                       alt={hostel.name}
                       className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       onError={(ev) => {
-                        ev.currentTarget.style.display = 'none';
-                        ev.currentTarget.parentElement.classList.add(
-                          'flex', 'items-center', 'justify-center', 'text-7xl',
-                          'bg-gradient-to-br', 'from-primary-50', 'to-primary-100',
-                          'dark:from-primary-900/20', 'dark:to-primary-900/40'
-                        );
-                        ev.currentTarget.insertAdjacentText('afterend', '🏨');
+                        ev.currentTarget.src = fallbackImage;
                       }}
                     />
                   </div>
-                ) : (
-                  <div className="flex h-48 items-center justify-center bg-gradient-to-br from-primary-50 via-primary-100 to-emerald-50 dark:from-primary-900/20 dark:via-primary-900/30 dark:to-neutral-800">
-                    <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white shadow-md ring-1 ring-primary-100 transition-transform duration-300 group-hover:scale-110 dark:bg-neutral-800 dark:ring-primary-800/40">
-                      <span className="text-5xl">🏢</span>
+
+                  {/* ── Card body ── */}
+                  <div className="flex flex-1 flex-col p-5">
+                    {/* Hostel name */}
+                    <h3 className="mb-4 text-lg font-extrabold leading-tight text-neutral-900 dark:text-white">
+                      {hostel.name}
+                    </h3>
+
+                    {/* Info rows */}
+                    <div className="mb-5 space-y-2.5">
+                      <InfoRow icon="📍" label="Location" value={hostel.location || 'Not specified'} />
+                      <InfoRow
+                        icon="📏"
+                        label="Distance"
+                        value={
+                          hostel.distanceToCampusKm == null
+                            ? 'Not specified'
+                            : `${hostel.distanceToCampusKm} km from campus`
+                        }
+                      />
+                      <InfoRow
+                        icon="🕒"
+                        label="Time"
+                        value={time ? `~${time} to campus` : 'Not specified'}
+                      />
+                    </div>
+
+                    {/* View Hostel button — pinned to bottom */}
+                    <div className="mt-auto">
+                      <button
+                        type="button"
+                        onClick={() => navigate(`/student/hostels/${hostel.id}/floors`)}
+                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-all duration-200 hover:bg-primary-700 active:scale-95 dark:bg-primary-600 dark:hover:bg-primary-500"
+                      >
+                        {'View Hostel'}
+                        <span className="transition-transform duration-200 group-hover:translate-x-1">{' →'}</span>
+                      </button>
                     </div>
                   </div>
-                )}
-
-                {/* ── Card body ── */}
-                <div className="flex flex-1 flex-col p-5">
-                  {/* Hostel name */}
-                  <h3 className="mb-4 text-lg font-extrabold leading-tight text-neutral-900 dark:text-white">
-                    {hostel.name}
-                  </h3>
-
-                  {/* Info rows */}
-                  <div className="mb-5 space-y-2.5">
-                    <InfoRow icon="📍" label="Location" value={hostel.location || 'Not specified'} />
-                    <InfoRow
-                      icon="📏"
-                      label="Distance"
-                      value={
-                        hostel.distanceToCampusKm == null
-                          ? 'Not specified'
-                          : `${hostel.distanceToCampusKm} km from campus`
-                      }
-                    />
-                    <InfoRow
-                      icon="🕒"
-                      label="Time"
-                      value={time ? `~${time} to campus` : 'Not specified'}
-                    />
-                  </div>
-
-                  {/* View Hostel button — pinned to bottom */}
-                  <div className="mt-auto">
-                    <button
-                      type="button"
-                      onClick={() => navigate(`/student/hostels/${hostel.id}/floors`)}
-                      className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-all duration-200 hover:bg-primary-700 active:scale-95 dark:bg-primary-600 dark:hover:bg-primary-500"
-                    >
-                      {'View Hostel'}
-                      <span className="transition-transform duration-200 group-hover:translate-x-1">{' →'}</span>
-                    </button>
-                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            });
+          })()}
         </div>
       )}
     </div>

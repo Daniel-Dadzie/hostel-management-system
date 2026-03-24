@@ -17,6 +17,14 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
   List<Booking> findByStatus(BookingStatus status);
 
+  List<Booking> findByStatusAndAcademicYearNot(BookingStatus status, String academicYear);
+
+  List<Booking> findByStatusAndAcademicTermId(BookingStatus status, Long academicTermId);
+
+  boolean existsByAcademicTermId(Long academicTermId);
+
+  Optional<Booking> findFirstByStudentIdAndStatusOrderByIdDesc(Long studentId, BookingStatus status);
+
     @Query(
       "SELECT b FROM Booking b "
         + "JOIN FETCH b.student s "

@@ -1,7 +1,7 @@
 import { Link, NavLink, Outlet } from 'react-router-dom';
-import { useRef, useState } from 'react';
 import {
   FaBed,
+  FaCalendarAlt,
   FaChartBar,
   FaCreditCard,
   FaFileAlt,
@@ -11,9 +11,6 @@ import {
 } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext.jsx';
 import ThemeToggle from '../ThemeToggle.jsx';
-import UserAvatar from '../UserAvatar.jsx';
-import { uploadImage } from '../../services/uploadService.js';
-import { updateMyProfile } from '../../services/profileService.js';
 
 const navItems = [
   { to: '/admin', label: 'Dashboard', icon: FaChartBar },
@@ -22,62 +19,13 @@ const navItems = [
   { to: '/admin/floors', label: 'Manage Floors', icon: FaBed },
   { to: '/admin/students', label: 'Manage Students', icon: FaGraduationCap },
   { to: '/admin/bookings', label: 'Manage Bookings', icon: FaFileAlt },
+  { to: '/admin/terms', label: 'Academic Terms', icon: FaCalendarAlt },
   { to: '/admin/payments', label: 'Manage Payments', icon: FaCreditCard },
   { to: '/admin/reports', label: 'View Reports', icon: FaChartBar }
 ];
 
 export default function AdminLayout() {
-  const { user, setUser, logout } = useAuth();
-  const avatarInputRef = useRef(null);
-  const [photoSaving, setPhotoSaving] = useState(false);
-  const [photoError, setPhotoError] = useState('');
-
-  function triggerAvatarUpload() {
-    if (!photoSaving) {
-      avatarInputRef.current?.click();
-    }
-  }
-
-  async function handleAvatarFileSelect(event) {
-    const file = event.target.files?.[0];
-    event.target.value = '';
-
-    if (!file) {
-      return;
-    }
-
-    if (!file.type.startsWith('image/')) {
-      setPhotoError('Please select an image file.');
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      setPhotoError('Selected image is too large.');
-      return;
-    }
-
-    await handleAdminPhotoChange(file);
-  }
-
-  async function handleAdminPhotoChange(file) {
-    setPhotoError('');
-    setPhotoSaving(true);
-
-    try {
-      const profileImagePath = await uploadImage(file);
-      // Only update profileImagePath, preserve existing name and phone
-      const updatedProfile = await updateMyProfile({
-        fullName: user?.fullName,
-        phone: user?.phone,
-        profileImagePath
-      });
-      setUser(updatedProfile);
-    } catch (error) {
-      setPhotoError(error instanceof Error ? error.message : 'Failed to update admin photo.');
-    } finally {
-      setPhotoSaving(false);
-    }
-  }
+  const { user, logout } = useAuth();
 
   return (
     <div className="flex min-h-screen flex-col bg-cream-50 dark:bg-neutral-950">
@@ -94,28 +42,9 @@ export default function AdminLayout() {
             <span className="hidden rounded-full bg-accent-100 px-2 py-0.5 text-xs font-medium text-accent-900 dark:bg-accent-900/30 dark:text-accent-200 sm:inline-flex">
               Admin
             </span>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={triggerAvatarUpload}
-                disabled={photoSaving}
-                className="rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500/60 disabled:cursor-not-allowed disabled:opacity-70"
-                title={photoSaving ? 'Saving photo...' : 'Tap to upload profile photo'}
-                aria-label="Upload admin profile photo"
-              >
-                <UserAvatar user={user} fallbackName={user?.fullName || 'Administrator'} />
-              </button>
-              <input
-                ref={avatarInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleAvatarFileSelect}
-              />
-              <span className="hidden text-sm text-neutral-600 dark:text-neutral-300 sm:inline">
-                {user?.fullName || 'Administrator'}
-              </span>
-            </div>
+            <span className="hidden text-sm font-medium text-neutral-600 dark:text-neutral-300 sm:inline">
+              {user?.fullName || 'Administrator'}
+            </span>
             <ThemeToggle />
             <button
               onClick={logout}
@@ -141,10 +70,10 @@ export default function AdminLayout() {
                   to={item.to}
                   end={item.to === '/admin'}
                   className={({ isActive }) =>
-                    `inline-flex min-w-max items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 md:flex md:px-4 md:py-2.5 ${
+                    `inline-flex min-w-max items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 md:flex md:px-4 md:py-2.5 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 ${
                       isActive
                         ? 'bg-primary-50 font-semibold text-primary-700 ring-1 ring-primary-200/80 dark:bg-primary-900/25 dark:text-primary-300 dark:ring-primary-800/40'
-                        : 'text-neutral-500 hover:bg-neutral-100/80 hover:text-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-800/60 dark:hover:text-neutral-200'
+                        : 'text-neutral-500 ring-1 ring-transparent hover:bg-neutral-100/80 hover:text-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-800/60 dark:hover:text-neutral-200'
                     }`
                   }
                 >
@@ -162,12 +91,6 @@ export default function AdminLayout() {
           <Outlet />
         </main>
       </div>
-
-      {photoError && (
-        <div className="mx-auto mt-2 w-full max-w-7xl px-4">
-          <div className="alert-error">{photoError}</div>
-        </div>
-      )}
 
       <footer className="border-t border-neutral-200 bg-white dark:border-neutral-800 dark:bg-surface-dark">
         <div className="mx-auto max-w-7xl px-4 py-6 text-center text-sm text-neutral-500 dark:text-neutral-400">

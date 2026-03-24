@@ -34,6 +34,7 @@ import ManageRoomsPage from './pages/admin/ManageRoomsPage.jsx';
 import ManageFloorsPage from './pages/admin/ManageFloorsPage.jsx';
 import ManageStudentsPage from './pages/admin/ManageStudentsPage.jsx';
 import ManageBookingsPage from './pages/admin/ManageBookingsPage.jsx';
+import ManageAcademicTermsPage from './pages/admin/ManageAcademicTermsPage.jsx';
 import ManagePaymentsPage from './pages/admin/ManagePaymentsPage.jsx';
 import ViewReportsPage from './pages/admin/ViewReportsPage.jsx';
 
@@ -114,6 +115,7 @@ export default function App() {
           <Route path="floors" element={<ManageFloorsPage />} />
           <Route path="students" element={<ManageStudentsPage />} />
           <Route path="bookings" element={<ManageBookingsPage />} />
+          <Route path="terms" element={<ManageAcademicTermsPage />} />
           <Route path="payments" element={<ManagePaymentsPage />} />
           <Route path="reports" element={<ViewReportsPage />} />
         </Route>

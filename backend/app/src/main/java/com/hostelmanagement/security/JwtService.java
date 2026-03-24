@@ -6,6 +6,7 @@ import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Date;
+import java.util.UUID;
 import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -14,25 +15,51 @@ import org.springframework.stereotype.Service;
 public class JwtService {
 
   private final SecretKey key;
-  private final long expirationSeconds;
+  private final long accessTokenExpirationSeconds;
+  private final long refreshTokenExpirationSeconds;
 
   public JwtService(
       @Value("${app.jwt.secret}") String secret,
-      @Value("${app.jwt.expiration-seconds}") long expirationSeconds) {
+      @Value("${app.jwt.access-token-expiration-seconds:3600}") long accessTokenExpirationSeconds,
+      @Value("${app.jwt.refresh-token-expiration-seconds:604800}") long refreshTokenExpirationSeconds) {
     if (secret == null || secret.length() < 32) {
       throw new IllegalArgumentException("JWT secret must be at least 32 characters");
     }
     this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
-    this.expirationSeconds = expirationSeconds;
+    this.accessTokenExpirationSeconds = accessTokenExpirationSeconds;
+    this.refreshTokenExpirationSeconds = refreshTokenExpirationSeconds;
   }
 
-  public String generateToken(Long userId, String email, Role role) {
+  /**
+   * Generate an access token (short-lived, typically 1 hour).
+   */
+  public String generateAccessToken(Long userId, String email, Role role) {
     Instant now = Instant.now();
-    Instant exp = now.plusSeconds(expirationSeconds);
+    Instant exp = now.plusSeconds(accessTokenExpirationSeconds);
     return Jwts.builder()
         .subject(String.valueOf(userId))
         .claim("email", email)
         .claim("role", role.name())
+        .claim("type", "access")
+        .issuedAt(Date.from(now))
+        .expiration(Date.from(exp))
+        .signWith(key)
+        .compact();
+  }
+
+  /**
+   * Generate a refresh token (long-lived, typically 7 days).
+   * Includes a unique token ID for rotation tracking.
+   */
+  public String generateRefreshToken(Long userId) {
+    Instant now = Instant.now();
+    Instant exp = now.plusSeconds(refreshTokenExpirationSeconds);
+    String tokenId = UUID.randomUUID().toString();
+    
+    return Jwts.builder()
+        .subject(String.valueOf(userId))
+        .claim("tokenId", tokenId)
+        .claim("type", "refresh")
         .issuedAt(Date.from(now))
         .expiration(Date.from(exp))
         .signWith(key)
@@ -47,10 +74,39 @@ public class JwtService {
             .parseSignedClaims(token)
             .getPayload();
 
+    String tokenType = (String) claims.get("type");
+    if (tokenType != null && tokenType.equals("refresh")) {
+      // For refresh tokens, only return userId
+      long userId = Long.parseLong(claims.getSubject());
+      return new JwtUser(userId, null, null);
+    }
+
     long userId = Long.parseLong(claims.getSubject());
     String email = (String) claims.get("email");
     String role = (String) claims.get("role");
 
     return new JwtUser(userId, email, Role.valueOf(role));
   }
+
+  /**
+   * Parse refresh token and extract token ID for rotation tracking.
+   */
+  public RefreshTokenData parseRefreshToken(String token) {
+    var claims =
+        Jwts.parser()
+            .verifyWith(key)
+            .build()
+            .parseSignedClaims(token)
+            .getPayload();
+
+    long userId = Long.parseLong(claims.getSubject());
+    String tokenId = (String) claims.get("tokenId");
+
+    return new RefreshTokenData(userId, tokenId);
+  }
+  
+  /**
+   * Data class for refresh token parsing results.
+   */
+  public record RefreshTokenData(long userId, String tokenId) {}
 }

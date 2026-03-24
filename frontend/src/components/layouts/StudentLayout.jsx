@@ -1,8 +1,11 @@
 import { Link, NavLink, Outlet } from 'react-router-dom';
+import { useRef, useState } from 'react';
 import { FaBed, FaBuilding, FaChartBar, FaCreditCard, FaExclamationCircle, FaSignOutAlt, FaUser, FaWrench } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext.jsx';
 import ThemeToggle from '../ThemeToggle.jsx';
 import UserAvatar from '../UserAvatar.jsx';
+import { uploadImage } from '../../services/uploadService.js';
+import { updateMyProfile } from '../../services/profileService.js';
 
 const navItems = [
   { to: '/student/dashboard', label: 'Dashboard', icon: FaChartBar },
@@ -15,7 +18,52 @@ const navItems = [
 ];
 
 export default function StudentLayout() {
-  const { user, logout } = useAuth();
+  const { user, setUser, logout } = useAuth();
+  const avatarInputRef = useRef(null);
+  const [photoSaving, setPhotoSaving] = useState(false);
+  const [photoError, setPhotoError] = useState('');
+
+  function triggerAvatarUpload() {
+    if (!photoSaving) {
+      avatarInputRef.current?.click();
+    }
+  }
+
+  async function handleAvatarFileSelect(event) {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+
+    if (!file) {
+      return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      setPhotoError('Please select an image file.');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setPhotoError('Selected image is too large.');
+      return;
+    }
+
+    setPhotoSaving(true);
+    setPhotoError('');
+
+    try {
+      const profileImagePath = await uploadImage(file);
+      const updatedProfile = await updateMyProfile({
+        fullName: user?.fullName,
+        phone: user?.phone,
+        profileImagePath
+      });
+      setUser(updatedProfile);
+    } catch (error) {
+      setPhotoError(error instanceof Error ? error.message : 'Failed to update profile photo.');
+    } finally {
+      setPhotoSaving(false);
+    }
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-cream-50 dark:bg-neutral-950">
@@ -30,15 +78,31 @@ export default function StudentLayout() {
           </Link>
           <div className="flex w-full items-center justify-end gap-2 sm:w-auto sm:gap-4">
             <div className="flex items-center gap-2">
-              <UserAvatar user={user} fallbackName={user?.fullName || 'Student'} />
-              <span className="hidden text-sm text-neutral-600 dark:text-neutral-300 sm:inline">
+              <button
+                type="button"
+                onClick={triggerAvatarUpload}
+                disabled={photoSaving}
+                className="rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500/60 disabled:cursor-not-allowed disabled:opacity-70"
+                title={photoSaving ? 'Saving photo...' : 'Tap to upload profile photo'}
+                aria-label="Upload student profile photo"
+              >
+                <UserAvatar user={user} fallbackName={user?.fullName || 'Student'} />
+              </button>
+              <input
+                ref={avatarInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleAvatarFileSelect}
+              />
+              <span className="hidden text-sm font-medium text-neutral-600 dark:text-neutral-300 sm:inline">
                 {user?.fullName || 'Student'}
               </span>
             </div>
             <ThemeToggle />
             <button
               onClick={logout}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-2.5 py-1.5 text-sm font-medium text-white hover:bg-red-700 sm:px-3"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-2.5 py-1.5 text-sm font-medium text-white hover:bg-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 min-h-[44px] min-w-[44px] sm:px-3"
             >
               <FaSignOutAlt aria-hidden="true" className="text-sm" />
               <span className="hidden sm:inline">Logout</span>
@@ -60,10 +124,10 @@ export default function StudentLayout() {
                   to={item.to}
                   end={item.to === '/student/dashboard'}
                   className={({ isActive }) =>
-                    `inline-flex min-w-max items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 md:flex md:px-4 md:py-2.5 ${
+                    `inline-flex min-w-max items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 md:flex md:px-4 md:py-2.5 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 ${
                       isActive
                         ? 'bg-primary-50 font-semibold text-primary-700 ring-1 ring-primary-200/80 dark:bg-primary-900/25 dark:text-primary-300 dark:ring-primary-800/40'
-                        : 'text-neutral-500 hover:bg-neutral-100/80 hover:text-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-800/60 dark:hover:text-neutral-200'
+                        : 'text-neutral-500 ring-1 ring-transparent hover:bg-neutral-100/80 hover:text-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-800/60 dark:hover:text-neutral-200'
                     }`
                   }
                 >
@@ -81,6 +145,12 @@ export default function StudentLayout() {
           <Outlet />
         </main>
       </div>
+
+      {photoError && (
+        <div className="mx-auto mt-2 w-full max-w-7xl px-4">
+          <div className="alert-error">{photoError}</div>
+        </div>
+      )}
 
       <footer className="border-t border-neutral-200 bg-white dark:border-neutral-800 dark:bg-surface-dark">
         <div className="mx-auto max-w-7xl px-4 py-6 text-center text-sm text-neutral-500 dark:text-neutral-400">

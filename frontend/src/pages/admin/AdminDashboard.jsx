@@ -11,7 +11,11 @@ import {
   FaTools,
   FaUsers
 } from 'react-icons/fa';
-import { listAdminBookings, updateAdminBookingStatus } from '../../services/bookingService.js';
+import {
+  listAdminBookings,
+  updateAdminBookingStatus
+} from '../../services/bookingService.js';
+import LifecycleManagementPanel from '../../components/admin/LifecycleManagementPanel.jsx';
 import { listHostels } from '../../services/hostelService.js';
 import { listRooms } from '../../services/roomService.js';
 
@@ -44,6 +48,7 @@ const INITIAL_ANNOUNCEMENTS = [
 const STATUS_CHIP = {
   APPROVED: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
   PENDING_PAYMENT: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
+  CHECKED_OUT: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
   REJECTED: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
   EXPIRED: 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400',
   CANCELLED: 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400'
@@ -61,7 +66,7 @@ const PRIORITY_CHIP = {
   LOW: 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400'
 };
 
-const TABS = ['Overview', 'Bookings & Payments', 'Students', 'Maintenance', 'Announcements'];
+const TABS = ['Overview', 'Bookings & Payments', 'Students', 'Lifecycle Management', 'Maintenance', 'Announcements'];
 
 function occupancyBarColor(pct) {
   if (pct >= 90) return 'bg-red-500';
@@ -86,7 +91,11 @@ export default function AdminDashboard() {
   useEffect(() => {
     (async () => {
       try {
-        const [b, r, h] = await Promise.all([listAdminBookings(), listRooms(), listHostels()]);
+        const [b, r, h] = await Promise.all([
+          listAdminBookings(),
+          listRooms(),
+          listHostels()
+        ]);
         setBookings(Array.isArray(b) ? b : []);
         setRooms(Array.isArray(r) ? r : []);
         setHostels(Array.isArray(h) ? h : []);
@@ -141,6 +150,15 @@ export default function AdminDashboard() {
     a.download = 'defaulters.csv';
     a.click();
     URL.revokeObjectURL(url);
+  }
+
+  async function refreshBookings() {
+    try {
+      const latestBookings = await listAdminBookings();
+      setBookings(Array.isArray(latestBookings) ? latestBookings : []);
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   /* ── Derived stats ── */
@@ -384,6 +402,7 @@ export default function AdminDashboard() {
                 { to: '/admin/rooms', icon: '🛏️', label: 'Manage Rooms' },
                 { to: '/admin/students', icon: '🎓', label: 'Student Directory' },
                 { to: '/admin/bookings', icon: '📋', label: 'Manage Bookings' },
+                { to: '/admin/terms', icon: '🗓️', label: 'Academic Terms' },
                 { to: '/admin/payments', icon: '💳', label: 'Payments' },
                 { to: '/admin/reports', icon: '📊', label: 'Reports' }
               ].map((a) => (
@@ -630,9 +649,16 @@ export default function AdminDashboard() {
       )}
 
       {/* ═══════════════════════════════════════
-          Tab 3 — Maintenance
+          Tab 3 — Lifecycle Management
       ═══════════════════════════════════════ */}
       {activeTab === 3 && (
+        <LifecycleManagementPanel onLifecycleChanged={refreshBookings} />
+      )}
+
+      {/* ═══════════════════════════════════════
+          Tab 4 — Maintenance
+      ═══════════════════════════════════════ */}
+      {activeTab === 4 && (
         <div className="card">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-base font-bold text-neutral-900 dark:text-white">Maintenance Tickets</h2>
@@ -693,9 +719,9 @@ export default function AdminDashboard() {
       )}
 
       {/* ═══════════════════════════════════════
-          Tab 4 — Announcements
+          Tab 5 — Announcements
       ═══════════════════════════════════════ */}
-      {activeTab === 4 && (
+        {activeTab === 5 && (
         <div className="space-y-5">
           {annSaved && (
             <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700 dark:border-emerald-800/30 dark:bg-emerald-900/15 dark:text-emerald-400">

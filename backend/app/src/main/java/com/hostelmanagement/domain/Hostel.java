@@ -8,12 +8,17 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "hostels")
+@Table(
+    name = "hostels",
+    indexes = {
+      @Index(name = "idx_hostels_active", columnList = "active")
+    })
 @SuppressWarnings({"java:S1068", "java:S1144"})
 public class Hostel {
 

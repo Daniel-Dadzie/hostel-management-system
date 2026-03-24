@@ -29,7 +29,8 @@ import jakarta.persistence.Version;
     indexes = {
       @Index(name = "idx_rooms_hostel", columnList = "hostel_id"),
       @Index(name = "idx_rooms_status", columnList = "status"),
-      @Index(name = "idx_rooms_gender", columnList = "room_gender")
+      @Index(name = "idx_rooms_gender", columnList = "room_gender"),
+      @Index(name = "idx_rooms_hostel_status", columnList = "hostel_id,status")
     })
 public class Room {
 

@@ -81,6 +81,24 @@ public class NotificationService {
   }
 
   /**
+   * Called as a reminder before booking expires.
+   * Warns the student that payment is due soon.
+   */
+  @Async("taskExecutor")
+  public void sendPaymentReminder(
+      String email,
+      String name,
+      String hostel,
+      String room,
+      Instant expiresAt) {
+    log.info("[NOTIFICATION] Queuing payment-reminder → {}", email);
+    send(
+        email,
+        "Payment Reminder – Complete Your Booking for " + hostel,
+        paymentReminderBody(name, hostel, room, expiresAt));
+  }
+
+  /**
    * Called after a password-reset token is generated for an account.
    */
   @Async("taskExecutor")
@@ -145,6 +163,22 @@ public class NotificationService {
 
         University Hostel Management System
         """.formatted(name, hostel, room);
+  }
+
+  private static String paymentReminderBody(String name, String hostel, String room, Instant expiresAt) {
+    return """
+        Dear %s,
+
+        This is a reminder that your room booking for %s (Room %s) will expire soon.
+
+        Please complete your payment immediately to secure your allocation.
+        Your booking will expire at: %s
+
+        Log in to the student portal to upload your payment receipt.
+        If you have already made payment, please ignore this reminder.
+
+        University Hostel Management System
+        """.formatted(name, hostel, room, FMT.format(expiresAt));
   }
 
   private static String passwordResetBody(String name, String resetUrl, Instant expiresAt) {

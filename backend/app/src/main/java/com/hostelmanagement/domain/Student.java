@@ -9,6 +9,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -19,6 +20,10 @@ import jakarta.persistence.UniqueConstraint;
     name = "students",
     uniqueConstraints = {
       @UniqueConstraint(name = "unique_student_email", columnNames = {"email"})
+    },
+    indexes = {
+      @Index(name = "idx_students_reset_token", columnList = "reset_token"),
+      @Index(name = "idx_students_email", columnList = "email")
     })
 public class Student {
 
@@ -48,6 +53,12 @@ public class Student {
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 10)
   private Role role = Role.STUDENT;
+
+  @Column(name = "current_level", nullable = false)
+  private int currentLevel = 100;
+
+  @Column(name = "retained_from_checkout", nullable = false)
+  private boolean retainedFromCheckout = false;
 
   @Column(name = "created_at", nullable = false, updatable = false)
   private Instant createdAt;
@@ -132,6 +143,22 @@ public class Student {
 
   public void setRole(Role role) {
     this.role = role;
+  }
+
+  public int getCurrentLevel() {
+    return currentLevel;
+  }
+
+  public void setCurrentLevel(int currentLevel) {
+    this.currentLevel = currentLevel;
+  }
+
+  public boolean isRetainedFromCheckout() {
+    return retainedFromCheckout;
+  }
+
+  public void setRetainedFromCheckout(boolean retainedFromCheckout) {
+    this.retainedFromCheckout = retainedFromCheckout;
   }
 
   // Password reset getters and setters
