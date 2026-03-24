@@ -80,9 +80,10 @@ export default function HostelListPage() {
           {(() => {
             const usedImageUrls = new Set();
 
-            return hostels.map((hostel, index) => {
+            return hostels.map((hostel) => {
               const time = estimateTimeToCampus(hostel.distanceToCampusKm);
-              const fallbackImage = hostelFallbackImages[index % hostelFallbackImages.length];
+              const normalizedHostelId = Number.isFinite(Number(hostel.id)) ? Number(hostel.id) : 0;
+              const fallbackImage = hostelFallbackImages[Math.abs(normalizedHostelId) % hostelFallbackImages.length];
               const preferredImage = resolveAssetUrl(hostel.imagePath || hostel.imageUrl);
               const hostelImage = !preferredImage || usedImageUrls.has(preferredImage)
                 ? fallbackImage

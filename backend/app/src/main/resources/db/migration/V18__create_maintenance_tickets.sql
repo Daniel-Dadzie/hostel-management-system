@@ -20,3 +20,7 @@ CREATE TABLE maintenance_tickets (
 CREATE INDEX idx_tickets_student ON maintenance_tickets(student_id);
 CREATE INDEX idx_tickets_status ON maintenance_tickets(status);
 CREATE INDEX idx_tickets_student_status ON maintenance_tickets(student_id, status);
+CREATE INDEX idx_tickets_room ON maintenance_tickets(room_id);
+
+
+

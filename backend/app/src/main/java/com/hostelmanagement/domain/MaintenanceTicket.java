@@ -23,7 +23,8 @@ import jakarta.persistence.Index;
     indexes = {
       @Index(name = "idx_tickets_student", columnList = "student_id"),
       @Index(name = "idx_tickets_status", columnList = "status"),
-      @Index(name = "idx_tickets_student_status", columnList = "student_id,status")
+      @Index(name = "idx_tickets_student_status", columnList = "student_id,status"),
+      @Index(name = "idx_tickets_room", columnList = "room_id")
     })
 public class MaintenanceTicket {
 

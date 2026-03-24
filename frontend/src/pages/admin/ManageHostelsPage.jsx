@@ -211,8 +211,9 @@ export default function ManageHostelsPage() {
 
   const usedImageUrls = new Set();
 
-  function getHostelImage(hostel, index) {
-    const fallbackImage = hostelFallbackImages[index % hostelFallbackImages.length];
+  function getHostelImage(hostel) {
+    const normalizedHostelId = Number.isFinite(Number(hostel.id)) ? Number(hostel.id) : 0;
+    const fallbackImage = hostelFallbackImages[Math.abs(normalizedHostelId) % hostelFallbackImages.length];
     const preferredImage = resolveAssetUrl(hostel.imagePath || hostel.imageUrl);
     const finalImage = !preferredImage || usedImageUrls.has(preferredImage)
       ? fallbackImage
@@ -405,7 +406,7 @@ export default function ManageHostelsPage() {
       ) : (
         <div className="space-y-4">
           <div className="grid gap-3 md:hidden">
-            {sortedHostels.map((hostel, index) => (
+            {sortedHostels.map((hostel) => (
               <div key={hostel.id} className="card space-y-2">
                 <label
                   htmlFor={`hostel-photo-mobile-${hostel.id}`}
@@ -414,7 +415,7 @@ export default function ManageHostelsPage() {
                 >
                   <div className="h-32 w-full">
                     <img
-                      src={getHostelImage(hostel, index)}
+                      src={getHostelImage(hostel)}
                       alt={hostel.name}
                       className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />
@@ -483,7 +484,7 @@ export default function ManageHostelsPage() {
               </tr>
             </thead>
             <tbody>
-              {sortedHostels.map((hostel, index) => (
+              {sortedHostels.map((hostel) => (
                 <tr key={hostel.id} className="border-b border-neutral-100 dark:border-neutral-800">
                   <td className="px-3 py-2">
                     <label
@@ -492,7 +493,7 @@ export default function ManageHostelsPage() {
                       title="Click to change hostel image"
                     >
                       <img
-                        src={getHostelImage(hostel, index)}
+                        src={getHostelImage(hostel)}
                         alt={hostel.name}
                         className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
                       />
