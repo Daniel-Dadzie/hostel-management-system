@@ -4,6 +4,7 @@ import com.hostelmanagement.service.AuthService;
 import com.hostelmanagement.web.dto.AuthResponse;
 import com.hostelmanagement.web.dto.ForgotPasswordRequest;
 import com.hostelmanagement.web.dto.LoginRequest;
+import com.hostelmanagement.web.dto.RefreshTokenRequest;
 import com.hostelmanagement.web.dto.RegisterRequest;
 import com.hostelmanagement.web.dto.ResetPasswordRequest;
 import jakarta.validation.Valid;
@@ -41,5 +42,10 @@ public class AuthController {
   public ResponseEntity<String> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
     authService.resetPassword(request.token(), request.newPassword());
     return ResponseEntity.ok("Password has been reset successfully");
+  }
+
+  @PostMapping("/refresh")
+  public ResponseEntity<AuthResponse> refresh(@Valid @RequestBody RefreshTokenRequest request) {
+    return ResponseEntity.ok(authService.refreshToken(request.refreshToken()));
   }
 }

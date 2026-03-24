@@ -5,6 +5,7 @@ import { getMyProfile } from '../services/profileService.js';
 
 const AuthContext = createContext(null);
 const TOKEN_KEY = 'hms.token';
+const REFRESH_TOKEN_KEY = 'hms.refreshToken';
 const ROLE_KEY = 'hms.role';
 
 export function AuthProvider({ children }) {
@@ -20,6 +21,7 @@ export function AuthProvider({ children }) {
     setRole('');
     setUser(null);
     localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
     localStorage.removeItem(ROLE_KEY);
   }, []);
 
@@ -50,9 +52,15 @@ export function AuthProvider({ children }) {
 
   async function login(email, password) {
     const data = await loginUser(email, password);
-    setToken(data.token);
+    // Handle new token format with accessToken and refreshToken
+    const accessToken = data.accessToken || data.token;
+    const refreshToken = data.refreshToken;
+    setToken(accessToken);
     setRole(data.role);
-    localStorage.setItem(TOKEN_KEY, data.token);
+    localStorage.setItem(TOKEN_KEY, accessToken);
+    if (refreshToken) {
+      localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+    }
     localStorage.setItem(ROLE_KEY, data.role);
     await loadProfile();
     return data;

@@ -145,4 +145,22 @@ public class AuthService {
   public int clearExpiredResetTokens() {
     return studentRepository.clearExpiredResetTokens(Instant.now());
   }
+
+  /**
+   * Refresh access token using a valid refresh token.
+   * Generates new access and refresh tokens for the user.
+   */
+  @Transactional(readOnly = true)
+  public AuthResponse refreshToken(String refreshToken) {
+    JwtService.RefreshTokenData tokenData = jwtService.parseRefreshToken(refreshToken);
+    
+    Student student = studentRepository.findById(tokenData.userId())
+        .orElseThrow(() -> new IllegalArgumentException("User not found"));
+    
+    String newAccessToken = jwtService.generateAccessToken(
+        student.getId(), student.getEmail(), student.getRole());
+    String newRefreshToken = jwtService.generateRefreshToken(student.getId());
+    
+    return new AuthResponse(newAccessToken, newRefreshToken, student.getRole().name());
+  }
 }

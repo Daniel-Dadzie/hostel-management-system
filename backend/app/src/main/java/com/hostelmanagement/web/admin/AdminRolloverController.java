@@ -166,7 +166,7 @@ public class AdminRolloverController {
 
   public record UpsertAcademicTermRequest(
       @NotBlank String academicYear,
-      @NotBlank @Pattern(regexp = "^[12]$", message = "Semester must be 1 or 2") String semester,
+      @NotBlank @Pattern(regexp = "^(1|2|REGULAR)$", message = "Semester must be 1, 2, or REGULAR") String semester,
       @NotNull LocalDate startDate,
       @NotNull LocalDate endDate,
       @NotNull LocalDate reapplicationOpenDate,

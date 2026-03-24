@@ -14,6 +14,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class JwtService {
 
+  private static final String TOKEN_TYPE_ACCESS = "access";
+  private static final String TOKEN_TYPE_REFRESH = "refresh";
+
   private final SecretKey key;
   private final long accessTokenExpirationSeconds;
   private final long refreshTokenExpirationSeconds;
@@ -40,7 +43,7 @@ public class JwtService {
         .subject(String.valueOf(userId))
         .claim("email", email)
         .claim("role", role.name())
-        .claim("type", "access")
+      .claim("type", TOKEN_TYPE_ACCESS)
         .issuedAt(Date.from(now))
         .expiration(Date.from(exp))
         .signWith(key)
@@ -59,7 +62,7 @@ public class JwtService {
     return Jwts.builder()
         .subject(String.valueOf(userId))
         .claim("tokenId", tokenId)
-        .claim("type", "refresh")
+      .claim("type", TOKEN_TYPE_REFRESH)
         .issuedAt(Date.from(now))
         .expiration(Date.from(exp))
         .signWith(key)
@@ -75,7 +78,7 @@ public class JwtService {
             .getPayload();
 
     String tokenType = (String) claims.get("type");
-    if (tokenType != null && tokenType.equals("refresh")) {
+    if (TOKEN_TYPE_REFRESH.equals(tokenType)) {
       // For refresh tokens, only return userId
       long userId = Long.parseLong(claims.getSubject());
       return new JwtUser(userId, null, null);
@@ -99,8 +102,16 @@ public class JwtService {
             .parseSignedClaims(token)
             .getPayload();
 
+    String tokenType = (String) claims.get("type");
+    if (!TOKEN_TYPE_REFRESH.equals(tokenType)) {
+      throw new IllegalArgumentException("Invalid refresh token type");
+    }
+
     long userId = Long.parseLong(claims.getSubject());
     String tokenId = (String) claims.get("tokenId");
+    if (tokenId == null || tokenId.isBlank()) {
+      throw new IllegalArgumentException("Invalid refresh token");
+    }
 
     return new RefreshTokenData(userId, tokenId);
   }

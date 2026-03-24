@@ -73,8 +73,9 @@ export default function ManageAcademicTermsPage() {
     if (!form.academicYear.trim()) {
       return 'Academic year is required.';
     }
-    if (form.semester !== 1 && form.semester !== 2) {
-      return 'Semester must be either 1 or 2.';
+    const sem = String(form.semester).toUpperCase();
+    if (sem !== '1' && sem !== '2' && sem !== 'REGULAR') {
+      return 'Semester must be 1, 2, or REGULAR.';
     }
     if (!form.startDate || !form.endDate || !form.reapplicationOpenDate) {
       return 'Start date, end date, and reapplication open date are required.';
