@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import { useEffect } from 'react';
 
-export default function LoadingOverlay({ open, title, message, blockNavigation }) {
+export default function LoadingOverlay({ open, title = 'Please wait', message = 'Processing your request...', blockNavigation = false }) {
   useEffect(() => {
     if (!open || !blockNavigation) return undefined;
 
@@ -34,10 +34,4 @@ LoadingOverlay.propTypes = {
   title: PropTypes.string,
   message: PropTypes.string,
   blockNavigation: PropTypes.bool
-};
-
-LoadingOverlay.defaultProps = {
-  title: 'Please wait',
-  message: 'Processing your request...',
-  blockNavigation: false
 };

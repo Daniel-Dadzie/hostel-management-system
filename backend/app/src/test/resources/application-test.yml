@@ -13,6 +13,8 @@ spring:
     type: none
 
 app:
+  jwt:
+    secret: test-jwt-secret-at-least-32-characters-long
   auth:
     reset-rate-limit-seconds: 1
   frontend-url: http://localhost:5173

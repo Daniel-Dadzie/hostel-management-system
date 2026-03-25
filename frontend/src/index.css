@@ -151,4 +151,93 @@
   .focus-ring {
     @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 dark:focus-visible:ring-primary-400;
   }
+
+  /* ── Enhanced Card Hover Effects ── */
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-lg hover:border-primary-200 dark:hover:border-primary-800/30;
+  }
+
+  /* ── Smooth Button Transitions ── */
+  .btn-smooth {
+    @apply transition-all duration-200 active:scale-95;
+  }
+
+  /* ── Icon Rotation on Hover ── */
+  .icon-rotate-hover {
+    @apply transition-transform duration-300 group-hover:rotate-12;
+  }
+
+  /* ── Scale Effects ── */
+  .scale-hover {
+    @apply transition-transform duration-200 hover:scale-110;
+  }
+
+  /* ── Staggered List Items ── */
+  @for $i from 1 through 10 {
+    .stagger-item-\($i\) {
+      animation-delay: calc($i * 100ms);
+    }
+  }
+
+  /* ── Bounce Animation ── */
+  @keyframes bounce-gentle {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+  }
+
+  .bounce-gentle {
+    @apply animate-pulse;
+    animation: bounce-gentle 2s ease-in-out infinite;
+  }
+
+  /* ── Pulse Badge ── */
+  @keyframes pulse-ring {
+    0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+    70% { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+  }
+
+  .pulse-ring {
+    animation: pulse-ring 2s infinite;
+  }
+
+  /* ── Smooth Transitions ── */
+  .transition-smooth-all {
+    @apply transition-all duration-300 ease-out;
+  }
+
+  .transition-smooth {
+    @apply transition duration-200 ease-out;
+  }
+
+  /* ── Loading Skeleton Shimmer ── */
+  .skeleton-shimmer {
+    @apply bg-gradient-to-r from-neutral-200 via-neutral-100 to-neutral-200 dark:from-neutral-700 dark:via-neutral-600 dark:to-neutral-700;
+    animation: shimmer 1.5s infinite linear;
+    background-size: 200% 100%;
+  }
+
+  /* ── Status Indicator Pulse ── */
+  @keyframes status-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+
+  .status-pulse {
+    animation: status-pulse 2s ease-in-out infinite;
+  }
+
+  /* ── Transform on Hover for Info Rows ── */
+  .info-row-hover {
+    @apply transition-all duration-200 hover:bg-neutral-50/50 dark:hover:bg-neutral-800/30 hover:translate-x-1 cursor-pointer;
+  }
+
+  /* ── Translate effects ── */
+  .translate-y-rise {
+    @apply transition-transform duration-200 hover:-translate-y-1;
+  }
+
+  .translate-y-sink {
+    @apply transition-transform duration-200 hover:translate-y-1;
+  }
 }

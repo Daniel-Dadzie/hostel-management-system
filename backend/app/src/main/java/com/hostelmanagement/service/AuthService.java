@@ -1,24 +1,26 @@
 package com.hostelmanagement.service;
 
-import com.hostelmanagement.domain.Role;
-import com.hostelmanagement.domain.Student;
-import com.hostelmanagement.repository.StudentRepository;
-import com.hostelmanagement.security.PasswordResetRateLimiter;
-import com.hostelmanagement.security.JwtService;
-import com.hostelmanagement.web.dto.AuthResponse;
-import com.hostelmanagement.web.dto.LoginRequest;
-import com.hostelmanagement.web.dto.RefreshTokenRequest;
-import com.hostelmanagement.web.dto.RegisterRequest;
-import java.security.SecureRandom;
-import java.time.Instant;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
+import java.time.Instant;
 import java.util.Base64;
 import java.util.Locale;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.hostelmanagement.domain.Role;
+import com.hostelmanagement.domain.Student;
+import com.hostelmanagement.repository.StudentRepository;
+import com.hostelmanagement.security.JwtService;
+import com.hostelmanagement.security.PasswordResetRateLimiter;
+import com.hostelmanagement.security.SecurityAuditLogger;
+import com.hostelmanagement.web.dto.AuthResponse;
+import com.hostelmanagement.web.dto.LoginRequest;
+import com.hostelmanagement.web.dto.RegisterRequest;
 
 @Service
 public class AuthService {
@@ -28,6 +30,7 @@ public class AuthService {
   private final JwtService jwtService;
   private final NotificationService notificationService;
   private final PasswordResetRateLimiter passwordResetRateLimiter;
+  private final SecurityAuditLogger securityAuditLogger;
   private final String frontendUrl;
   private final long resetRateLimitSeconds;
 
@@ -39,6 +42,7 @@ public class AuthService {
       JwtService jwtService,
       NotificationService notificationService,
       PasswordResetRateLimiter passwordResetRateLimiter,
+      SecurityAuditLogger securityAuditLogger,
       @Value("${app.frontend-url}") String frontendUrl,
       @Value("${app.auth.reset-rate-limit-seconds:60}") long resetRateLimitSeconds) {
     this.studentRepository = studentRepository;
@@ -46,6 +50,7 @@ public class AuthService {
     this.jwtService = jwtService;
     this.notificationService = notificationService;
     this.passwordResetRateLimiter = passwordResetRateLimiter;
+    this.securityAuditLogger = securityAuditLogger;
     this.frontendUrl = frontendUrl;
     this.resetRateLimitSeconds = resetRateLimitSeconds;
   }
@@ -80,6 +85,11 @@ public class AuthService {
             .findByEmail(email)
             .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
 
+    // Guard against malformed legacy records to avoid leaking internal errors as HTTP 500.
+    if (s.getPassword() == null || s.getPassword().isBlank() || s.getRole() == null) {
+      throw new IllegalArgumentException("Invalid email or password");
+    }
+
     if (!passwordEncoder.matches(request.password(), s.getPassword())) {
       throw new IllegalArgumentException("Invalid email or password");
     }
@@ -95,26 +105,40 @@ public class AuthService {
 
     // Redis-backed when available; falls back to in-memory per-instance limiter.
     if (!passwordResetRateLimiter.tryAcquire(normalizedEmail, resetRateLimitSeconds)) {
+      securityAuditLogger.logRateLimitExceeded(normalizedEmail, null);
       throw new IllegalArgumentException("Please wait before requesting another password reset");
     }
 
     studentRepository.findByEmail(normalizedEmail).ifPresent(student -> {
-      // Generate cryptographically secure token
-      byte[] tokenBytes = new byte[32];
-      SECURE_RANDOM.nextBytes(tokenBytes);
-      String resetToken = Base64.getUrlEncoder().withoutPadding().encodeToString(tokenBytes);
-      Instant expiry = Instant.now().plusSeconds(3600);
+      try {
+        // Generate cryptographically secure token
+        byte[] tokenBytes = new byte[32];
+        SECURE_RANDOM.nextBytes(tokenBytes);
+        String resetToken = Base64.getUrlEncoder().withoutPadding().encodeToString(tokenBytes);
+        Instant expiry = Instant.now().plusSeconds(3600);
 
-      student.setResetToken(resetToken);
-      student.setResetTokenExpiry(expiry);
-      studentRepository.save(student);
+        student.setResetToken(resetToken);
+        student.setResetTokenExpiry(expiry);
+        student.setLastPasswordResetAttemptAt(Instant.now());
+        studentRepository.save(student);
 
-      String baseUrl = frontendUrl.endsWith("/") ? frontendUrl.substring(0, frontendUrl.length() - 1) : frontendUrl;
-      String resetUrl =
-          baseUrl
-              + "/reset-password?token="
-              + URLEncoder.encode(resetToken, StandardCharsets.UTF_8);
-      notificationService.sendPasswordReset(student.getEmail(), student.getFullName(), resetUrl, expiry);
+        String baseUrl = frontendUrl.endsWith("/") ? frontendUrl.substring(0, frontendUrl.length() - 1) : frontendUrl;
+        String resetUrl =
+            baseUrl
+                + "/reset-password?token="
+                + URLEncoder.encode(resetToken, StandardCharsets.UTF_8);
+        notificationService.sendPasswordReset(student.getEmail(), student.getFullName(), resetUrl, expiry);
+        
+        // Log successful password reset request
+        securityAuditLogger.logPasswordResetRequest(normalizedEmail, null, true, null);
+      } catch (Exception e) {
+        securityAuditLogger.logPasswordResetRequest(
+            normalizedEmail,
+            null,
+            false,
+            "INTERNAL_ERROR:" + e.getClass().getSimpleName());
+        throw e;
+      }
     });
   }
 
@@ -122,23 +146,41 @@ public class AuthService {
   public void resetPassword(String token, String newPassword) {
     // Validate password strength
     if (newPassword == null || newPassword.length() < 8) {
+      securityAuditLogger.logInvalidTokenAttempt("PASSWORD_RESET", token, null);
       throw new IllegalArgumentException("Password must be at least 8 characters long");
     }
     
     Student student = studentRepository.findByResetToken(token)
-        .orElseThrow(() -> new IllegalArgumentException("Invalid or expired reset token"));
+        .orElseThrow(() -> {
+          securityAuditLogger.logInvalidTokenAttempt("PASSWORD_RESET", token, null);
+          return new IllegalArgumentException("Invalid or expired reset token");
+        });
     
     // Check if token is expired
     if (student.getResetTokenExpiry() == null || student.getResetTokenExpiry().isBefore(Instant.now())) {
+      securityAuditLogger.logPasswordResetCompletion(student.getEmail(), null, false, "Token expired");
       throw new IllegalArgumentException("Reset token has expired");
     }
     
-    // Update password
-    student.setPassword(passwordEncoder.encode(newPassword));
-    // Clear reset token
-    student.setResetToken(null);
-    student.setResetTokenExpiry(null);
-    studentRepository.save(student);
+    try {
+      // Update password
+      student.setPassword(passwordEncoder.encode(newPassword));
+      // Clear reset token
+      student.setResetToken(null);
+      student.setResetTokenExpiry(null);
+      student.setLastPasswordResetAt(Instant.now());
+      studentRepository.save(student);
+      
+      // Log successful password reset
+      securityAuditLogger.logPasswordResetCompletion(student.getEmail(), null, true, null);
+    } catch (Exception e) {
+      securityAuditLogger.logPasswordResetCompletion(
+          student.getEmail(),
+          null,
+          false,
+          "INTERNAL_ERROR:" + e.getClass().getSimpleName());
+      throw e;
+    }
   }
 
   @Transactional

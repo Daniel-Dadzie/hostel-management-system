@@ -12,6 +12,9 @@ import {
 } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { getMyBooking } from '../../services/studentService.js';
+import { toastService } from '../../hooks/useToast.js';
+import PaymentCountdown from '../../components/student/PaymentCountdown.jsx';
+import BookingProgressTimeline from '../../components/student/BookingProgressTimeline.jsx';
 
 const SAMPLE_ANNOUNCEMENTS = [
   {
@@ -99,16 +102,50 @@ export default function StudentDashboard() {
   const isPendingPayment = booking?.status === 'PENDING_PAYMENT';
 
   useEffect(() => {
+    let pollingInterval;
+    let previousStatus = null;
+
+    // Initial fetch
     (async () => {
       try {
         const data = await getMyBooking();
         setBooking(data);
+        previousStatus = data?.status;
       } catch (err) {
         if (!err.message?.includes('No booking')) setError(err.message ?? 'Unknown error');
       } finally {
         setLoading(false);
       }
     })();
+
+    // Set up polling every 30 seconds to check for booking status changes
+    pollingInterval = setInterval(async () => {
+      try {
+        const data = await getMyBooking();
+        
+        // Check if status changed and notify user
+        if (previousStatus && previousStatus !== data?.status) {
+          if (data?.status === 'APPROVED') {
+            toastService.success('🎉 Your booking has been approved! Your room is confirmed.');
+          } else if (data?.status === 'REJECTED') {
+            toastService.error('❌ Your booking was rejected. Please try applying again.');
+          } else if (data?.status === 'EXPIRED') {
+            toastService.error('⏰ Your booking has expired. Please apply again.');
+          } else if (data?.status === 'CANCELLED') {
+            toastService.error('🚫 Your booking has been cancelled.');
+          }
+        }
+        
+        setBooking(data);
+        previousStatus = data?.status;
+      } catch (err) {
+        // Silently ignore errors during polling - don't show toast for background updates
+        console.debug('Polling error (non-blocking):', err.message);
+      }
+    }, 30000); // Poll every 30 seconds
+
+    // Clean up polling interval on unmount
+    return () => clearInterval(pollingInterval);
   }, []);
 
   return (
@@ -151,7 +188,7 @@ export default function StudentDashboard() {
 
             {loading ? (
               <div className="space-y-2">
-                {[1, 2].map((n) => (
+                {[1, 2, 3].map((n) => (
                   <div key={n} className="h-10 animate-pulse rounded-xl bg-neutral-100 dark:bg-neutral-800" />
                 ))}
               </div>
@@ -167,24 +204,47 @@ export default function StudentDashboard() {
                     valueClass="text-yellow-700 dark:text-yellow-400"
                   />
                 )}
+                {booking.bookingAcademicYear && (
+                  <Detail 
+                    label="Academic Year" 
+                    value={booking.bookingAcademicYear}
+                  />
+                )}
+                {booking.bookingAcademicSession && (
+                  <Detail 
+                    label="Semester" 
+                    value={booking.bookingAcademicSession}
+                  />
+                )}
               </div>
             ) : isPendingPayment ? (
-              <div className="rounded-xl border border-yellow-200 bg-yellow-50/60 p-4 dark:border-yellow-800/30 dark:bg-yellow-900/10">
-                <div className="flex items-start gap-3">
-                  <FaExclamationTriangle className="mt-0.5 shrink-0 text-yellow-500" />
-                  <div>
-                    <p className="font-semibold text-yellow-800 dark:text-yellow-300">Payment Required</p>
-                    <p className="mt-0.5 text-sm text-yellow-700 dark:text-yellow-400">
-                      Your booking for{' '}
-                      <strong>{booking.hostelName}</strong> — Room{' '}
-                      <strong>{booking.roomNumber}</strong> is awaiting payment.
-                      {booking.paymentDueAt && ` Due by ${formatDate(booking.paymentDueAt)}.`}
-                    </p>
-                    <Link to="/student/payments" className="btn-primary mt-3 inline-block text-sm">
-                      Pay Now
-                    </Link>
+              <div className="space-y-4">
+                <div className="rounded-xl border border-yellow-200 bg-yellow-50/60 p-4 dark:border-yellow-800/30 dark:bg-yellow-900/10">
+                  <div className="flex items-start gap-3">
+                    <FaExclamationTriangle className="mt-0.5 shrink-0 text-yellow-500" />
+                    <div>
+                      <p className="font-semibold text-yellow-800 dark:text-yellow-300">Payment Required</p>
+                      <p className="mt-0.5 text-sm text-yellow-700 dark:text-yellow-400">
+                        Your booking for{' '}
+                        <strong>{booking.hostelName}</strong> — Room{' '}
+                        <strong>{booking.roomNumber}</strong> is awaiting payment.
+                        {booking.paymentDueAt && ` Due by ${formatDate(booking.paymentDueAt)}.`}
+                      </p>
+                      <Link to="/student/payments" className="btn-primary mt-3 inline-block text-sm">
+                        Pay Now
+                      </Link>
+                    </div>
                   </div>
                 </div>
+
+                {booking?.paymentDueAt && (
+                  <PaymentCountdown 
+                    dueDate={booking.paymentDueAt}
+                    onWarning={() => {
+                      toastService.error('⏰ Payment deadline in 5 minutes! Complete payment now to secure your room.');
+                    }}
+                  />
+                )}
               </div>
             ) : (
               <div className="flex flex-col items-center gap-4 py-6 text-center">
@@ -205,6 +265,11 @@ export default function StudentDashboard() {
               </div>
             )}
           </section>
+
+          {/* ── 2.5. Booking Progress Timeline ── */}
+          {booking && !loading && (
+            <BookingProgressTimeline booking={booking} />
+          )}
 
           {/* ── 3. Financial Summary Card ── */}
           <section className="card">

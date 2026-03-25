@@ -1,11 +1,19 @@
 import { useEffect, useMemo, useState } from 'react';
+import { FaFileExport, FaDownload } from 'react-icons/fa';
 import { listAdminBookings } from '../../services/bookingService.js';
+import DataTable from '../../components/admin/DataTable.jsx';
+import AdvancedFilter from '../../components/admin/AdvancedFilter.jsx';
+import { MiniStatsCard } from '../../components/admin/StatsCard.jsx';
+import Alert from '../../components/admin/Alert.jsx';
+import { exportToCSV, exportToJSON } from '../../utils/exportUtils.js';
 
 export default function ManageStudentsPage() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
+  const [filterValues, setFilterValues] = useState({});
+  const [exportSuccess, setExportSuccess] = useState(false);
 
   useEffect(() => {
     loadStudentsContext();
@@ -60,6 +68,34 @@ export default function ManageStudentsPage() {
     );
   });
 
+  const handleExport = (format) => {
+    if (filteredStudents.length === 0) {
+      setError('No students to export');
+      return;
+    }
+
+    const columns = [
+      { key: 'studentName', label: 'Name' },
+      { key: 'studentEmail', label: 'Email' },
+      { key: 'totalBookings', label: 'Total Bookings' },
+      { key: 'approvedBookings', label: 'Approved' },
+      { key: 'pendingBookings', label: 'Pending' },
+      { key: 'latestHostel', label: 'Latest Hostel' },
+      { key: 'latestRoom', label: 'Latest Room' }
+    ];
+
+    try {
+      if (format === 'csv') {
+        exportToCSV(filteredStudents, columns, `students-${new Date().toISOString().split('T')[0]}.csv`);
+      } else {
+        exportToJSON(filteredStudents, `students-${new Date().toISOString().split('T')[0]}.json`);
+      }
+      setExportSuccess(true);
+    } catch (err) {
+      setError(`Export failed: ${err.message}`);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -69,103 +105,106 @@ export default function ManageStudentsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       <div>
         <h1 className="page-title text-neutral-900 dark:text-white">Manage Students</h1>
         <p className="body-text mt-1 text-neutral-600 dark:text-neutral-400">
-          Student overview based on booking activity.
+          Student overview and management based on booking activity.
         </p>
       </div>
 
       {error && (
-        <div className="alert-error">
-          {error}
-        </div>
+        <Alert type="error" message={error} onClose={() => setError('')} />
       )}
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <div className="card">
-          <p className="body-text text-neutral-500 dark:text-neutral-400">Total Students</p>
-          <p className="card-header mt-2 text-neutral-900 dark:text-white">{students.length}</p>
-        </div>
-        <div className="card">
-          <p className="body-text text-neutral-500 dark:text-neutral-400">With Approved Booking</p>
-          <p className="card-header mt-2 text-neutral-900 dark:text-white">
-            {students.filter((item) => item.approvedBookings > 0).length}
-          </p>
-        </div>
-        <div className="card">
-          <p className="body-text text-neutral-500 dark:text-neutral-400">Pending Payment</p>
-          <p className="card-header mt-2 text-neutral-900 dark:text-white">
-            {students.filter((item) => item.pendingBookings > 0).length}
-          </p>
-        </div>
+      {exportSuccess && (
+        <Alert type="success" message="Data exported successfully!" autoClose={3000} onClose={() => setExportSuccess(false)} />
+      )}
+
+      {/* Stats Cards */}
+      <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        <MiniStatsCard
+          label="Total Students"
+          value={students.length}
+          color="primary"
+        />
+        <MiniStatsCard
+          label="With Approved Booking"
+          value={students.filter((s) => s.approvedBookings > 0).length}
+          color="emerald"
+        />
+        <MiniStatsCard
+          label="Pending Payment"
+          value={students.filter((s) => s.pendingBookings > 0).length}
+          color="yellow"
+        />
+        <MiniStatsCard
+          label="Average Bookings"
+          value={students.length > 0 ? (students.reduce((sum, s) => sum + s.totalBookings, 0) / students.length).toFixed(1) : 0}
+          color="blue"
+        />
       </div>
 
-      <div className="card">
+      {/* Search and Controls */}
+      <div className="card space-y-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="card-header text-neutral-900 dark:text-white">Student List</h2>
-          <input
-            className="input-field sm:max-w-sm"
-            placeholder="Search by name or email"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+          <h2 className="card-header text-neutral-900 dark:text-white">Student Directory</h2>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <input
+              className="input-field flex-1"
+              placeholder="Search by name or email..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => handleExport('csv')}
+                className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-3 py-2 text-sm font-medium text-white hover:bg-primary-700 transition-colors"
+              >
+                <FaDownload className="h-4 w-4" />
+                CSV
+              </button>
+              <button
+                type="button"
+                onClick={() => handleExport('json')}
+                className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-3 py-2 text-sm font-medium text-white hover:bg-primary-700 transition-colors"
+              >
+                <FaFileExport className="h-4 w-4" />
+                JSON
+              </button>
+            </div>
+          </div>
         </div>
 
-        <div className="mt-4 space-y-3 md:hidden">
-          {filteredStudents.map((student) => (
-            <div key={student.studentId} className="rounded-lg border border-neutral-200 p-3 dark:border-neutral-800">
-              <p className="font-medium text-neutral-900 dark:text-white">{student.studentName}</p>
-              <p className="body-text text-neutral-500 dark:text-neutral-400">{student.studentEmail}</p>
-              <p className="body-text mt-2 text-neutral-600 dark:text-neutral-300">
-                {student.totalBookings} total · {student.approvedBookings} approved · {student.pendingBookings} pending
-              </p>
-              <p className="body-text text-neutral-600 dark:text-neutral-300">
-                Latest: {student.latestHostel} / {student.latestRoom}
-              </p>
-            </div>
-          ))}
-          {filteredStudents.length === 0 && (
-            <div className="rounded-lg border border-neutral-200 p-3 text-neutral-500 dark:border-neutral-800 dark:text-neutral-400">
-              No students found.
-            </div>
-          )}
-        </div>
-
-        <div className="mt-4 hidden overflow-x-auto md:block">
-          <table className="w-full min-w-[760px] text-sm">
-            <thead>
-              <tr className="border-b border-neutral-200 dark:border-neutral-700">
-                <th className="px-3 py-2 text-left font-semibold text-neutral-800 dark:text-neutral-100">Student</th>
-                <th className="px-3 py-2 text-left font-semibold text-neutral-800 dark:text-neutral-100">Email</th>
-                <th className="px-3 py-2 text-left font-semibold text-neutral-800 dark:text-neutral-100">Bookings</th>
-                <th className="px-3 py-2 text-left font-semibold text-neutral-800 dark:text-neutral-100">Latest Allocation</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredStudents.map((student) => (
-                <tr key={student.studentId} className="border-b border-neutral-100 dark:border-neutral-800">
-                  <td className="px-3 py-2 font-medium text-neutral-900 dark:text-white">{student.studentName}</td>
-                  <td className="px-3 py-2 text-neutral-600 dark:text-neutral-300">{student.studentEmail}</td>
-                  <td className="px-3 py-2 text-neutral-600 dark:text-neutral-300">
-                    {student.totalBookings} total · {student.approvedBookings} approved · {student.pendingBookings} pending
-                  </td>
-                  <td className="px-3 py-2 text-neutral-600 dark:text-neutral-300">
-                    {student.latestHostel} / {student.latestRoom}
-                  </td>
-                </tr>
-              ))}
-              {filteredStudents.length === 0 && (
-                <tr>
-                  <td className="px-3 py-3 text-neutral-500 dark:text-neutral-400" colSpan={4}>
-                    No students found.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+        {/* Data Table */}
+        <DataTable
+          columns={[
+            { key: 'studentName', label: 'Name', sortable: true },
+            { key: 'studentEmail', label: 'Email', sortable: true },
+            {
+              key: 'totalBookings',
+              label: 'Bookings',
+              sortable: true,
+              render: (value, row) => (
+                <div className="space-y-1">
+                  <div className="font-medium">{value} total</div>
+                  <div className="text-xs text-neutral-600 dark:text-neutral-400">
+                    {row.approvedBookings} approved · {row.pendingBookings} pending
+                  </div>
+                </div>
+              )
+            },
+            {
+              key: 'latestHostel',
+              label: 'Latest Allocation',
+              render: (value, row) => `${value} / ${row.latestRoom}`
+            }
+          ]}
+          data={filteredStudents}
+          emptymessage={filteredStudents.length === 0 ? 'No students found' : 'No students'}
+          itemsPerPage={15}
+        />
       </div>
     </div>
   );

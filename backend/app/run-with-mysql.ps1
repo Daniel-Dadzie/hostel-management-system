@@ -116,8 +116,8 @@ if (-not $env:FRONTEND_URL) {
 }
 
 # JWT secret is required at startup; provide a dev-only default.
-if (-not $env:JWT_SECRET) {
-	$env:JWT_SECRET = "local-dev-jwt-secret-change-this-1234567890"
+if (-not $env:JWT_SECRET -or $env:JWT_SECRET -like "change-me*") {
+	throw "JWT_SECRET is missing or placeholder. Set it in backend/app/.env before running."
 }
 
 # Local default: avoid Redis dependency unless explicitly enabled.

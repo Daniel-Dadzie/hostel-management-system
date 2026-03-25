@@ -1,54 +1,4 @@
 import toast from 'react-hot-toast';
-import { Toaster } from 'react-hot-toast';
-
-/**
- * Toast notification configuration
- * Styled for the hostel management system
- */
-export function ToastProvider() {
-  return (
-    <Toaster
-      position="top-right"
-      toastOptions={{
-        duration: 4000,
-        style: {
-          background: '#fff',
-          color: '#1f2937',
-          borderRadius: '8px',
-          padding: '12px 16px',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-        },
-        success: {
-          iconTheme: {
-            primary: '#059669',
-            secondary: '#fff',
-          },
-          style: {
-            borderLeft: '4px solid #059669',
-          },
-        },
-        error: {
-          iconTheme: {
-            primary: '#dc2626',
-            secondary: '#fff',
-          },
-          style: {
-            borderLeft: '4px solid #dc2626',
-          },
-        },
-        loading: {
-          iconTheme: {
-            primary: '#2563eb',
-            secondary: '#fff',
-          },
-          style: {
-            borderLeft: '4px solid #2563eb',
-          },
-        },
-      }}
-    />
-  );
-}
 
 /**
  * Custom toast functions with consistent styling
@@ -119,9 +69,6 @@ export const toastMessages = {
 
 /**
  * Hook for using toast notifications in components
- * @example
- * const { showSuccess, showError } = useToast();
- * showSuccess('Operation completed!');
  */
 export function useToast() {
   return {

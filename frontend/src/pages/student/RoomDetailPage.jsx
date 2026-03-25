@@ -67,10 +67,10 @@ const STATUS_CONFIG = {
 
 function InfoRow({ icon, label, value }) {
   return (
-    <div className="flex items-start gap-3 py-2.5 border-b border-neutral-100 dark:border-neutral-700/50 last:border-0">
-      <span className="mt-0.5 flex-shrink-0 text-primary-500 dark:text-primary-400">{icon}</span>
-      <span className="w-40 flex-shrink-0 text-sm text-neutral-500 dark:text-neutral-400">{label}</span>
-      <span className="text-sm font-semibold text-neutral-800 dark:text-neutral-100">{value}</span>
+    <div className="flex items-start gap-3 py-2.5 px-2 rounded transition-all duration-200 border-b border-neutral-100 dark:border-neutral-700/50 last:border-0 hover:bg-neutral-50/30 dark:hover:bg-neutral-700/20 group/row">
+      <span className="mt-0.5 flex-shrink-0 text-primary-500 transition-transform duration-200 group-hover/row:scale-110 dark:text-primary-400">{icon}</span>
+      <span className="w-40 flex-shrink-0 text-sm text-neutral-500 font-medium transition-colors duration-200 group-hover/row:text-neutral-700 dark:text-neutral-400 dark:group-hover/row:text-neutral-300">{label}</span>
+      <span className="text-sm font-semibold text-neutral-800 transition-colors duration-200 group-hover/row:text-primary-600 dark:text-neutral-100 dark:group-hover/row:text-primary-400">{value}</span>
     </div>
   );
 }
@@ -235,14 +235,17 @@ export default function RoomDetailPage() {
       {/* ══════════════════════════════════════════
           SECTION 1 — Room Header
       ══════════════════════════════════════════ */}
-      <div className={`overflow-hidden rounded-2xl bg-gradient-to-r ${cfg.band} shadow-lg`}>
-        <div className="px-6 py-5 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 shadow">
+      <div className={`animate-slide-up overflow-hidden rounded-2xl bg-gradient-to-r ${cfg.band} shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-1`}>
+        <div className="px-6 py-5 flex items-center justify-between gap-4 relative overflow-hidden">
+          {/* Animated background shimmer */}
+          <div className="absolute inset-0 opacity-0 hover:opacity-20 transition-opacity duration-300 bg-gradient-to-r from-transparent via-white to-transparent" />
+          
+          <div className="relative flex items-center gap-4 z-10">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 shadow transition-all duration-200 hover:bg-white/30 hover:scale-110">
               <FaBed className="text-3xl text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-extrabold text-white tracking-wide">
+              <h1 className="text-2xl font-extrabold text-white tracking-wide transition-all duration-200">
                 Room {room.roomNumber}
               </h1>
               <p className="text-sm text-white/80 mt-0.5">
@@ -250,7 +253,7 @@ export default function RoomDetailPage() {
               </p>
             </div>
           </div>
-          <span className={`rounded-full px-3 py-1 text-sm font-bold ${cfg.badge}`}>
+          <span className={`rounded-full px-3 py-1 text-sm font-bold transition-all duration-200 hover:scale-110 origin-right ${cfg.badge}`}>
             {cfg.label}
           </span>
         </div>
@@ -259,7 +262,8 @@ export default function RoomDetailPage() {
       {/* ══════════════════════════════════════════
           SECTION 2 — Room Information
       ══════════════════════════════════════════ */}
-      <div className="rounded-2xl border border-neutral-200/70 bg-white shadow-sm dark:border-neutral-800 dark:bg-surface-dark">
+      <div className="animate-slide-up rounded-2xl border border-neutral-200/70 bg-white shadow-sm transition-all duration-300 hover:shadow-md hover:border-neutral-300/90 dark:border-neutral-800 dark:bg-surface-dark dark:hover:border-neutral-700 dark:hover:shadow-lg"
+        style={{ animationDelay: '50ms' }}>
         <div className="border-b border-neutral-100 px-6 py-3 dark:border-neutral-700">
           <h2 className="text-base font-bold text-neutral-800 dark:text-white">Room Information</h2>
         </div>
@@ -304,7 +308,8 @@ export default function RoomDetailPage() {
       {/* ══════════════════════════════════════════
           SECTION 3 — Current Occupants
       ══════════════════════════════════════════ */}
-      <div className="rounded-2xl border border-neutral-200/70 bg-white shadow-sm dark:border-neutral-800 dark:bg-surface-dark">
+      <div className="animate-slide-up rounded-2xl border border-neutral-200/70 bg-white shadow-sm transition-all duration-300 hover:shadow-md hover:border-neutral-300/90 dark:border-neutral-800 dark:bg-surface-dark dark:hover:border-neutral-700 dark:hover:shadow-lg"
+        style={{ animationDelay: '100ms' }}>
         <div className="border-b border-neutral-100 px-6 py-3 dark:border-neutral-700">
           <h2 className="text-base font-bold text-neutral-800 dark:text-white">Current Occupancy</h2>
         </div>
@@ -312,18 +317,20 @@ export default function RoomDetailPage() {
           <OccupancyBar occupied={occupied} capacity={capacity} />
 
           <div className="grid grid-cols-3 gap-3 text-center">
-            <div className="rounded-xl bg-neutral-50 py-3 dark:bg-neutral-800">
-              <p className="text-2xl font-extrabold text-neutral-800 dark:text-white">{capacity}</p>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">Total Slots</p>
-            </div>
-            <div className="rounded-xl bg-neutral-50 py-3 dark:bg-neutral-800">
-              <p className="text-2xl font-extrabold text-neutral-800 dark:text-white">{occupied}</p>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">Occupied</p>
-            </div>
-            <div className="rounded-xl bg-neutral-50 py-3 dark:bg-neutral-800">
-              <p className={`text-2xl font-extrabold ${cfg.availableClass}`}>{available}</p>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">Available</p>
-            </div>
+            {[
+              { label: 'Total Slots', value: capacity, color: 'neutral' },
+              { label: 'Occupied', value: occupied, color: 'neutral' },
+              { label: 'Available', value: available, color: cfg.availableClass }
+            ].map(({ label, value, color }, idx) => (
+              <div 
+                key={label}
+                className="group rounded-xl bg-neutral-50 py-3 transition-all duration-200 hover:shadow-md hover:-translate-y-1 dark:bg-neutral-800 cursor-pointer"
+                style={{ transitionDelay: `${idx * 50}ms` }}
+              >
+                <p className={`text-2xl font-extrabold transition-all duration-200 group-hover:scale-110 group-hover:text-primary-600 dark:group-hover:text-primary-400 ${color || 'text-neutral-800 dark:text-white'}`}>{value}</p>
+                <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">{label}</p>
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -331,17 +338,18 @@ export default function RoomDetailPage() {
       {/* ══════════════════════════════════════════
           SECTION 4 — Rules
       ══════════════════════════════════════════ */}
-      <div className="rounded-2xl border border-neutral-200/70 bg-white shadow-sm dark:border-neutral-800 dark:bg-surface-dark">
+      <div className="animate-slide-up rounded-2xl border border-neutral-200/70 bg-white shadow-sm transition-all duration-300 hover:shadow-md hover:border-neutral-300/90 dark:border-neutral-800 dark:bg-surface-dark dark:hover:border-neutral-700 dark:hover:shadow-lg"
+        style={{ animationDelay: '150ms' }}>
         <div className="border-b border-neutral-100 px-6 py-3 dark:border-neutral-700">
           <h2 className="text-base font-bold text-neutral-800 dark:text-white">
-            <FaExclamationTriangle className="inline mr-2 text-amber-500" />
+            <FaExclamationTriangle className="inline mr-2 text-amber-500 transition-transform duration-300 hover:rotate-12" />
             Hostel Rules &amp; Regulations
           </h2>
         </div>
         <ul className="divide-y divide-neutral-100 px-6 dark:divide-neutral-700">
           {RULES.map((rule, ruleIdx) => (
-            <li key={rule} className="flex items-start gap-3 py-3">
-              <span className="mt-0.5 flex-shrink-0 flex h-5 w-5 items-center justify-center rounded-full bg-amber-100 text-xs font-bold text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">
+            <li key={rule} className="flex items-start gap-3 py-3 transition-all duration-200 hover:bg-neutral-50/50 dark:hover:bg-neutral-800/30 px-2 mx-2 rounded">
+              <span className="mt-0.5 flex-shrink-0 flex h-5 w-5 items-center justify-center rounded-full bg-amber-100 text-xs font-bold text-amber-700 transition-transform duration-200 hover:scale-110 dark:bg-amber-900/30 dark:text-amber-300">
                 {ruleIdx + 1}
               </span>
               <span className="text-sm text-neutral-700 dark:text-neutral-300">{rule}</span>
@@ -353,24 +361,27 @@ export default function RoomDetailPage() {
       {/* ══════════════════════════════════════════
           SECTION 5 — Confirm Selection
       ══════════════════════════════════════════ */}
-      <div className="rounded-2xl border border-neutral-200/70 bg-white px-6 py-5 shadow-sm dark:border-neutral-800 dark:bg-surface-dark">
+      <div className="animate-slide-up rounded-2xl border border-neutral-200/70 bg-white px-6 py-5 shadow-sm transition-all duration-300 hover:shadow-md hover:border-neutral-300/90 dark:border-neutral-800 dark:bg-surface-dark dark:hover:border-neutral-700 dark:hover:shadow-lg"
+        style={{ animationDelay: '200ms' }}>
         {isFull ? (
           <div className="flex flex-col items-center gap-2 text-center py-2">
-            <FaTimesCircle className="text-3xl text-red-400" />
+            <div className="transform transition-transform duration-300 hover:scale-110 hover:rotate-12">
+              <FaTimesCircle className="text-3xl text-red-400" />
+            </div>
             <p className="font-bold text-red-600 dark:text-red-400">This room is fully occupied.</p>
             <p className="text-sm text-neutral-500">Please go back and choose another room.</p>
             <button
               type="button"
               onClick={() => navigate(`/student/hostels/${hostelId}/floors/${floorNumber}/rooms`)}
-              className="mt-2 rounded-xl border border-neutral-300 px-5 py-2 text-sm font-semibold text-neutral-700 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800"
+              className="mt-2 rounded-xl border border-neutral-300 px-5 py-2 text-sm font-semibold text-neutral-700 transition-all duration-200 hover:bg-neutral-50 hover:border-neutral-400 active:scale-95 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800 dark:hover:border-neutral-600"
             >
               ← Choose Another Room
             </button>
           </div>
         ) : (
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between group/confirm">
             <div>
-              <p className="font-semibold text-neutral-800 dark:text-white">
+              <p className="font-semibold text-neutral-800 dark:text-white transition-all duration-200 group-hover/confirm:text-primary-600 dark:group-hover/confirm:text-primary-400">
                 Ready to apply for Room {room.roomNumber}?
               </p>
               <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-0.5">
@@ -384,7 +395,7 @@ export default function RoomDetailPage() {
                   `/student/confirm?hostelId=${hostelId}&floorNumber=${floorNumber}&roomId=${room.id}`
                 )
               }
-              className="flex-shrink-0 rounded-xl bg-primary-600 px-6 py-2.5 text-sm font-bold text-white shadow-md transition-colors hover:bg-primary-700 active:bg-primary-800 sm:w-auto w-full text-center"
+              className="flex-shrink-0 rounded-xl bg-primary-600 px-6 py-2.5 text-sm font-bold text-white shadow-md transition-all duration-200 hover:bg-primary-700 hover:-translate-y-px hover:shadow-lg active:scale-95 sm:w-auto w-full text-center dark:hover:bg-primary-500"
             >
               Confirm Selection →
             </button>

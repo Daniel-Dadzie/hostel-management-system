@@ -7,6 +7,23 @@ export async function listPaymentRecords() {
   return (bookings || []).filter((item) => item.paymentStatus || item.paymentAmount != null || item.paymentDueAt);
 }
 
+export async function getStudentPaymentHistory() {
+  const response = await fetch(`${API_BASE_URL}/api/payments/student/history`, {
+    method: 'GET',
+    headers: {
+      ...getAuthHeaders()
+    },
+    credentials: 'include'
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(error || 'Failed to fetch payment history');
+  }
+
+  return response.json();
+}
+
 export function confirmPaymentByBooking(bookingId) {
   return updateAdminBookingStatus(bookingId, 'APPROVED');
 }

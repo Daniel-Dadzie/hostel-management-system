@@ -54,11 +54,11 @@ const STATUS_CONFIG = {
   },
 };
 
-function RoomRow({ label, value, valueClass }) {
+function RoomRow({ label, value, valueClass = '' }) {
   return (
-    <div className="flex items-center justify-between py-1.5 border-b border-neutral-100 dark:border-neutral-700/50 last:border-0">
-      <span className="text-sm text-neutral-500 dark:text-neutral-400">{label}</span>
-      <span className={`text-sm font-semibold ${valueClass || 'text-neutral-800 dark:text-neutral-100'}`}>
+    <div className="flex items-center justify-between py-1.5 px-2 rounded transition-all duration-200 border-b border-neutral-100 dark:border-neutral-700/50 last:border-0 hover:bg-neutral-50/30 dark:hover:bg-neutral-700/20">
+      <span className="text-sm text-neutral-500 dark:text-neutral-400 font-medium">{label}</span>
+      <span className={`text-sm font-semibold transition-all duration-200 ${valueClass || 'text-neutral-800 dark:text-neutral-100'}`}>
         {value}
       </span>
     </div>
@@ -71,22 +71,22 @@ RoomRow.propTypes = {
   valueClass: PropTypes.string,
 };
 
-RoomRow.defaultProps = { valueClass: '' };
+// Removed deprecated defaultProps - using default parameters instead
 
 function SkeletonCard() {
   return (
-    <div className="animate-pulse rounded-2xl overflow-hidden border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-surface-dark">
-      <div className="h-14 bg-neutral-200 dark:bg-neutral-700" />
+    <div className="skeleton rounded-2xl overflow-hidden border border-neutral-200 dark:border-neutral-800">
+      <div className="h-14 bg-gradient-to-r from-neutral-200 via-neutral-100 to-neutral-200 dark:from-neutral-700 dark:via-neutral-600 dark:to-neutral-700" />
       <div className="p-4 space-y-3">
         {[1, 2, 3, 4, 5].map((i) => (
           <div key={i} className="flex justify-between">
-            <div className="h-3 w-24 rounded bg-neutral-200 dark:bg-neutral-700" />
-            <div className="h-3 w-16 rounded bg-neutral-200 dark:bg-neutral-700" />
+            <div className="h-3 w-24 rounded bg-gradient-to-r from-neutral-200 via-neutral-100 to-neutral-200 dark:from-neutral-700 dark:via-neutral-600 dark:to-neutral-700" />
+            <div className="h-3 w-16 rounded bg-gradient-to-r from-neutral-200 via-neutral-100 to-neutral-200 dark:from-neutral-700 dark:via-neutral-600 dark:to-neutral-700" />
           </div>
         ))}
         <div className="mt-4 flex gap-2">
-          <div className="h-9 flex-1 rounded-xl bg-neutral-200 dark:bg-neutral-700" />
-          <div className="h-9 flex-1 rounded-xl bg-neutral-200 dark:bg-neutral-700" />
+          <div className="h-9 flex-1 rounded-xl bg-gradient-to-r from-neutral-200 via-neutral-100 to-neutral-200 dark:from-neutral-700 dark:via-neutral-600 dark:to-neutral-700" />
+          <div className="h-9 flex-1 rounded-xl bg-gradient-to-r from-neutral-200 via-neutral-100 to-neutral-200 dark:from-neutral-700 dark:via-neutral-600 dark:to-neutral-700" />
         </div>
       </div>
     </div>
@@ -165,7 +165,7 @@ export default function HostelRoomsPage() {
 
       {!loading && rooms.length > 0 && (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {rooms.map((room) => {
+          {rooms.map((room, idx) => {
             const occupied = room.currentOccupancy ?? 0;
             const capacity = room.capacity ?? 0;
             const available = capacity - occupied;
@@ -180,24 +180,30 @@ export default function HostelRoomsPage() {
             return (
               <div
                 key={room.id}
-                className="group flex flex-col overflow-hidden rounded-2xl border border-neutral-200/70 bg-white shadow-[0_1px_4px_0_rgb(0_0_0/0.06)] transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-neutral-800 dark:bg-surface-dark"
+                className="group animate-slide-up rounded-2xl border border-neutral-200/70 bg-white shadow-[0_1px_4px_0_rgb(0_0_0/0.06)] transition-all duration-300 hover:shadow-xl hover:border-neutral-300/90 dark:border-neutral-800 dark:bg-surface-dark dark:hover:border-neutral-700 dark:hover:shadow-2xl dark:hover:shadow-black/30 hover:-translate-y-1"
+                style={{
+                  animationDelay: `${idx * 50}ms`,
+                }}
               >
-                {/* Colored top band */}
-                <div className={`bg-gradient-to-r ${cfg.band} px-4 py-3 flex items-center justify-between`}>
-                  <div className="flex items-center gap-2">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/20">
+                {/* Colored top band with gradient */}
+                <div className={`bg-gradient-to-r ${cfg.band} px-4 py-3 flex items-center justify-between relative overflow-hidden`}>
+                  {/* Animated background shine effect */}
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-30 transition-opacity duration-300 bg-gradient-to-r from-transparent via-white to-transparent" />
+                  
+                  <div className="relative flex items-center gap-2 z-10">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/20 group-hover:bg-white/30 transition-all duration-200">
                       <FaBed className="text-white text-sm" />
                     </div>
-                    <span className="text-base font-bold text-white tracking-wide">
+                    <span className="text-base font-bold text-white tracking-wide group-hover:tracking-widest transition-all duration-200">
                       Room {room.roomNumber}
                     </span>
                   </div>
-                  <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${cfg.badge}`}>
+                  <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold transition-all duration-200 group-hover:scale-110 origin-right ${cfg.badge}`}>
                     {cfg.label}
                   </span>
                 </div>
 
-                {/* Info rows */}
+                {/* Info rows with better visual hierarchy */}
                 <div className="flex flex-1 flex-col px-4 pt-3 pb-2">
                   <RoomRow label="Capacity" value={capacity} />
                   <RoomRow label="Occupied" value={occupied} />
@@ -210,8 +216,8 @@ export default function HostelRoomsPage() {
                   <RoomRow label="Gender" value={genderLabel} />
                 </div>
 
-                {/* Action buttons */}
-                <div className="px-4 pb-4 pt-2 flex gap-2">
+                {/* Action buttons with enhanced interactions */}
+                <div className="px-4 pb-4 pt-2 flex gap-2 group/buttons">
                   <button
                     type="button"
                     onClick={() =>
@@ -219,9 +225,9 @@ export default function HostelRoomsPage() {
                         `/student/hostels/${hostelId}/floors/${floorNumber}/rooms/${room.id}`
                       )
                     }
-                    className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-neutral-300 bg-white py-2 text-sm font-semibold text-neutral-700 transition-colors hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700"
+                    className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-neutral-300 bg-white py-2 text-sm font-semibold text-neutral-700 transition-all duration-200 hover:bg-neutral-50 hover:border-neutral-400 active:scale-95 group-hover:shadow-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700 dark:hover:border-neutral-600"
                   >
-                    <FaEye className="text-xs" />
+                    <FaEye className="text-xs transition-transform group-hover:scale-110 duration-200" />
                     View Details
                   </button>
 
@@ -229,7 +235,7 @@ export default function HostelRoomsPage() {
                     <button
                       type="button"
                       disabled
-                      className="flex-1 cursor-not-allowed rounded-xl bg-neutral-200 py-2 text-sm font-semibold text-neutral-400 dark:bg-neutral-700 dark:text-neutral-500"
+                      className="flex-1 cursor-not-allowed rounded-xl bg-neutral-200 py-2 text-sm font-semibold text-neutral-400 transition-all duration-200 dark:bg-neutral-700 dark:text-neutral-500"
                     >
                       Full
                     </button>
@@ -241,7 +247,7 @@ export default function HostelRoomsPage() {
                           `/student/confirm?hostelId=${hostelId}&floorNumber=${floorNumber}&roomId=${room.id}`
                         )
                       }
-                      className="flex-1 rounded-xl bg-primary-600 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary-700 active:bg-primary-800"
+                      className="flex-1 rounded-xl bg-primary-600 py-2 text-sm font-semibold text-white transition-all duration-200 hover:bg-primary-700 hover:-translate-y-px hover:shadow-md hover:shadow-primary-900/20 active:scale-95 dark:hover:bg-primary-500"
                     >
                       Select
                     </button>

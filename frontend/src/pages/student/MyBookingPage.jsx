@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getMyBooking } from '../../services/studentService.js';
+import { toastService } from '../../hooks/useToast.js';
+import PaymentCountdown from '../../components/student/PaymentCountdown.jsx';
+import BookingProgressTimeline from '../../components/student/BookingProgressTimeline.jsx';
 
 export default function MyBookingPage() {
   const [booking, setBooking] = useState(null);
@@ -8,15 +11,51 @@ export default function MyBookingPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    loadBooking();
+    let pollingInterval;
+    let previousStatus = null;
+
+    // Initial load
+    const initializeBooking = async () => {
+      const initialBooking = await loadBooking();
+      previousStatus = initialBooking?.status ?? null;
+    };
+    void initializeBooking();
+
+    // Set up polling to check for status updates every 30 seconds
+    pollingInterval = setInterval(async () => {
+      try {
+        const data = await getMyBooking();
+        
+        // Notify if status changed
+        if (previousStatus && previousStatus !== data?.status) {
+          if (data?.status === 'APPROVED') {
+            toastService.success('✅ Payment approved! Your booking is confirmed.');
+          } else if (data?.status === 'REJECTED') {
+            toastService.error('❌ Your booking was rejected.');
+          } else if (data?.status === 'EXPIRED') {
+            toastService.error('⏰ Your booking expired. Please apply again.');
+          }
+        }
+        
+        setBooking(data);
+        previousStatus = data?.status;
+      } catch (err) {
+        console.debug('Polling error:', err.message);
+      }
+    }, 30000); // Poll every 30 seconds
+
+    // Cleanup
+    return () => clearInterval(pollingInterval);
   }, []);
 
   async function loadBooking() {
     try {
       const data = await getMyBooking();
       setBooking(data);
+      return data;
     } catch (err) {
       setError(err.message);
+      return null;
     } finally {
       setLoading(false);
     }
@@ -81,6 +120,10 @@ export default function MyBookingPage() {
 
   const status = statusConfig[booking?.status] || statusConfig.PENDING_PAYMENT;
 
+  const handleCountdownWarning = () => {
+    toastService.error('⏰ Payment deadline in 5 minutes! Complete payment now to secure your room.');
+  };
+
   return (
     <div className="mx-auto max-w-2xl">
       <h1 className="page-title mb-6 text-neutral-900 dark:text-white">My Booking</h1>
@@ -97,6 +140,23 @@ export default function MyBookingPage() {
           </div>
         </div>
       </div>
+
+      {/* Payment Countdown Timer */}
+      {booking?.status === 'PENDING_PAYMENT' && booking?.paymentDueAt && (
+        <div className="mt-6">
+          <PaymentCountdown 
+            dueDate={booking.paymentDueAt}
+            onWarning={handleCountdownWarning}
+          />
+        </div>
+      )}
+
+      {/* Booking Progress Timeline */}
+      {booking && (
+        <div className="mt-6">
+          <BookingProgressTimeline booking={booking} />
+        </div>
+      )}
 
       {/* Booking Details */}
       {booking && (

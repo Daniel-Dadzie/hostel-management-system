@@ -24,6 +24,7 @@ import ApplyHostelPage from './pages/student/ApplyHostelPage.jsx';
 import RoomPreferencesPage from './pages/student/RoomPreferencesPage.jsx';
 import MyBookingPage from './pages/student/MyBookingPage.jsx';
 import MyPaymentsPage from './pages/student/MyPaymentsPage.jsx';
+import PaymentTransactionHistoryPage from './pages/student/PaymentTransactionHistoryPage.jsx';
 import ProfilePage from './pages/student/ProfilePage.jsx';
 import ComplaintsPage from './pages/student/ComplaintsPage.jsx';
 
@@ -96,6 +97,7 @@ export default function App() {
           <Route path="preferences" element={<RoomPreferencesPage />} />
           <Route path="booking" element={<MyBookingPage />} />
           <Route path="payments" element={<MyPaymentsPage />} />
+          <Route path="payment-history" element={<PaymentTransactionHistoryPage />} />
           <Route path="complaints" element={<ComplaintsPage />} />
           <Route path="profile" element={<ProfilePage />} />
         </Route>

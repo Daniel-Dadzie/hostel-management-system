@@ -37,6 +37,7 @@ public class BookingService {
   private final BookingRepository bookingRepository;
   private final PaymentRepository paymentRepository;
   private final AcademicRolloverService academicRolloverService;
+  private final NotificationService notificationService;
 
   private final long holdMinutes;
 
@@ -47,6 +48,7 @@ public class BookingService {
       BookingRepository bookingRepository,
       PaymentRepository paymentRepository,
       AcademicRolloverService academicRolloverService,
+      NotificationService notificationService,
       @Value("${app.booking.payment-hold-minutes}") long holdMinutes) {
     this.hostelRepository = hostelRepository;
     this.roomRepository = roomRepository;
@@ -54,6 +56,7 @@ public class BookingService {
     this.bookingRepository = bookingRepository;
     this.paymentRepository = paymentRepository;
     this.academicRolloverService = academicRolloverService;
+    this.notificationService = notificationService;
     this.holdMinutes = holdMinutes;
   }
 
@@ -152,6 +155,15 @@ public class BookingService {
     payment.setAmount(amount == null ? BigDecimal.ZERO : amount);
 
     paymentRepository.save(payment);
+
+    // Send booking confirmation email asynchronously
+    notificationService.sendBookingConfirmation(
+        student.getEmail(),
+        student.getFullName(),
+        locked.getHostel().getName(),
+        locked.getRoomNumber(),
+        amount == null ? BigDecimal.ZERO : amount,
+        dueAt);
 
     return new BookingResponse(
         savedBooking.getId(),
@@ -262,6 +274,14 @@ public class BookingService {
                 }
                 paymentRepository.save(p);
               });
+
+      // Send payment approval email asynchronously
+      String hostelName = booking.getRoom() == null ? "Unknown" : booking.getRoom().getHostel().getName();
+      String roomNumber = booking.getRoom() == null ? "Unknown" : booking.getRoom().getRoomNumber();
+      Student student = booking.getStudent();
+      if (student != null) {
+        notificationService.sendPaymentApproval(student.getEmail(), student.getFullName(), hostelName, roomNumber);
+      }
     }
 
     booking.setStatus(status);

@@ -1,26 +1,32 @@
 package com.hostelmanagement.service;
 
+import java.time.Instant;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.ArgumentMatchers.eq;
+import org.mockito.Mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 import com.hostelmanagement.domain.Gender;
 import com.hostelmanagement.domain.Student;
 import com.hostelmanagement.repository.StudentRepository;
 import com.hostelmanagement.security.JwtService;
 import com.hostelmanagement.security.PasswordResetRateLimiter;
+import com.hostelmanagement.security.SecurityAuditLogger;
 import com.hostelmanagement.web.dto.AuthResponse;
 import com.hostelmanagement.web.dto.RegisterRequest;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.time.Instant;
-
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
@@ -39,6 +45,9 @@ class AuthServiceTest {
 
     @Mock
     private PasswordResetRateLimiter passwordResetRateLimiter;
+
+    @Mock
+    private SecurityAuditLogger securityAuditLogger;
     
     private AuthService authService;
 
@@ -51,6 +60,7 @@ class AuthServiceTest {
             jwtService,
             notificationService,
             passwordResetRateLimiter,
+            securityAuditLogger,
             "http://localhost:5173",
             60L
         );
@@ -75,13 +85,15 @@ class AuthServiceTest {
         when(studentRepository.findByEmail(any())).thenReturn(Optional.empty());
         when(passwordEncoder.encode("pass")).thenReturn("encodedPass");
         when(studentRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
-        when(jwtService.generateToken(any(), any(), any())).thenReturn("token");
+        when(jwtService.generateAccessToken(any(), any(), any())).thenReturn("access-token");
+        when(jwtService.generateRefreshToken(any())).thenReturn("refresh-token");
         
         // When
         AuthResponse response = authService.register(request);
         
         // Then
-        assertThat(response.token()).isEqualTo("token");
+        assertThat(response.accessToken()).isEqualTo("access-token");
+        assertThat(response.refreshToken()).isEqualTo("refresh-token");
         assertThat(response.role()).isEqualTo("STUDENT");
     }
 

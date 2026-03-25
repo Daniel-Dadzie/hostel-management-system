@@ -103,11 +103,12 @@ function RoomResults({ filteredRooms, statusColors, onEdit }) {
   return (
     <div className="space-y-4">
       <div className="grid gap-3 md:hidden">
-        {filteredRooms.map((room) => (
-          <div key={room.id} className="card space-y-2">
+        {filteredRooms.map((room, idx) => (
+          <div key={room.id} className="card space-y-2 animate-slide-up transition-all duration-300 hover:shadow-lg hover:border-neutral-300/90 dark:hover:border-neutral-700 dark:hover:shadow-lg"
+            style={{ animationDelay: `${idx * 50}ms` }}>
             <div className="flex items-center justify-between gap-3">
               <p className="font-medium text-neutral-900 dark:text-white">Room {room.roomNumber}</p>
-              <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusColors[room.status] || statusColors.AVAILABLE}`}>
+              <span className={`rounded-full px-2 py-0.5 text-xs font-medium transition-all duration-200 hover:scale-110 ${statusColors[room.status] || statusColors.AVAILABLE}`}>
                 {room.status}
               </span>
             </div>
@@ -115,12 +116,12 @@ function RoomResults({ filteredRooms, statusColors, onEdit }) {
             <p className="body-text text-neutral-600 dark:text-neutral-300">Gender: {room.roomGender} · Floor: {room.floorNumber}</p>
             <p className="body-text text-neutral-600 dark:text-neutral-300">Capacity: {room.currentOccupancy || 0}/{room.capacity}</p>
             <div className="flex gap-1">
-              {room.hasAc && <span className="rounded bg-accent-100 px-1.5 py-0.5 text-xs text-accent-900 dark:bg-accent-900/30 dark:text-accent-200">AC</span>}
-              {room.hasWifi && <span className="rounded bg-green-100 px-1.5 py-0.5 text-xs dark:bg-green-900/30">WiFi</span>}
+              {room.hasAc && <span className="rounded bg-accent-100 px-1.5 py-0.5 text-xs text-accent-900 transition-all duration-200 hover:scale-105 dark:bg-accent-900/30 dark:text-accent-200">AC</span>}
+              {room.hasWifi && <span className="rounded bg-green-100 px-1.5 py-0.5 text-xs transition-all duration-200 hover:scale-105 dark:bg-green-900/30">WiFi</span>}
             </div>
             <button
               type="button"
-              className="btn-ghost mt-2"
+              className="btn-ghost mt-2 transition-all duration-200 hover:shadow-sm"
               onClick={() => onEdit(room)}
             >
               Edit
@@ -129,9 +130,9 @@ function RoomResults({ filteredRooms, statusColors, onEdit }) {
         ))}
       </div>
 
-      <div className="card hidden overflow-x-auto md:block">
+      <div className="card hidden overflow-x-auto md:block transition-all duration-300 hover:shadow-md">
       <table className="w-full min-w-[960px] text-left text-sm">
-        <thead className="border-b border-neutral-200 dark:border-neutral-700">
+        <thead className="border-b border-neutral-200 dark:border-neutral-700 bg-neutral-50/50 dark:bg-neutral-800/30">
           <tr>
             <th className="px-4 py-3 font-medium text-neutral-900 dark:text-white">Room</th>
             <th className="px-4 py-3 font-medium text-neutral-900 dark:text-white">Hostel</th>
@@ -144,28 +145,29 @@ function RoomResults({ filteredRooms, statusColors, onEdit }) {
           </tr>
         </thead>
         <tbody className="divide-y divide-neutral-200 dark:divide-neutral-700">
-          {filteredRooms.map((room) => (
-            <tr key={room.id}>
-              <td className="px-4 py-3 font-medium">{room.roomNumber}</td>
-              <td className="px-4 py-3 text-neutral-600 dark:text-neutral-400">{room.hostelName}</td>
+          {filteredRooms.map((room, idx) => (
+            <tr key={room.id} className="transition-all duration-200 hover:bg-neutral-50/50 dark:hover:bg-neutral-800/30 group/row"
+              style={{ transitionDelay: `${idx * 25}ms` }}>
+              <td className="px-4 py-3 font-medium text-neutral-900 dark:text-white group-hover/row:font-semibold">{room.roomNumber}</td>
+              <td className="px-4 py-3 text-neutral-600 transition-colors duration-200 group-hover/row:text-neutral-700 dark:text-neutral-400 dark:group-hover/row:text-neutral-300">{room.hostelName}</td>
               <td className="px-4 py-3">{room.roomGender}</td>
               <td className="px-4 py-3">{room.floorNumber}</td>
               <td className="px-4 py-3">
                 {room.currentOccupancy || 0}/{room.capacity}
               </td>
               <td className="px-4 py-3">
-                <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusColors[room.status] || statusColors.AVAILABLE}`}>
+                <span className={`rounded-full px-2 py-0.5 text-xs font-medium transition-all duration-200 hover:scale-110 inline-block ${statusColors[room.status] || statusColors.AVAILABLE}`}>
                   {room.status}
                 </span>
               </td>
               <td className="px-4 py-3">
                 <div className="flex gap-1">
-                  {room.hasAc && <span className="rounded bg-accent-100 px-1.5 py-0.5 text-xs text-accent-900 dark:bg-accent-900/30 dark:text-accent-200">AC</span>}
-                  {room.hasWifi && <span className="rounded bg-green-100 px-1.5 py-0.5 text-xs dark:bg-green-900/30">WiFi</span>}
+                  {room.hasAc && <span className="rounded bg-accent-100 px-1.5 py-0.5 text-xs text-accent-900 transition-all duration-200 hover:scale-105 dark:bg-accent-900/30 dark:text-accent-200">AC</span>}
+                  {room.hasWifi && <span className="rounded bg-green-100 px-1.5 py-0.5 text-xs transition-all duration-200 hover:scale-105 dark:bg-green-900/30">WiFi</span>}
                 </div>
               </td>
               <td className="px-4 py-3">
-                <button type="button" className="btn-ghost" onClick={() => onEdit(room)}>
+                <button type="button" className="btn-ghost transition-all duration-200 hover:shadow-sm" onClick={() => onEdit(room)}>
                   Edit
                 </button>
               </td>

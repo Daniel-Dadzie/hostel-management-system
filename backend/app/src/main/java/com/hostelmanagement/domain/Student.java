@@ -23,7 +23,8 @@ import jakarta.persistence.UniqueConstraint;
     },
     indexes = {
       @Index(name = "idx_students_reset_token", columnList = "reset_token"),
-      @Index(name = "idx_students_email", columnList = "email")
+      @Index(name = "idx_students_email", columnList = "email"),
+      @Index(name = "idx_students_email_verification_token", columnList = "email_verification_token")
     })
 public class Student {
 
@@ -72,6 +73,22 @@ public class Student {
 
   @Column(name = "reset_token_expiry")
   private Instant resetTokenExpiry;
+
+  // Email verification fields
+  @Column(name = "email_verification_token")
+  private String emailVerificationToken;
+
+  @Column(name = "email_verification_token_expiry")
+  private Instant emailVerificationTokenExpiry;
+
+  @Column(name = "is_email_verified", nullable = false)
+  private boolean isEmailVerified = false;
+
+  @Column(name = "last_password_reset_at")
+  private Instant lastPasswordResetAt;
+
+  @Column(name = "last_password_reset_attempt_at")
+  private Instant lastPasswordResetAttemptAt;
 
   @PrePersist
   void onCreate() {
@@ -176,5 +193,54 @@ public class Student {
 
   public void setResetTokenExpiry(Instant resetTokenExpiry) {
     this.resetTokenExpiry = resetTokenExpiry;
+  }
+
+  // Email verification getters and setters
+  public String getEmailVerificationToken() {
+    return emailVerificationToken;
+  }
+
+  public void setEmailVerificationToken(String emailVerificationToken) {
+    this.emailVerificationToken = emailVerificationToken;
+  }
+
+  public Instant getEmailVerificationTokenExpiry() {
+    return emailVerificationTokenExpiry;
+  }
+
+  public void setEmailVerificationTokenExpiry(Instant emailVerificationTokenExpiry) {
+    this.emailVerificationTokenExpiry = emailVerificationTokenExpiry;
+  }
+
+  public boolean isEmailVerified() {
+    return isEmailVerified;
+  }
+
+  public void setEmailVerified(boolean emailVerified) {
+    isEmailVerified = emailVerified;
+  }
+
+  public Instant getLastPasswordResetAt() {
+    return lastPasswordResetAt;
+  }
+
+  public void setLastPasswordResetAt(Instant lastPasswordResetAt) {
+    this.lastPasswordResetAt = lastPasswordResetAt;
+  }
+
+  public Instant getLastPasswordResetAttemptAt() {
+    return lastPasswordResetAttemptAt;
+  }
+
+  public void setLastPasswordResetAttemptAt(Instant lastPasswordResetAttemptAt) {
+    this.lastPasswordResetAttemptAt = lastPasswordResetAttemptAt;
+  }
+
+  public Instant getCreatedAt() {
+    return createdAt;
+  }
+
+  public Instant getUpdatedAt() {
+    return updatedAt;
   }
 }

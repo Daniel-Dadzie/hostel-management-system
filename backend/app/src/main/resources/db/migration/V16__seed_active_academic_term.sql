@@ -19,9 +19,19 @@ WHERE NOT EXISTS (SELECT 1 FROM academic_terms);
 UPDATE academic_terms t
 JOIN (
   SELECT id
-  FROM academic_terms
-  ORDER BY end_date DESC, id DESC
-  LIMIT 1
+  FROM (
+    SELECT id
+    FROM academic_terms
+    ORDER BY end_date DESC, id DESC
+    LIMIT 1
+  ) latest_term
 ) latest ON latest.id = t.id
 SET t.is_active = TRUE
-WHERE NOT EXISTS (SELECT 1 FROM academic_terms WHERE is_active = TRUE);
+WHERE NOT EXISTS (
+  SELECT 1
+  FROM (
+    SELECT id
+    FROM academic_terms
+    WHERE is_active = TRUE
+  ) active_terms
+);

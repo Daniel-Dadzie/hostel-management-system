@@ -165,11 +165,16 @@ export default function MyPaymentsPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <div>
-        <h1 className="page-title text-neutral-900 dark:text-white">My Payments</h1>
-        <p className="section-subtitle">
-          Track payment status linked to your booking lifecycle.
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="page-title text-neutral-900 dark:text-white">My Payments</h1>
+          <p className="section-subtitle">
+            Track payment status linked to your booking lifecycle.
+          </p>
+        </div>
+        <Link to="/student/payment-history" className="btn-secondary whitespace-nowrap">
+          View Transaction History
+        </Link>
       </div>
 
       {error && (

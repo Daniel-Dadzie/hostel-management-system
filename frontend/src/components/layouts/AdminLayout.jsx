@@ -11,6 +11,7 @@ import {
 } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext.jsx';
 import ThemeToggle from '../ThemeToggle.jsx';
+import UserAvatar from '../UserAvatar.jsx';
 
 const navItems = [
   { to: '/admin', label: 'Dashboard', icon: FaChartBar },
@@ -39,9 +40,7 @@ export default function AdminLayout() {
             <span className="text-base font-bold tracking-tight text-neutral-900 dark:text-white sm:text-[17px]">Admin Portal</span>
           </Link>
           <div className="flex w-full items-center justify-end gap-2 sm:w-auto sm:gap-4">
-            <span className="hidden rounded-full bg-accent-100 px-2 py-0.5 text-xs font-medium text-accent-900 dark:bg-accent-900/30 dark:text-accent-200 sm:inline-flex">
-              Admin
-            </span>
+            <UserAvatar user={user} fallbackName={user?.fullName || 'Administrator'} />
             <span className="hidden text-sm font-medium text-neutral-600 dark:text-neutral-300 sm:inline">
               {user?.fullName || 'Administrator'}
             </span>
