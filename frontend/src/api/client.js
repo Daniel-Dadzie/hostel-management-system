@@ -1,5 +1,6 @@
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
 const REFRESH_TOKEN_KEY = 'hms.refreshToken';
+const ROLE_KEY = 'hms.role';
 
 const getRefreshToken = () => localStorage.getItem(REFRESH_TOKEN_KEY);
 const getAccessToken = () => localStorage.getItem('hms.token');
@@ -35,6 +36,9 @@ async function refreshAccessToken() {
   const data = await response.json();
   localStorage.setItem('hms.token', data.accessToken);
   localStorage.setItem(REFRESH_TOKEN_KEY, data.refreshToken);
+  if (data.role) {
+    localStorage.setItem(ROLE_KEY, data.role);
+  }
   return data.accessToken;
 }
 

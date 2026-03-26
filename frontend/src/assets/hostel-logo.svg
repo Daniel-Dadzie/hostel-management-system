@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="logoTitle logoDesc">
+  <title id="logoTitle">Hostel Management System Logo</title>
+  <desc id="logoDesc">A modern rounded-square hostel logo featuring a building, doorway, and check mark in layered green gradients.</desc>
+  <defs>
+    <linearGradient id="bgGradient" x1="24" y1="20" x2="220" y2="228" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#22C55E"/>
+      <stop offset="0.45" stop-color="#16A34A"/>
+      <stop offset="1" stop-color="#14532D"/>
+    </linearGradient>
+    <linearGradient id="accentGradient" x1="74" y1="70" x2="180" y2="182" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#BBF7D0"/>
+      <stop offset="1" stop-color="#4ADE80"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#052E16" flood-opacity="0.22"/>
+    </filter>
+  </defs>
+
+  <rect x="20" y="20" width="216" height="216" rx="52" fill="url(#bgGradient)" filter="url(#shadow)"/>
+  <path d="M78 86.5C78 82.9 80.9 80 84.5 80H124C127.6 80 130.5 82.9 130.5 86.5V169.5C130.5 173.1 127.6 176 124 176H84.5C80.9 176 78 173.1 78 169.5V86.5Z" fill="#ffffff" fill-opacity="0.97"/>
+  <path d="M125.5 102C125.5 98.4 128.4 95.5 132 95.5H171.5C175.1 95.5 178 98.4 178 102V169.5C178 173.1 175.1 176 171.5 176H132C128.4 176 125.5 173.1 125.5 169.5V102Z" fill="#ECFDF5" fill-opacity="0.82"/>
+  <path d="M72 97.5L123.1 57.8C126 55.5 130 55.5 132.9 57.8L184 97.5C186.7 99.6 187.2 103.4 185.2 106.1C183.1 108.8 179.2 109.3 176.5 107.3L128 69.7L79.5 107.3C76.8 109.3 72.9 108.8 70.8 106.1C68.8 103.4 69.3 99.6 72 97.5Z" fill="url(#accentGradient)"/>
+  <rect x="97" y="128" width="35" height="48" rx="17.5" fill="url(#accentGradient)"/>
+  <path d="M150.2 125.2C152.5 122.9 156.3 122.9 158.7 125.2L164.3 130.8L176.8 118.3C179.1 116 182.9 116 185.3 118.3C187.6 120.6 187.6 124.4 185.3 126.8L168.5 143.5C166.2 145.8 162.4 145.8 160 143.5L150.2 133.7C147.9 131.4 147.9 127.6 150.2 125.2Z" fill="url(#accentGradient)"/>
+  <circle cx="114.5" cy="151.5" r="4.2" fill="#14532D" fill-opacity="0.95"/>
+</svg>

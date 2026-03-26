@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
+import hostelLogo from '../../assets/hostel-logo.svg';
 import ThemeToggle from '../ThemeToggle.jsx';
 
 export default function PublicLayout({ children, title }) {
@@ -7,10 +8,8 @@ export default function PublicLayout({ children, title }) {
     <div className="flex min-h-screen flex-col bg-cream-50 dark:bg-neutral-950">
       <header className="sticky top-0 z-40 border-b border-neutral-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/85 dark:border-neutral-800 dark:bg-surface-dark/95 dark:supports-[backdrop-filter]:bg-surface-dark/85">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-4">
-          <Link to="/" className="flex items-center gap-2.5">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-primary-800 font-bold text-white shadow-md ring-1 ring-white/20">
-              H
-            </div>
+          <Link to="/" className="flex items-center gap-3">
+            <img src={hostelLogo} alt="Hostel Management logo" className="h-10 w-10 shrink-0 rounded-xl shadow-md ring-1 ring-neutral-200/70 dark:ring-white/10" />
             <div>
               <h1 className="text-base font-bold tracking-tight text-neutral-900 dark:text-white sm:text-[17px]">Hostel Management</h1>
               <p className="hidden text-xs font-medium text-neutral-500 dark:text-neutral-400 sm:block">University System</p>

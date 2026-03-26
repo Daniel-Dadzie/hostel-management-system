@@ -12,6 +12,10 @@ import LoginPage from './pages/LoginPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
 import ForgotPasswordPage from './pages/ForgotPasswordPage.jsx';
 import ResetPasswordPage from './pages/ResetPasswordPage.jsx';
+import AboutUsPage from './pages/public/AboutUsPage.jsx';
+import ContactUsPage from './pages/public/ContactUsPage.jsx';
+import PrivacyPolicyPage from './pages/public/PrivacyPolicyPage.jsx';
+import TermsAndConditionsPage from './pages/public/TermsAndConditionsPage.jsx';
 
 // Student Pages
 import StudentDashboard from './pages/student/StudentDashboard.jsx';
@@ -76,6 +80,10 @@ export default function App() {
             </PublicRoute>
           }
         />
+        <Route path="/about-us" element={<AboutUsPage />} />
+        <Route path="/contact-us" element={<ContactUsPage />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+        <Route path="/terms-and-conditions" element={<TermsAndConditionsPage />} />
 
         {/* Student Routes */}
         <Route

@@ -1,39 +1,98 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
+import hostelLogo from '../assets/hostel-logo.svg';
 import heroImage3 from '../assets/umat3.jpg';
 
 const features = [
   {
-    icon: '🏠',
+    icon: 'accommodation',
     title: 'Comfortable Accommodation',
     description: 'Modern rooms with AC, WiFi, and comfortable bedding options to suit your preferences.'
   },
   {
-    icon: '📱',
+    icon: 'booking',
     title: 'Easy Online Booking',
     description: 'Apply for hostel accommodation online and track your application status in real-time.'
   },
   {
-    icon: '🔒',
+    icon: 'security',
     title: 'Secure Environment',
     description: '24/7 security surveillance and controlled access ensure a safe living environment.'
   },
   {
-    icon: '💰',
+    icon: 'pricing',
     title: 'Transparent Pricing',
     description: 'Clear fee structure with online payment tracking and payment history.'
   },
   {
-    icon: '👥',
+    icon: 'community',
     title: 'Community Living',
     description: 'Connect with fellow students in well-maintained common areas and study rooms.'
   },
   {
-    icon: '🛠️',
+    icon: 'maintenance',
     title: 'Maintenance Support',
     description: 'Quick response to maintenance requests through our online portal.'
   }
 ];
+
+function FeatureIcon({ type }) {
+  const iconClassName = 'h-5 w-5';
+
+  switch (type) {
+    case 'accommodation':
+      return (
+        <svg className={iconClassName} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+          <path d="M3.75 10.5 12 4l8.25 6.5" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M5.25 9.75V19.5h13.5V9.75" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M9 19.5v-4.5h6v4.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      );
+    case 'booking':
+      return (
+        <svg className={iconClassName} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+          <rect x="4" y="5" width="16" height="15" rx="3" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M8 3.75V7" strokeLinecap="round" />
+          <path d="M16 3.75V7" strokeLinecap="round" />
+          <path d="M7.5 11.25h9" strokeLinecap="round" />
+          <path d="m9.5 15 1.6 1.6 3.4-3.7" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      );
+    case 'security':
+      return (
+        <svg className={iconClassName} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+          <path d="M12 3.5 5.5 6v5.6c0 4.3 2.8 8.1 6.5 9.4 3.7-1.3 6.5-5.1 6.5-9.4V6L12 3.5Z" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="m9.5 12 1.7 1.7 3.3-3.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      );
+    case 'pricing':
+      return (
+        <svg className={iconClassName} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+          <path d="M12 4.5v15" strokeLinecap="round" />
+          <path d="M15.75 7.5c0-1.24-1.68-2.25-3.75-2.25S8.25 6.26 8.25 7.5 9.93 9.75 12 9.75s3.75 1.01 3.75 2.25-1.68 2.25-3.75 2.25-3.75 1.01-3.75 2.25 1.68 2.25 3.75 2.25 3.75-1.01 3.75-2.25" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      );
+    case 'community':
+      return (
+        <svg className={iconClassName} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+          <path d="M15.75 19.5v-1.1a3.15 3.15 0 0 0-3.15-3.15H8.4a3.15 3.15 0 0 0-3.15 3.15v1.1" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M10.5 12.25a2.75 2.75 0 1 0 0-5.5 2.75 2.75 0 0 0 0 5.5Z" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M18.75 19.5v-.75a2.7 2.7 0 0 0-2.1-2.63" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M15.75 6.95a2.65 2.65 0 0 1 0 5.1" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      );
+    case 'maintenance':
+      return (
+        <svg className={iconClassName} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+          <path d="m14.25 6.75 3 3" strokeLinecap="round" />
+          <path d="m5 19 5.35-1.18L18.5 9.68a2.12 2.12 0 0 0-3-3L7.35 14.82 5 19Z" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M13.5 8.25 16.75 11.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      );
+    default:
+      return null;
+  }
+}
 
 const steps = [
   {
@@ -67,14 +126,30 @@ export default function LandingPage() {
       {/* Navigation */}
       <nav className="sticky top-0 z-50 border-b border-neutral-200 bg-white/80 backdrop-blur-md dark:border-neutral-700 dark:bg-neutral-900/80">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-          <Link to="/" className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-primary-800 text-sm font-bold text-white shadow-md ring-1 ring-white/20">
-              H
-            </div>
+          <Link to="/" className="flex items-center gap-3">
+            <img
+              src={hostelLogo}
+              alt="UniHostel logo"
+              className="h-9 w-9 shrink-0 rounded-xl shadow-md ring-1 ring-neutral-200/70 dark:ring-white/10"
+            />
             <span className="text-[17px] font-bold tracking-tight text-neutral-900 dark:text-white">
               UniHostel
             </span>
           </Link>
+          <div className="hidden items-center gap-6 text-sm font-medium text-neutral-600 dark:text-neutral-300 lg:flex">
+            <Link to="/contact-us" className="transition-colors hover:text-primary-700 dark:hover:text-primary-400">
+              Contact Us
+            </Link>
+            <Link to="/about-us" className="transition-colors hover:text-primary-700 dark:hover:text-primary-400">
+              About Us
+            </Link>
+            <Link to="/privacy-policy" className="transition-colors hover:text-primary-700 dark:hover:text-primary-400">
+              Privacy Policy
+            </Link>
+            <Link to="/terms-and-conditions" className="transition-colors hover:text-primary-700 dark:hover:text-primary-400">
+              Terms
+            </Link>
+          </div>
           <div className="flex items-center gap-4">
             {isAuthenticated ? (
               <Link
@@ -108,10 +183,11 @@ export default function LandingPage() {
         <img
           src={heroImage3}
           alt="Hostel building and facilities"
-          className="absolute inset-0 h-full w-full scale-105 object-cover blur-[3px]"
+          className="absolute inset-0 h-full w-full scale-[1.03] object-cover blur-[6px] brightness-[0.88] contrast-[1.05] saturate-[1.08]"
           loading="eager"
         />
-        <div className="absolute inset-0 bg-white/55 dark:bg-neutral-900/55" />
+        <div className="absolute inset-0 bg-gradient-to-r from-white/72 via-white/48 to-white/58 dark:from-neutral-950/72 dark:via-neutral-900/42 dark:to-neutral-950/58" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.18),transparent_32%),radial-gradient(circle_at_bottom_left,rgba(34,197,94,0.14),transparent_28%)]" />
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="relative z-10 text-center">
               <h1 className="animate-slide-up text-4xl font-bold tracking-tight text-neutral-900 dark:text-white sm:text-5xl lg:text-6xl">
@@ -176,8 +252,8 @@ export default function LandingPage() {
                 key={feature.title}
                 className="card group cursor-default hover:-translate-y-1.5 hover:border-primary-200 hover:shadow-xl dark:hover:border-primary-800 dark:hover:shadow-primary-900/20"
               >
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-50 to-primary-100 text-2xl shadow-sm ring-1 ring-primary-200/60 transition-transform duration-300 group-hover:scale-110 dark:from-primary-900/30 dark:to-primary-900/50 dark:ring-primary-800/40">
-                  {feature.icon}
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 via-green-500 to-teal-500 text-white shadow-lg shadow-emerald-900/20 ring-1 ring-emerald-300/40 transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-emerald-900/25 dark:ring-emerald-400/20">
+                  <FeatureIcon type={feature.icon} />
                 </div>
                 <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">
                   {feature.title}
@@ -255,28 +331,74 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-neutral-200 bg-white py-12 dark:border-neutral-700 dark:bg-neutral-800">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col items-center justify-between gap-6 sm:flex-row">
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-primary-800 text-xs font-bold text-white">
-                H
+      <footer className="relative border-t border-neutral-200 bg-gradient-to-b from-white to-neutral-50 dark:border-neutral-700 dark:from-neutral-800 dark:to-neutral-900">
+        {/* Decorative gradient blob */}
+        <div className="absolute right-0 top-0 h-48 w-48 rounded-full bg-primary-200/10 blur-3xl dark:bg-primary-900/10"></div>
+
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4">
+          {/* Main Footer Content */}
+          <div className="flex flex-col gap-6 sm:gap-8">
+            {/* Top Section: Brand and Links */}
+            <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
+              {/* Brand removed from footer */}
+
+              {/* All Links in One Row */}
+              <div className="flex flex-wrap items-center gap-1 sm:gap-0">
+                <Link to="/about-us" className="px-3 py-1.5 text-sm text-neutral-600 transition-colors hover:text-primary-600 dark:text-neutral-300 dark:hover:text-primary-400">
+                  About
+                </Link>
+                <span className="hidden text-neutral-300 dark:text-neutral-600 sm:inline">•</span>
+                <Link to="/contact-us" className="px-3 py-1.5 text-sm text-neutral-600 transition-colors hover:text-primary-600 dark:text-neutral-300 dark:hover:text-primary-400">
+                  Contact
+                </Link>
+                <span className="hidden text-neutral-300 dark:text-neutral-600 sm:inline">•</span>
+                <Link to="/privacy-policy" className="px-3 py-1.5 text-sm text-neutral-600 transition-colors hover:text-primary-600 dark:text-neutral-300 dark:hover:text-primary-400">
+                  Privacy
+                </Link>
+                <span className="hidden text-neutral-300 dark:text-neutral-600 sm:inline">•</span>
+                <Link to="/terms-and-conditions" className="px-3 py-1.5 text-sm text-neutral-600 transition-colors hover:text-primary-600 dark:text-neutral-300 dark:hover:text-primary-400">
+                  Terms
+                </Link>
               </div>
-              <span className="text-[16px] font-bold tracking-tight text-neutral-900 dark:text-white">
-                UniHostel
-              </span>
+
+              {/* Social Icons */}
+              <div className="flex gap-2">
+                <button className="flex h-8 w-8 items-center justify-center rounded-lg bg-neutral-100 text-neutral-600 transition-all hover:bg-primary-100 hover:text-primary-600 dark:bg-neutral-700 dark:text-neutral-300 dark:hover:bg-primary-900 dark:hover:text-primary-300">
+                  <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.879V15.89h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.989C18.343 21.129 22 16.99 22 12z" />
+                  </svg>
+                </button>
+                <button aria-label="LinkedIn" className="flex h-8 w-8 items-center justify-center rounded-lg bg-neutral-100 text-neutral-600 transition-all hover:bg-primary-100 hover:text-primary-600 dark:bg-neutral-700 dark:text-neutral-300 dark:hover:bg-primary-900 dark:hover:text-primary-300">
+                  <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M19 0h-14c-2.76 0-5 2.24-5 5v14c0 2.76 2.24 5 5 5h14c2.76 0 5-2.24 5-5v-14c0-2.76-2.24-5-5-5zm-11 19h-3v-9h3v9zm-1.5-10.28c-.97 0-1.75-.79-1.75-1.75s.78-1.75 1.75-1.75 1.75.79 1.75 1.75-.78 1.75-1.75 1.75zm15.5 10.28h-3v-4.5c0-1.08-.02-2.47-1.5-2.47-1.5 0-1.73 1.17-1.73 2.39v4.58h-3v-9h2.89v1.23h.04c.4-.75 1.38-1.54 2.84-1.54 3.04 0 3.6 2 3.6 4.59v4.72z" />
+                  </svg>
+                </button>
+                <button className="flex h-8 w-8 items-center justify-center rounded-lg bg-neutral-100 text-neutral-600 transition-all hover:bg-primary-100 hover:text-primary-600 dark:bg-neutral-700 dark:text-neutral-300 dark:hover:bg-primary-900 dark:hover:text-primary-300">
+                  <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2s9 5 20 5a9.5 9.5 0 00-9-5.5c4.75 2.25 7-0.5 7-0.5z" />
+                  </svg>
+                </button>
+              </div>
             </div>
-            <div className="flex gap-6 text-sm text-neutral-600 dark:text-neutral-400">
-              <Link to="/login" className="hover:text-primary-700 dark:hover:text-primary-400">
-                Login
-              </Link>
-              <Link to="/register" className="hover:text-primary-700 dark:hover:text-primary-400">
-                Register
-              </Link>
+
+            {/* Divider */}
+            <div className="h-px bg-gradient-to-r from-transparent via-neutral-200 to-transparent dark:via-neutral-700"></div>
+
+            {/* Bottom Section: Copyright and Contact */}
+            <div className="flex flex-col items-center justify-between gap-3 text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 sm:flex-row">
+              <p>© {new Date().getFullYear()} UniHostel. All rights reserved.</p>
+              <div className="flex gap-4 text-center sm:text-right">
+                <div>
+                  <a href="mailto:support@unihostel.com" className="hover:text-primary-600 dark:hover:text-primary-400">
+                    support@unihostel.com
+                  </a>
+                </div>
+                <span className="hidden text-neutral-300 dark:text-neutral-600 sm:inline">•</span>
+                <a href="tel:+233123456789" className="hover:text-primary-600 dark:hover:text-primary-400">
+                  +233 (123) 456-789
+                </a>
+              </div>
             </div>
-            <p className="text-sm text-neutral-500 dark:text-neutral-400">
-              © {new Date().getFullYear()} UniHostel. All rights reserved.
-            </p>
           </div>
         </div>
       </footer>
