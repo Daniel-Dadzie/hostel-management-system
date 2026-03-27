@@ -47,24 +47,24 @@ const INITIAL_ANNOUNCEMENTS = [
 ];
 
 const STATUS_CHIP = {
-  APPROVED: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
-  PENDING_PAYMENT: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
-  CHECKED_OUT: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
-  REJECTED: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
-  EXPIRED: 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400',
-  CANCELLED: 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400'
+  APPROVED: 'bg-emerald-100 text-emerald-700 dark:bg-[rgba(7,102,83,0.32)] dark:text-[#e2fbce]',
+  PENDING_PAYMENT: 'bg-yellow-100 text-yellow-700 dark:bg-[rgba(227,239,38,0.18)] dark:text-[#f3f8b7]',
+  CHECKED_OUT: 'bg-lime-100 text-lime-800 dark:bg-[rgba(10,120,95,0.28)] dark:text-[#dcebd0]',
+  REJECTED: 'bg-red-100 text-red-700 dark:bg-[rgba(133,67,50,0.34)] dark:text-[#fac2be]',
+  EXPIRED: 'bg-neutral-100 text-neutral-600 dark:bg-[rgba(12,52,44,0.7)] dark:text-[#dcebd0]/70',
+  CANCELLED: 'bg-neutral-100 text-neutral-600 dark:bg-[rgba(12,52,44,0.7)] dark:text-[#dcebd0]/70'
 };
 
 const TICKET_CHIP = {
-  PENDING: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
-  IN_PROGRESS: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
-  RESOLVED: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+  PENDING: 'bg-yellow-100 text-yellow-700 dark:bg-[rgba(227,239,38,0.18)] dark:text-[#f3f8b7]',
+  IN_PROGRESS: 'bg-lime-100 text-lime-800 dark:bg-[rgba(10,120,95,0.28)] dark:text-[#dcebd0]',
+  RESOLVED: 'bg-emerald-100 text-emerald-700 dark:bg-[rgba(7,102,83,0.32)] dark:text-[#e2fbce]'
 };
 
 const PRIORITY_CHIP = {
-  HIGH: 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400',
-  MEDIUM: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400',
-  LOW: 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400'
+  HIGH: 'bg-red-100 text-red-700 dark:bg-[rgba(133,67,50,0.34)] dark:text-[#fac2be]',
+  MEDIUM: 'bg-yellow-100 text-yellow-700 dark:bg-[rgba(227,239,38,0.18)] dark:text-[#f3f8b7]',
+  LOW: 'bg-neutral-100 text-neutral-600 dark:bg-[rgba(12,52,44,0.7)] dark:text-[#dcebd0]/70'
 };
 
 const TABS = ['Overview', 'Bookings & Payments', 'Students', 'Lifecycle Management', 'Maintenance', 'Announcements'];
@@ -248,7 +248,9 @@ export default function AdminDashboard() {
             disabled={actionLoading === String(booking.id) + 'APPROVED'}
             onClick={() => handleBookingAction(booking.id, 'APPROVED')}
             className={`inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-bold ${
-              compact ? 'bg-emerald-600 text-white hover:bg-emerald-700' : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400'
+              compact
+                ? 'bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-[linear-gradient(135deg,#fffdee_0%,#e3ef26_100%)] dark:text-[#0c342c] dark:hover:bg-[linear-gradient(135deg,#fffdee_0%,#dce91c_100%)]'
+                : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200 dark:bg-[rgba(7,102,83,0.32)] dark:text-[#e2fbce] dark:hover:bg-[rgba(7,102,83,0.48)]'
             } disabled:opacity-50`}
           >
             {actionLoading === String(booking.id) + 'APPROVED' ? 'Working...' : 'Approve'}
@@ -258,7 +260,9 @@ export default function AdminDashboard() {
             disabled={actionLoading === String(booking.id) + 'REJECTED'}
             onClick={() => handleBookingAction(booking.id, 'REJECTED')}
             className={`inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-bold ${
-              compact ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/20 dark:text-red-400'
+              compact
+                ? 'bg-red-600 text-white hover:bg-red-700 dark:bg-[linear-gradient(135deg,#854332_0%,#a2403a_100%)] dark:text-white dark:hover:bg-[linear-gradient(135deg,#9a5140_0%,#b24b45_100%)]'
+                : 'bg-red-100 text-red-700 hover:bg-red-200 dark:bg-[rgba(133,67,50,0.34)] dark:text-[#fac2be] dark:hover:bg-[rgba(133,67,50,0.46)]'
             } disabled:opacity-50`}
           >
             {actionLoading === String(booking.id) + 'REJECTED' ? 'Working...' : 'Reject'}
@@ -273,7 +277,7 @@ export default function AdminDashboard() {
           type="button"
           disabled={actionLoading === String(booking.id) + 'CANCELLED'}
           onClick={() => handleBookingAction(booking.id, 'CANCELLED')}
-          className="inline-flex items-center rounded-full bg-neutral-100 px-3 py-2 text-xs font-bold text-neutral-600 hover:bg-neutral-200 disabled:opacity-50 dark:bg-neutral-800 dark:text-neutral-300"
+          className="inline-flex items-center rounded-full bg-neutral-100 px-3 py-2 text-xs font-bold text-neutral-600 hover:bg-neutral-200 disabled:opacity-50 dark:bg-[rgba(12,52,44,0.72)] dark:text-[#dcebd0]/78 dark:hover:bg-[rgba(16,70,58,0.92)]"
         >
           {actionLoading === String(booking.id) + 'CANCELLED' ? 'Working...' : 'Revoke'}
         </button>
@@ -287,12 +291,12 @@ export default function AdminDashboard() {
     <div className="animate-fade-in space-y-6">
       <section className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-neutral-400 dark:text-neutral-500">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#64806f] dark:text-[#d8ecd5]/46">
             Operations Overview
           </p>
           <h1 className="page-title mt-2 text-neutral-900 dark:text-white">Admin Dashboard</h1>
           <p className="section-subtitle mt-3 max-w-2xl">
-            Full system overview and management tools, styled as a calmer admin workspace while keeping the same logic underneath.
+            Monitor allocations, payments, maintenance, and student activity from one live operations center.
           </p>
         </div>
 
@@ -317,7 +321,7 @@ export default function AdminDashboard() {
         ))}
       </section>
 
-      <div className="flex overflow-x-auto rounded-full border border-[#dfe7df] bg-white/80 p-1.5 shadow-[0_12px_26px_rgba(15,23,42,0.04)] dark:border-[#24332b] dark:bg-[#131916]">
+      <div className="flex overflow-x-auto rounded-full border border-[#cadca5] bg-[rgba(255,253,238,0.82)] p-1.5 shadow-[0_12px_26px_rgba(6,35,29,0.08)] dark:border-[rgba(226,251,206,0.12)] dark:bg-[rgba(12,52,44,0.86)] dark:shadow-[0_18px_36px_rgba(0,0,0,0.24)]">
         {TABS.map((tab, index) => {
           const isActive = activeTab === index;
           const badgeValue =
@@ -334,15 +338,15 @@ export default function AdminDashboard() {
               onClick={() => setActiveTab(index)}
               className={`inline-flex flex-shrink-0 items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition-all duration-200 ${
                 isActive
-                  ? 'bg-[#0f6b46] text-white shadow-[0_12px_24px_rgba(15,107,70,0.24)]'
-                  : 'text-neutral-500 hover:bg-[#f3f7f3] hover:text-neutral-900 dark:text-neutral-400 dark:hover:bg-[#1c241f] dark:hover:text-white'
+                  ? 'bg-[linear-gradient(135deg,#fffdee_0%,#e2fbce_30%,#e3ef26_100%)] text-[#0c342c] shadow-[0_12px_24px_rgba(6,35,29,0.16)] dark:bg-[linear-gradient(135deg,#fffdee_0%,#e3ef26_100%)] dark:text-[#0c342c] dark:shadow-[0_16px_32px_rgba(0,0,0,0.22)]'
+                  : 'text-[#466257] hover:bg-[#f0f6cf] hover:text-[#0c342c] dark:text-[#dcebd0]/68 dark:hover:bg-white/10 dark:hover:text-[#fffdee]'
               }`}
             >
               <span>{tab}</span>
               {badgeValue > 0 ? (
                 <span
                   className={`rounded-full px-2 py-0.5 text-[10px] font-extrabold ${
-                    isActive ? 'bg-white/18 text-white' : 'bg-[#eaf5ed] text-[#0f6b46] dark:bg-[#183726] dark:text-[#89d8b1]'
+                    isActive ? 'bg-[#0c342c]/12 text-[#0c342c] dark:bg-[#0c342c]/12 dark:text-[#0c342c]' : 'bg-[#edf8d6] text-[#0f6b46] dark:bg-[rgba(227,239,38,0.12)] dark:text-[#e2fbce]'
                   }`}
                 >
                   {badgeValue}
@@ -357,10 +361,6 @@ export default function AdminDashboard() {
         <AdminDashboardOverviewTab
           occupancyByHostel={occupancyByHostel}
           bookings={bookings}
-          hostels={hostels}
-          rooms={rooms}
-          approvedBookings={approvedBookings}
-          openTickets={openTickets}
           STATUS_CHIP={STATUS_CHIP}
           formatStatusLabel={formatStatusLabel}
         />

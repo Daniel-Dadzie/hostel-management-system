@@ -258,32 +258,36 @@
 
   .admin-theme .body-text,
   .admin-theme .section-subtitle {
-    color: #6f786f;
+    color: #4f6b60;
     font-size: 0.95rem;
     line-height: 1.68;
   }
 
   .admin-theme .card {
-    border: 1px solid #e3e9df;
-    background: rgba(255, 255, 255, 0.96);
+    border: 1px solid #c7d9ab;
+    background: linear-gradient(180deg, rgba(255, 253, 238, 0.98) 0%, rgba(241, 248, 219, 0.96) 100%);
     border-radius: 28px;
     padding: 1.25rem;
-    box-shadow: 0 18px 42px rgba(15, 23, 42, 0.06);
+    box-shadow:
+      0 20px 48px rgba(6, 35, 29, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.55);
     backdrop-filter: blur(14px);
   }
 
   .admin-theme .card-hover,
   .admin-theme .card:hover {
-    border-color: #d5e4d8;
-    box-shadow: 0 22px 48px rgba(15, 23, 42, 0.08);
+    border-color: #9dbe67;
+    box-shadow:
+      0 24px 54px rgba(6, 35, 29, 0.16),
+      inset 0 1px 0 rgba(255, 255, 255, 0.55);
   }
 
   .admin-theme .btn-primary {
-    color: #ffffff;
-    border: 1px solid transparent;
+    color: #0c342c;
+    border: 1px solid #d5e56d;
     border-radius: 9999px;
-    background: linear-gradient(135deg, #0f6b46 0%, #1d7d57 100%);
-    box-shadow: 0 16px 30px rgba(15, 107, 70, 0.18);
+    background: linear-gradient(135deg, #fffdee 0%, #e2fbce 34%, #e3ef26 100%);
+    box-shadow: 0 16px 30px rgba(6, 35, 29, 0.18);
     padding: 0.72rem 1.3rem;
     font-weight: 700;
     letter-spacing: -0.01em;
@@ -291,60 +295,62 @@
 
   .admin-theme .btn-primary:hover {
     transform: translateY(-1px);
-    background: linear-gradient(135deg, #0d623f 0%, #176b4a 100%);
-    box-shadow: 0 18px 32px rgba(15, 107, 70, 0.22);
+    background: linear-gradient(135deg, #fffdee 0%, #edf8a6 42%, #d3e318 100%);
+    box-shadow: 0 18px 32px rgba(6, 35, 29, 0.22);
   }
 
   .admin-theme .btn-accent {
-    color: #0f6b46;
-    border: 1px solid #d3e2d6;
+    color: #fffdee;
+    border: 1px solid #0b493c;
     border-radius: 9999px;
-    background: #ffffff;
-    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.06);
+    background: linear-gradient(135deg, #076653 0%, #0c342c 100%);
+    box-shadow: 0 14px 28px rgba(6, 35, 29, 0.16);
     padding: 0.72rem 1.3rem;
     font-weight: 700;
   }
 
   .admin-theme .btn-accent:hover {
     transform: translateY(-1px);
-    background: #f4fbf6;
-    border-color: #bcd4c2;
-    box-shadow: 0 16px 28px rgba(15, 107, 70, 0.1);
+    background: linear-gradient(135deg, #0a785f 0%, #0b3c32 100%);
+    border-color: #0d5748;
+    box-shadow: 0 16px 30px rgba(6, 35, 29, 0.2);
   }
 
   .admin-theme .btn-ghost {
-    color: #516056;
+    color: #315549;
     border-radius: 9999px;
-    background: rgba(241, 245, 240, 0.92);
-    border: 1px solid #dde6df;
+    background: rgba(255, 253, 238, 0.88);
+    border: 1px solid #c9d9af;
   }
 
   .admin-theme .btn-ghost:hover {
-    background: #ffffff;
-    border-color: #cfdcd2;
-    color: #193226;
+    background: rgba(242, 249, 211, 0.96);
+    border-color: #9dbe67;
+    color: #0c342c;
   }
 
   .admin-theme .input-field {
     width: 100%;
-    border: 1px solid #dce6dd;
-    background: #f8faf7;
-    color: #1d2b23;
+    border: 1px solid #c4d6b3;
+    background: rgba(255, 253, 238, 0.94);
+    color: #0c342c;
     border-radius: 18px;
     padding: 0.82rem 1rem;
     font-weight: 500;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.62),
+      0 1px 0 rgba(12, 52, 44, 0.03);
   }
 
   .admin-theme .input-field::placeholder {
-    color: #96a096;
+    color: #728f7f;
   }
 
   .admin-theme .input-field:focus {
     outline: none;
-    border-color: #86b89d;
-    box-shadow: 0 0 0 4px rgba(15, 107, 70, 0.08);
-    background: #ffffff;
+    border-color: #89b448;
+    box-shadow: 0 0 0 4px rgba(227, 239, 38, 0.14);
+    background: #fffdee;
   }
 
   .admin-theme .alert,
@@ -359,33 +365,33 @@
   }
 
   .admin-theme .empty-state-icon {
-    background: #eef4ee;
-    border-color: #dde8de;
+    background: #eef7d9;
+    border-color: #c8dca8;
   }
 
   .admin-theme .admin-toolbar-chip {
-    border: 1px solid #d8e4da;
-    background: rgba(255, 255, 255, 0.92);
-    color: #4f5e53;
+    border: 1px solid #c8dca8;
+    background: rgba(255, 253, 238, 0.9);
+    color: #0c342c;
     border-radius: 9999px;
     padding: 0.55rem 0.95rem;
-    box-shadow: 0 10px 22px rgba(15, 23, 42, 0.05);
+    box-shadow: 0 12px 24px rgba(6, 35, 29, 0.08);
   }
 
   .admin-theme .admin-theme-toggle > button {
     height: 2.8rem;
     width: 2.8rem;
     border-radius: 9999px;
-    border-color: #d8e4da;
-    background: rgba(255, 255, 255, 0.92);
-    color: #4f5e53;
-    box-shadow: 0 10px 22px rgba(15, 23, 42, 0.05);
+    border-color: #c8dca8;
+    background: rgba(255, 253, 238, 0.9);
+    color: #0c342c;
+    box-shadow: 0 12px 24px rgba(6, 35, 29, 0.08);
   }
 
   .admin-theme .admin-theme-toggle > button:hover {
-    background: #ffffff;
-    color: #0f6b46;
-    box-shadow: 0 14px 26px rgba(15, 107, 70, 0.12);
+    background: rgba(242, 249, 211, 0.96);
+    color: #0c342c;
+    box-shadow: 0 16px 28px rgba(6, 35, 29, 0.14);
   }
 
   .admin-theme table {
@@ -394,7 +400,7 @@
   }
 
   .admin-theme thead th {
-    color: #8a9389;
+    color: #5a7768;
     font-size: 0.72rem;
     font-weight: 700;
     letter-spacing: 0.15em;
@@ -406,7 +412,7 @@
   }
 
   .admin-theme tbody tr:hover {
-    background: rgba(242, 247, 243, 0.88);
+    background: rgba(227, 239, 38, 0.12);
   }
 
   .admin-theme select,
@@ -417,95 +423,116 @@
 
   .dark .admin-theme .body-text,
   .dark .admin-theme .section-subtitle {
-    color: #99a39b;
+    color: rgba(226, 251, 206, 0.72);
   }
 
   .dark .admin-theme .card {
-    border-color: #233129;
-    background: rgba(18, 25, 23, 0.96);
-    box-shadow: 0 20px 44px rgba(0, 0, 0, 0.32);
+    border-color: rgba(227, 239, 38, 0.16);
+    background: linear-gradient(180deg, rgba(12, 52, 44, 0.96) 0%, rgba(6, 35, 29, 0.98) 100%);
+    box-shadow:
+      0 24px 54px rgba(0, 0, 0, 0.34),
+      inset 0 1px 0 rgba(255, 255, 255, 0.04);
   }
 
   .dark .admin-theme .card-hover,
   .dark .admin-theme .card:hover {
-    border-color: #2f4237;
-    box-shadow: 0 22px 48px rgba(0, 0, 0, 0.38);
+    border-color: rgba(227, 239, 38, 0.28);
+    box-shadow:
+      0 28px 60px rgba(0, 0, 0, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.04);
   }
 
   .dark .admin-theme .btn-primary {
-    box-shadow: 0 16px 30px rgba(8, 37, 25, 0.45);
+    color: #0c342c;
+    background: linear-gradient(135deg, #fffdee 0%, #e2fbce 34%, #e3ef26 100%);
+    box-shadow: 0 18px 34px rgba(0, 0, 0, 0.34);
+  }
+
+  .dark .admin-theme .btn-primary:hover {
+    background: linear-gradient(135deg, #fffdee 0%, #edf8a6 42%, #d3e318 100%);
+    box-shadow: 0 20px 36px rgba(0, 0, 0, 0.38);
   }
 
   .dark .admin-theme .btn-accent {
-    color: #86d9ad;
-    border-color: #2d4538;
-    background: #101816;
-    box-shadow: 0 12px 26px rgba(0, 0, 0, 0.24);
+    color: #fffdee;
+    border-color: rgba(227, 239, 38, 0.16);
+    background: linear-gradient(135deg, rgba(7, 102, 83, 0.98) 0%, rgba(6, 35, 29, 0.98) 100%);
+    box-shadow:
+      0 14px 30px rgba(0, 0, 0, 0.24),
+      inset 0 1px 0 rgba(255, 255, 255, 0.03);
   }
 
   .dark .admin-theme .btn-accent:hover {
-    background: #15201b;
-    border-color: #385342;
+    background: linear-gradient(135deg, rgba(10, 120, 95, 0.98) 0%, rgba(8, 52, 43, 0.98) 100%);
+    border-color: rgba(227, 239, 38, 0.24);
   }
 
   .dark .admin-theme .btn-ghost {
-    color: #c4cec6;
-    border-color: #28362e;
-    background: rgba(20, 27, 24, 0.92);
+    color: rgba(255, 253, 238, 0.88);
+    border-color: rgba(226, 251, 206, 0.14);
+    background: rgba(12, 52, 44, 0.92);
   }
 
   .dark .admin-theme .btn-ghost:hover {
-    background: #18201d;
-    border-color: #32453a;
-    color: #ffffff;
+    background: rgba(16, 70, 58, 0.98);
+    border-color: rgba(227, 239, 38, 0.24);
+    color: #fffdee;
   }
 
   .dark .admin-theme .input-field {
-    border-color: #27352d;
-    background: #111816;
-    color: #f2f5f2;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+    border-color: rgba(226, 251, 206, 0.12);
+    background: linear-gradient(180deg, rgba(10, 44, 37, 0.96) 0%, rgba(6, 35, 29, 0.98) 100%);
+    color: #fffdee;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.03),
+      0 1px 0 rgba(0, 0, 0, 0.14);
   }
 
   .dark .admin-theme .input-field::placeholder {
-    color: #6e7b72;
+    color: rgba(226, 251, 206, 0.42);
   }
 
   .dark .admin-theme .input-field:focus {
-    border-color: #2f805c;
-    box-shadow: 0 0 0 4px rgba(39, 128, 92, 0.16);
-    background: #131c18;
+    border-color: rgba(227, 239, 38, 0.48);
+    box-shadow:
+      0 0 0 4px rgba(227, 239, 38, 0.12),
+      0 14px 28px rgba(0, 0, 0, 0.14);
+    background: linear-gradient(180deg, rgba(13, 58, 48, 0.98) 0%, rgba(8, 41, 34, 0.98) 100%);
   }
 
   .dark .admin-theme .empty-state-icon {
-    background: #1a221f;
-    border-color: #25312a;
+    background: #103c33;
+    border-color: rgba(227, 239, 38, 0.14);
   }
 
   .dark .admin-theme .admin-toolbar-chip {
-    border-color: #26342d;
-    background: rgba(17, 24, 22, 0.94);
-    color: #c4cec6;
-    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.22);
+    border-color: rgba(226, 251, 206, 0.12);
+    background: linear-gradient(180deg, rgba(11, 56, 47, 0.96) 0%, rgba(6, 35, 29, 0.96) 100%);
+    color: rgba(255, 253, 238, 0.88);
+    box-shadow:
+      0 12px 24px rgba(0, 0, 0, 0.24),
+      inset 0 1px 0 rgba(255, 255, 255, 0.03);
   }
 
   .dark .admin-theme .admin-theme-toggle > button {
-    border-color: #26342d;
-    background: rgba(17, 24, 22, 0.94);
-    color: #c4cec6;
-    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.22);
+    border-color: rgba(226, 251, 206, 0.12);
+    background: linear-gradient(180deg, rgba(11, 56, 47, 0.96) 0%, rgba(6, 35, 29, 0.96) 100%);
+    color: rgba(255, 253, 238, 0.88);
+    box-shadow:
+      0 12px 24px rgba(0, 0, 0, 0.24),
+      inset 0 1px 0 rgba(255, 255, 255, 0.03);
   }
 
   .dark .admin-theme .admin-theme-toggle > button:hover {
-    background: #16201d;
-    color: #86d9ad;
+    background: linear-gradient(180deg, rgba(16, 70, 58, 0.98) 0%, rgba(9, 46, 38, 0.98) 100%);
+    color: #e3ef26;
   }
 
   .dark .admin-theme thead th {
-    color: #7d877f;
+    color: rgba(226, 251, 206, 0.56);
   }
 
   .dark .admin-theme tbody tr:hover {
-    background: rgba(25, 35, 30, 0.88);
+    background: rgba(227, 239, 38, 0.08);
   }
 }

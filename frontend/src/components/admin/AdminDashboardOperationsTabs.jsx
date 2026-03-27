@@ -24,23 +24,23 @@ export function BookingsPaymentsTab({
           title="Payment Verification Queue"
           subtitle="These bookings are waiting for admin review before rooms are confirmed."
           action={
-            <span className="rounded-full bg-yellow-100 px-3 py-1 text-xs font-bold text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400">
+            <span className="rounded-full bg-yellow-100 px-3 py-1 text-xs font-bold text-yellow-700 dark:bg-[rgba(227,239,38,0.18)] dark:text-[#f3f8b7]">
               {pendingPayments.length} pending
             </span>
           }
-          className="border-yellow-200/70 dark:border-yellow-900/20"
+          className="border-yellow-200/70 dark:border-[rgba(227,239,38,0.14)]"
         >
           <div className="space-y-3">
             {pendingPayments.map((booking) => (
               <div
                 key={booking.id}
-                className="flex flex-wrap items-center justify-between gap-4 rounded-[24px] border border-yellow-200/60 bg-yellow-50/60 px-4 py-4 dark:border-yellow-900/20 dark:bg-yellow-900/10"
+                className="flex flex-wrap items-center justify-between gap-4 rounded-[24px] border border-yellow-200/60 bg-yellow-50/60 px-4 py-4 dark:border-[rgba(227,239,38,0.12)] dark:bg-[rgba(227,239,38,0.08)]"
               >
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold text-neutral-900 dark:text-white">
+                  <p className="truncate text-sm font-semibold text-neutral-900 dark:text-[#fffdee]">
                     {booking.studentName}
                   </p>
-                  <p className="mt-1 truncate text-xs text-neutral-500 dark:text-neutral-400">
+                  <p className="mt-1 truncate text-xs text-neutral-500 dark:text-[#dcebd0]/58">
                     {booking.hostelName ?? 'Unassigned'} / Room {booking.roomNumber ?? '-'} / #{booking.id}
                     {booking.studentEmail ? ` / ${booking.studentEmail}` : ''}
                   </p>
@@ -73,7 +73,7 @@ export function BookingsPaymentsTab({
         <div className="overflow-x-auto">
           <table className="w-full min-w-[760px] text-sm">
             <thead>
-              <tr className="border-b border-neutral-200 dark:border-neutral-700">
+              <tr className="border-b border-neutral-200 dark:border-[rgba(226,251,206,0.08)]">
                 <th className="pb-3 pr-4 text-left">Booking</th>
                 <th className="pb-3 pr-4 text-left">Student</th>
                 <th className="pb-3 pr-4 text-left">Room</th>
@@ -81,7 +81,7 @@ export function BookingsPaymentsTab({
                 <th className="pb-3 text-left">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800">
+            <tbody className="divide-y divide-neutral-100 dark:divide-[rgba(226,251,206,0.08)]">
               {filteredBookings.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="py-6 text-center text-sm text-neutral-500">
@@ -91,14 +91,14 @@ export function BookingsPaymentsTab({
               ) : (
                 filteredBookings.map((booking) => (
                   <tr key={booking.id}>
-                    <td className="py-4 pr-4 text-sm font-semibold text-neutral-700 dark:text-neutral-200">
+                    <td className="py-4 pr-4 text-sm font-semibold text-neutral-700 dark:text-[#fffdee]/82">
                       #{booking.id}
                     </td>
                     <td className="py-4 pr-4">
-                      <p className="font-semibold text-neutral-900 dark:text-white">{booking.studentName}</p>
-                      <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{booking.studentEmail || 'No email'}</p>
+                      <p className="font-semibold text-neutral-900 dark:text-[#fffdee]">{booking.studentName}</p>
+                      <p className="mt-1 text-xs text-neutral-500 dark:text-[#dcebd0]/58">{booking.studentEmail || 'No email'}</p>
                     </td>
-                    <td className="py-4 pr-4 text-neutral-600 dark:text-neutral-300">
+                    <td className="py-4 pr-4 text-neutral-600 dark:text-[#dcebd0]/68">
                       {booking.hostelName ?? 'Unassigned'} / {booking.roomNumber ?? '-'}
                     </td>
                     <td className="py-4 pr-4">
@@ -159,7 +159,7 @@ export function StudentsTab({
       <div className="overflow-x-auto">
         <table className="w-full min-w-[760px] text-sm">
           <thead>
-            <tr className="border-b border-neutral-200 dark:border-neutral-700">
+            <tr className="border-b border-neutral-200 dark:border-[rgba(226,251,206,0.08)]">
               <th className="pb-3 pr-4 text-left">Student ID</th>
               <th className="pb-3 pr-4 text-left">Name</th>
               <th className="pb-3 pr-4 text-left">Email</th>
@@ -167,7 +167,7 @@ export function StudentsTab({
               <th className="pb-3 text-left">Payment</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800">
+          <tbody className="divide-y divide-neutral-100 dark:divide-[rgba(226,251,206,0.08)]">
             {filteredStudents.length === 0 ? (
               <tr>
                 <td colSpan={5} className="py-6 text-center text-sm text-neutral-500">
@@ -177,16 +177,16 @@ export function StudentsTab({
             ) : (
               filteredStudents.map((booking) => (
                 <tr key={booking.id}>
-                  <td className="py-4 pr-4 text-xs font-semibold text-neutral-500 dark:text-neutral-400">
+                  <td className="py-4 pr-4 text-xs font-semibold text-neutral-500 dark:text-[#dcebd0]/58">
                     {booking.studentId ?? booking.id}
                   </td>
-                  <td className="py-4 pr-4 font-semibold text-neutral-900 dark:text-white">
+                  <td className="py-4 pr-4 font-semibold text-neutral-900 dark:text-[#fffdee]">
                     {booking.studentName}
                   </td>
-                  <td className="py-4 pr-4 text-xs text-neutral-500 dark:text-neutral-400">
+                  <td className="py-4 pr-4 text-xs text-neutral-500 dark:text-[#dcebd0]/58">
                     {booking.studentEmail ?? '-'}
                   </td>
-                  <td className="py-4 pr-4 text-neutral-600 dark:text-neutral-300">
+                  <td className="py-4 pr-4 text-neutral-600 dark:text-[#dcebd0]/68">
                     {booking.status === 'APPROVED'
                       ? `${booking.hostelName ?? '-'} / ${booking.roomNumber ?? '-'}`
                       : '-'}
@@ -221,7 +221,7 @@ export function MaintenanceTab({
       title="Maintenance Tickets"
       subtitle="Track open room and facility issues without leaving the admin dashboard."
       action={
-        <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-bold text-red-700 dark:bg-red-900/20 dark:text-red-400">
+        <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-bold text-red-700 dark:bg-[rgba(133,67,50,0.28)] dark:text-[#fac2be]">
           {openTickets.length} open
         </span>
       }
@@ -229,7 +229,7 @@ export function MaintenanceTab({
       <div className="overflow-x-auto">
         <table className="w-full min-w-[760px] text-sm">
           <thead>
-            <tr className="border-b border-neutral-200 dark:border-neutral-700">
+            <tr className="border-b border-neutral-200 dark:border-[rgba(226,251,206,0.08)]">
               <th className="pb-3 pr-4 text-left">Ticket</th>
               <th className="pb-3 pr-4 text-left">Issue</th>
               <th className="pb-3 pr-4 text-left">Location</th>
@@ -238,15 +238,15 @@ export function MaintenanceTab({
               <th className="pb-3 text-left">Update</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800">
+          <tbody className="divide-y divide-neutral-100 dark:divide-[rgba(226,251,206,0.08)]">
             {tickets.map((ticket) => (
               <tr key={ticket.id}>
                 <td className="py-4 pr-4">
-                  <p className="text-xs font-bold text-neutral-700 dark:text-neutral-300">{ticket.id}</p>
+                  <p className="text-xs font-bold text-neutral-700 dark:text-[#fffdee]/76">{ticket.id}</p>
                   <p className="mt-1 text-xs text-neutral-400">{ticket.date}</p>
                 </td>
-                <td className="py-4 pr-4 font-semibold text-neutral-900 dark:text-white">{ticket.issue}</td>
-                <td className="py-4 pr-4 text-neutral-600 dark:text-neutral-300">
+                <td className="py-4 pr-4 font-semibold text-neutral-900 dark:text-[#fffdee]">{ticket.issue}</td>
+                <td className="py-4 pr-4 text-neutral-600 dark:text-[#dcebd0]/68">
                   {ticket.hostel} / Room {ticket.room}
                 </td>
                 <td className="py-4 pr-4">
@@ -305,7 +305,7 @@ export function AnnouncementsTab({
       >
         <form onSubmit={handlePublishAnn} className="space-y-4">
           <div>
-            <label htmlFor="ann-title" className="mb-2 block text-sm font-semibold text-neutral-700 dark:text-neutral-300">
+            <label htmlFor="ann-title" className="mb-2 block text-sm font-semibold text-neutral-700 dark:text-[#e7f3d8]/76">
               Title
             </label>
             <input
@@ -320,7 +320,7 @@ export function AnnouncementsTab({
           </div>
 
           <div>
-            <label htmlFor="ann-body" className="mb-2 block text-sm font-semibold text-neutral-700 dark:text-neutral-300">
+            <label htmlFor="ann-body" className="mb-2 block text-sm font-semibold text-neutral-700 dark:text-[#e7f3d8]/76">
               Message
             </label>
             <textarea
@@ -336,7 +336,7 @@ export function AnnouncementsTab({
 
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div className="w-full max-w-sm">
-              <label htmlFor="ann-expires" className="mb-2 block text-sm font-semibold text-neutral-700 dark:text-neutral-300">
+              <label htmlFor="ann-expires" className="mb-2 block text-sm font-semibold text-neutral-700 dark:text-[#e7f3d8]/76">
                 Expiry Date (optional)
               </label>
               <input
@@ -370,12 +370,12 @@ export function AnnouncementsTab({
             {announcements.map((announcement) => (
               <div
                 key={announcement.id}
-                className="rounded-[24px] border border-[#e8efe8] bg-[#fbfcfa] p-4 dark:border-[#223129] dark:bg-[#141a17]"
+                className="rounded-[24px] border border-[#d6e2be] bg-[linear-gradient(180deg,#fffdee_0%,#f7fbdc_100%)] p-4 dark:border-[rgba(226,251,206,0.12)] dark:bg-[linear-gradient(180deg,#12473d_0%,#08271f_100%)]"
               >
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
-                    <p className="font-semibold text-neutral-900 dark:text-white">{announcement.title}</p>
-                    <div className="mt-1 flex flex-wrap gap-3 text-xs text-neutral-400 dark:text-neutral-500">
+                    <p className="font-semibold text-neutral-900 dark:text-[#fffdee]">{announcement.title}</p>
+                    <div className="mt-1 flex flex-wrap gap-3 text-xs text-neutral-400 dark:text-[#dcebd0]/42">
                       <span>Published: {announcement.published}</span>
                       {announcement.expires ? <span>Expires: {announcement.expires}</span> : null}
                     </div>
@@ -383,12 +383,12 @@ export function AnnouncementsTab({
                   <button
                     type="button"
                     onClick={() => deleteAnnouncement(announcement.id)}
-                    className="rounded-full bg-red-50 px-3 py-2 text-xs font-bold text-red-600 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400"
+                    className="rounded-full bg-red-50 px-3 py-2 text-xs font-bold text-red-600 hover:bg-red-100 dark:bg-[rgba(133,67,50,0.34)] dark:text-[#fac2be] dark:hover:bg-[rgba(133,67,50,0.46)]"
                   >
                     Delete
                   </button>
                 </div>
-                <p className="mt-3 text-sm leading-6 text-neutral-600 dark:text-neutral-400">
+                <p className="mt-3 text-sm leading-6 text-neutral-600 dark:text-[#dcebd0]/64">
                   {announcement.body}
                 </p>
               </div>
