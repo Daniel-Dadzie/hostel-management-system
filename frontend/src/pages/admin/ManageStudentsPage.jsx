@@ -160,7 +160,7 @@ export default function ManageStudentsPage() {
               <button
                 type="button"
                 onClick={() => handleExport('csv')}
-                className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-3 py-2 text-sm font-medium text-white hover:bg-primary-700 transition-colors"
+                className="btn-primary text-sm"
               >
                 <FaDownload className="h-4 w-4" />
                 CSV
@@ -168,7 +168,7 @@ export default function ManageStudentsPage() {
               <button
                 type="button"
                 onClick={() => handleExport('json')}
-                className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-3 py-2 text-sm font-medium text-white hover:bg-primary-700 transition-colors"
+                className="btn-accent text-sm"
               >
                 <FaFileExport className="h-4 w-4" />
                 JSON

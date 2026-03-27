@@ -17,10 +17,12 @@ export default function DataTable({
   itemsPerPage = 10,
   onRowClick,
   actions = [],
-  emptyMessage = 'No data found'
+  emptyMessage = 'No data found',
+  emptymessage
 }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+  const resolvedEmptyMessage = emptymessage || emptyMessage;
 
   // Handle sorting
   const sortedData = useMemo(() => {
@@ -72,8 +74,8 @@ export default function DataTable({
 
   if (data.length === 0) {
     return (
-      <div className="rounded-lg border border-neutral-200 p-8 text-center dark:border-neutral-800">
-        <p className="text-neutral-600 dark:text-neutral-400">{emptyMessage}</p>
+      <div className="rounded-[24px] border border-[#e3e9df] bg-[#fbfcfa] p-8 text-center shadow-[0_12px_28px_rgba(15,23,42,0.04)] dark:border-[#223129] dark:bg-[#141a17]">
+        <p className="text-neutral-600 dark:text-neutral-400">{resolvedEmptyMessage}</p>
       </div>
     );
   }
@@ -81,10 +83,10 @@ export default function DataTable({
   return (
     <div className="space-y-4">
       {/* Desktop view */}
-      <div className="hidden overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800 md:block">
+      <div className="hidden overflow-x-auto rounded-[26px] border border-[#e3e9df] bg-[#fbfcfa] shadow-[0_14px_32px_rgba(15,23,42,0.05)] dark:border-[#223129] dark:bg-[#141a17] md:block">
         <table className="w-full text-left text-sm">
           <thead>
-            <tr className="border-b border-neutral-200 bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900/50">
+            <tr className="border-b border-neutral-200/80 bg-[#f5f8f4] dark:border-neutral-700 dark:bg-[#171f1b]">
               {columns.map((col) => (
                 <th
                   key={col.key}
@@ -95,7 +97,7 @@ export default function DataTable({
                     <button
                       type="button"
                       onClick={() => handleSort(col.key)}
-                      className="inline-flex items-center gap-2 rounded hover:bg-neutral-200 px-1 py-0.5 dark:hover:bg-neutral-800"
+                      className="inline-flex items-center gap-2 rounded-full px-2.5 py-1 transition-colors hover:bg-white dark:hover:bg-[#1d2622]"
                     >
                       {col.label}
                       {getSortIcon(col.key)}
@@ -112,7 +114,7 @@ export default function DataTable({
             {paginatedData.map((row, idx) => (
               <tr
                 key={idx}
-                className="border-b border-neutral-100 hover:bg-neutral-50 dark:border-neutral-800 dark:hover:bg-neutral-900/30"
+                className="border-b border-neutral-100 last:border-b-0 hover:bg-[#f4f8f4] dark:border-neutral-800 dark:hover:bg-[#18201c]"
                 onClick={() => onRowClick?.(row)}
               >
                 {columns.map((col) => (
@@ -131,7 +133,7 @@ export default function DataTable({
                             e.stopPropagation();
                             action.onClick(row);
                           }}
-                          className={`text-xs px-2 py-1 rounded ${
+                          className={`rounded-full px-3 py-1.5 text-xs font-semibold ${
                             action.variant === 'danger'
                               ? 'bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400'
                               : 'bg-primary-100 text-primary-700 hover:bg-primary-200 dark:bg-primary-900/30 dark:text-primary-400'
@@ -154,7 +156,7 @@ export default function DataTable({
         {paginatedData.map((row, idx) => (
           <div
             key={idx}
-            className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800"
+            className="rounded-[24px] border border-[#e3e9df] bg-[#fbfcfa] p-4 shadow-[0_12px_28px_rgba(15,23,42,0.04)] dark:border-[#223129] dark:bg-[#141a17]"
             onClick={() => onRowClick?.(row)}
           >
             {columns.map((col) => (
@@ -166,13 +168,17 @@ export default function DataTable({
               </div>
             ))}
             {actions.length > 0 && (
-              <div className="mt-3 flex gap-2 pt-3 border-t border-neutral-200 dark:border-neutral-700">
+              <div className="mt-3 flex gap-2 border-t border-neutral-200 pt-3 dark:border-neutral-700">
                 {actions.map((action, i) => (
                   <button
                     key={i}
                     type="button"
                     onClick={() => action.onClick(row)}
-                    className="flex-1 text-xs px-2 py-1.5 rounded font-medium"
+                    className={`flex-1 rounded-full px-3 py-2 text-xs font-semibold ${
+                      action.variant === 'danger'
+                        ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                        : 'bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400'
+                    }`}
                   >
                     {action.label}
                   </button>
@@ -185,7 +191,7 @@ export default function DataTable({
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between gap-4 rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
+        <div className="flex items-center justify-between gap-4 rounded-[24px] border border-[#e3e9df] bg-[#fbfcfa] p-4 shadow-[0_12px_28px_rgba(15,23,42,0.04)] dark:border-[#223129] dark:bg-[#141a17]">
           <p className="text-sm text-neutral-600 dark:text-neutral-400">
             Page {currentPage} of {totalPages} ({sortedData.length} total)
           </p>
@@ -194,7 +200,7 @@ export default function DataTable({
               type="button"
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={currentPage === 1}
-              className="px-3 py-1.5 rounded border border-neutral-200 text-sm font-medium disabled:opacity-50 dark:border-neutral-700"
+              className="rounded-full border border-neutral-200 px-3 py-1.5 text-sm font-medium disabled:opacity-50 dark:border-neutral-700"
             >
               Previous
             </button>
@@ -203,7 +209,7 @@ export default function DataTable({
                 key={page}
                 type="button"
                 onClick={() => setCurrentPage(page)}
-                className={`px-3 py-1.5 rounded text-sm font-medium ${
+                className={`rounded-full px-3 py-1.5 text-sm font-medium ${
                   currentPage === page
                     ? 'bg-primary-600 text-white'
                     : 'border border-neutral-200 dark:border-neutral-700'
@@ -216,7 +222,7 @@ export default function DataTable({
               type="button"
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
-              className="px-3 py-1.5 rounded border border-neutral-200 text-sm font-medium disabled:opacity-50 dark:border-neutral-700"
+              className="rounded-full border border-neutral-200 px-3 py-1.5 text-sm font-medium disabled:opacity-50 dark:border-neutral-700"
             >
               Next
             </button>
@@ -248,5 +254,6 @@ DataTable.propTypes = {
       variant: PropTypes.string
     })
   ),
-  emptyMessage: PropTypes.string
+  emptyMessage: PropTypes.string,
+  emptymessage: PropTypes.string
 };

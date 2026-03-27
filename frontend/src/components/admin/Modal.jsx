@@ -29,15 +29,15 @@ export default function Modal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/50 p-4 backdrop-blur-sm">
-      <div className={`relative w-full ${sizeMap[size]} rounded-2xl border border-neutral-200 bg-white shadow-2xl dark:border-neutral-800 dark:bg-surface-dark`}>
+      <div className={`relative w-full ${sizeMap[size]} overflow-hidden rounded-[30px] border border-[#e3e9df] bg-[#fbfcfa] shadow-[0_24px_60px_rgba(15,23,42,0.18)] dark:border-[#223129] dark:bg-[#141a17]`}>
         {/* Header */}
-        <div className="border-b border-neutral-200 px-6 py-4 dark:border-neutral-800">
+        <div className="border-b border-neutral-200/80 bg-[#f5f8f4] px-6 py-4 dark:border-neutral-800 dark:bg-[#171f1b]">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-bold text-neutral-900 dark:text-white">{title}</h2>
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg p-1.5 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+              className="rounded-full p-2 transition-colors hover:bg-white dark:hover:bg-[#1d2622]"
               aria-label="Close modal"
             >
               <FaTimes className="h-5 w-5 text-neutral-600 dark:text-neutral-400" />
@@ -50,19 +50,19 @@ export default function Modal({
 
         {/* Footer with actions */}
         {actions.length > 0 && (
-          <div className="border-t border-neutral-200 px-6 py-4 dark:border-neutral-800">
-            <div className="flex gap-3 justify-end">
+          <div className="border-t border-neutral-200/80 bg-[#f9fbf8] px-6 py-4 dark:border-neutral-800 dark:bg-[#161d19]">
+            <div className="flex justify-end gap-3">
               {actions.map((action, idx) => (
                 <button
                   key={idx}
                   type="button"
                   onClick={action.onClick}
                   disabled={action.loading}
-                  className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${
+                  className={`rounded-full px-4 py-2.5 text-sm font-semibold transition-all ${
                     action.variant === 'danger'
                       ? 'bg-red-600 hover:bg-red-700 text-white disabled:opacity-50'
                       : action.variant === 'ghost'
-                      ? 'border border-neutral-300 text-neutral-900 hover:bg-neutral-100 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800'
+                      ? 'border border-neutral-300 text-neutral-900 hover:bg-white dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800'
                       : 'bg-primary-600 hover:bg-primary-700 text-white disabled:opacity-50'
                   }`}
                 >

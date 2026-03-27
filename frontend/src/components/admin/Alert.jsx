@@ -69,7 +69,7 @@ export default function Alert({
   const Icon = config.icon;
 
   return (
-    <div className={`rounded-lg border ${config.border} ${config.bg} p-4`}>
+    <div className={`alert rounded-[22px] border ${config.border} ${config.bg} p-4`}>
       <div className="flex gap-3">
         <Icon className={`h-5 w-5 flex-shrink-0 mt-0.5 ${config.iconColor}`} />
         <div className="flex-1">

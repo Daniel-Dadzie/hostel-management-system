@@ -14,7 +14,7 @@ export function StatsCard({
   chart
 }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-neutral-200/70 bg-white shadow-sm dark:border-neutral-800 dark:bg-surface-dark">
+    <div className="overflow-hidden rounded-[26px] border border-[#e3e9df] bg-[#fbfcfa] shadow-[0_14px_32px_rgba(15,23,42,0.05)] dark:border-[#223129] dark:bg-[#141a17]">
       <div className={`h-1.5 w-full bg-gradient-to-r ${gradient}`} />
       <div className="p-4 sm:p-5">
         <div className="mb-3 flex items-center justify-between">
@@ -22,7 +22,7 @@ export function StatsCard({
             {label}
           </p>
           {Icon && (
-            <div className={`flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br ${gradient} text-white shadow-md`}>
+            <div className={`flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br ${gradient} text-white shadow-md`}>
               <Icon className="text-xs" />
             </div>
           )}
@@ -77,10 +77,10 @@ export function MiniStatsCard({ label, value, icon: Icon, color = 'primary' }) {
   };
 
   return (
-    <div className="rounded-lg border border-neutral-200 p-3 dark:border-neutral-800">
+    <div className="rounded-[24px] border border-[#e3e9df] bg-[#fbfcfa] p-4 shadow-[0_12px_28px_rgba(15,23,42,0.04)] dark:border-[#223129] dark:bg-[#141a17]">
       <div className="flex items-center gap-2.5">
         {Icon && (
-          <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${colorMap[color]}`}>
+          <div className={`flex h-11 w-11 items-center justify-center rounded-full ${colorMap[color]}`}>
             <Icon className="text-lg" />
           </div>
         )}

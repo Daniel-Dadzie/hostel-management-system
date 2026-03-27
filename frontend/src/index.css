@@ -240,4 +240,272 @@
   .translate-y-sink {
     @apply transition-transform duration-200 hover:translate-y-1;
   }
+
+  /* Admin-only visual system */
+  .admin-theme .page-title {
+    font-size: clamp(2rem, 3vw, 2.7rem);
+    font-weight: 700;
+    line-height: 1.02;
+    letter-spacing: -0.05em;
+  }
+
+  .admin-theme .card-header {
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.03em;
+  }
+
+  .admin-theme .body-text,
+  .admin-theme .section-subtitle {
+    color: #6f786f;
+    font-size: 0.95rem;
+    line-height: 1.68;
+  }
+
+  .admin-theme .card {
+    border: 1px solid #e3e9df;
+    background: rgba(255, 255, 255, 0.96);
+    border-radius: 28px;
+    padding: 1.25rem;
+    box-shadow: 0 18px 42px rgba(15, 23, 42, 0.06);
+    backdrop-filter: blur(14px);
+  }
+
+  .admin-theme .card-hover,
+  .admin-theme .card:hover {
+    border-color: #d5e4d8;
+    box-shadow: 0 22px 48px rgba(15, 23, 42, 0.08);
+  }
+
+  .admin-theme .btn-primary {
+    color: #ffffff;
+    border: 1px solid transparent;
+    border-radius: 9999px;
+    background: linear-gradient(135deg, #0f6b46 0%, #1d7d57 100%);
+    box-shadow: 0 16px 30px rgba(15, 107, 70, 0.18);
+    padding: 0.72rem 1.3rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .admin-theme .btn-primary:hover {
+    transform: translateY(-1px);
+    background: linear-gradient(135deg, #0d623f 0%, #176b4a 100%);
+    box-shadow: 0 18px 32px rgba(15, 107, 70, 0.22);
+  }
+
+  .admin-theme .btn-accent {
+    color: #0f6b46;
+    border: 1px solid #d3e2d6;
+    border-radius: 9999px;
+    background: #ffffff;
+    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.06);
+    padding: 0.72rem 1.3rem;
+    font-weight: 700;
+  }
+
+  .admin-theme .btn-accent:hover {
+    transform: translateY(-1px);
+    background: #f4fbf6;
+    border-color: #bcd4c2;
+    box-shadow: 0 16px 28px rgba(15, 107, 70, 0.1);
+  }
+
+  .admin-theme .btn-ghost {
+    color: #516056;
+    border-radius: 9999px;
+    background: rgba(241, 245, 240, 0.92);
+    border: 1px solid #dde6df;
+  }
+
+  .admin-theme .btn-ghost:hover {
+    background: #ffffff;
+    border-color: #cfdcd2;
+    color: #193226;
+  }
+
+  .admin-theme .input-field {
+    width: 100%;
+    border: 1px solid #dce6dd;
+    background: #f8faf7;
+    color: #1d2b23;
+    border-radius: 18px;
+    padding: 0.82rem 1rem;
+    font-weight: 500;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  }
+
+  .admin-theme .input-field::placeholder {
+    color: #96a096;
+  }
+
+  .admin-theme .input-field:focus {
+    outline: none;
+    border-color: #86b89d;
+    box-shadow: 0 0 0 4px rgba(15, 107, 70, 0.08);
+    background: #ffffff;
+  }
+
+  .admin-theme .alert,
+  .admin-theme .alert-error,
+  .admin-theme .alert-success {
+    border-radius: 22px;
+    box-shadow: 0 14px 32px rgba(15, 23, 42, 0.05);
+  }
+
+  .admin-theme .empty-state {
+    border-radius: 30px;
+  }
+
+  .admin-theme .empty-state-icon {
+    background: #eef4ee;
+    border-color: #dde8de;
+  }
+
+  .admin-theme .admin-toolbar-chip {
+    border: 1px solid #d8e4da;
+    background: rgba(255, 255, 255, 0.92);
+    color: #4f5e53;
+    border-radius: 9999px;
+    padding: 0.55rem 0.95rem;
+    box-shadow: 0 10px 22px rgba(15, 23, 42, 0.05);
+  }
+
+  .admin-theme .admin-theme-toggle > button {
+    height: 2.8rem;
+    width: 2.8rem;
+    border-radius: 9999px;
+    border-color: #d8e4da;
+    background: rgba(255, 255, 255, 0.92);
+    color: #4f5e53;
+    box-shadow: 0 10px 22px rgba(15, 23, 42, 0.05);
+  }
+
+  .admin-theme .admin-theme-toggle > button:hover {
+    background: #ffffff;
+    color: #0f6b46;
+    box-shadow: 0 14px 26px rgba(15, 107, 70, 0.12);
+  }
+
+  .admin-theme table {
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .admin-theme thead th {
+    color: #8a9389;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .admin-theme tbody tr {
+    transition: background-color 180ms ease, transform 180ms ease;
+  }
+
+  .admin-theme tbody tr:hover {
+    background: rgba(242, 247, 243, 0.88);
+  }
+
+  .admin-theme select,
+  .admin-theme input[type='date'],
+  .admin-theme textarea {
+    border-radius: 18px;
+  }
+
+  .dark .admin-theme .body-text,
+  .dark .admin-theme .section-subtitle {
+    color: #99a39b;
+  }
+
+  .dark .admin-theme .card {
+    border-color: #233129;
+    background: rgba(18, 25, 23, 0.96);
+    box-shadow: 0 20px 44px rgba(0, 0, 0, 0.32);
+  }
+
+  .dark .admin-theme .card-hover,
+  .dark .admin-theme .card:hover {
+    border-color: #2f4237;
+    box-shadow: 0 22px 48px rgba(0, 0, 0, 0.38);
+  }
+
+  .dark .admin-theme .btn-primary {
+    box-shadow: 0 16px 30px rgba(8, 37, 25, 0.45);
+  }
+
+  .dark .admin-theme .btn-accent {
+    color: #86d9ad;
+    border-color: #2d4538;
+    background: #101816;
+    box-shadow: 0 12px 26px rgba(0, 0, 0, 0.24);
+  }
+
+  .dark .admin-theme .btn-accent:hover {
+    background: #15201b;
+    border-color: #385342;
+  }
+
+  .dark .admin-theme .btn-ghost {
+    color: #c4cec6;
+    border-color: #28362e;
+    background: rgba(20, 27, 24, 0.92);
+  }
+
+  .dark .admin-theme .btn-ghost:hover {
+    background: #18201d;
+    border-color: #32453a;
+    color: #ffffff;
+  }
+
+  .dark .admin-theme .input-field {
+    border-color: #27352d;
+    background: #111816;
+    color: #f2f5f2;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+  }
+
+  .dark .admin-theme .input-field::placeholder {
+    color: #6e7b72;
+  }
+
+  .dark .admin-theme .input-field:focus {
+    border-color: #2f805c;
+    box-shadow: 0 0 0 4px rgba(39, 128, 92, 0.16);
+    background: #131c18;
+  }
+
+  .dark .admin-theme .empty-state-icon {
+    background: #1a221f;
+    border-color: #25312a;
+  }
+
+  .dark .admin-theme .admin-toolbar-chip {
+    border-color: #26342d;
+    background: rgba(17, 24, 22, 0.94);
+    color: #c4cec6;
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.22);
+  }
+
+  .dark .admin-theme .admin-theme-toggle > button {
+    border-color: #26342d;
+    background: rgba(17, 24, 22, 0.94);
+    color: #c4cec6;
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.22);
+  }
+
+  .dark .admin-theme .admin-theme-toggle > button:hover {
+    background: #16201d;
+    color: #86d9ad;
+  }
+
+  .dark .admin-theme thead th {
+    color: #7d877f;
+  }
+
+  .dark .admin-theme tbody tr:hover {
+    background: rgba(25, 35, 30, 0.88);
+  }
 }

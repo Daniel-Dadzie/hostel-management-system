@@ -129,7 +129,7 @@ export default function LifecycleManagementPanel({ onLifecycleChanged }) {
             type="button"
             onClick={runScheduledCheckout}
             disabled={actionLoading}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-3 py-2 text-sm font-semibold text-white hover:bg-primary-700 disabled:opacity-50"
+            className="btn-primary text-sm disabled:opacity-50"
           >
             <FaSync className={actionLoading ? 'animate-spin' : ''} />
             Run Semester Checkout
@@ -176,7 +176,7 @@ export default function LifecycleManagementPanel({ onLifecycleChanged }) {
             type="button"
             onClick={() => runBulkAction('retain')}
             disabled={selectedStudentIds.length === 0 || actionLoading}
-            className="rounded-lg bg-yellow-100 px-3 py-1.5 text-xs font-semibold text-yellow-800 hover:bg-yellow-200 disabled:opacity-50 dark:bg-yellow-900/20 dark:text-yellow-300"
+            className="rounded-full bg-yellow-100 px-3 py-2 text-xs font-semibold text-yellow-800 hover:bg-yellow-200 disabled:opacity-50 dark:bg-yellow-900/20 dark:text-yellow-300"
           >
             Retain Selected
           </button>
@@ -184,7 +184,7 @@ export default function LifecycleManagementPanel({ onLifecycleChanged }) {
             type="button"
             onClick={() => runBulkAction('clear-retain')}
             disabled={selectedStudentIds.length === 0 || actionLoading}
-            className="rounded-lg bg-neutral-100 px-3 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-200 disabled:opacity-50 dark:bg-neutral-800 dark:text-neutral-300"
+            className="rounded-full bg-neutral-100 px-3 py-2 text-xs font-semibold text-neutral-700 hover:bg-neutral-200 disabled:opacity-50 dark:bg-neutral-800 dark:text-neutral-300"
           >
             Clear Retain
           </button>
@@ -192,7 +192,7 @@ export default function LifecycleManagementPanel({ onLifecycleChanged }) {
             type="button"
             onClick={() => runBulkAction('promote')}
             disabled={selectedStudentIds.length === 0 || actionLoading}
-            className="rounded-lg bg-blue-100 px-3 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-200 disabled:opacity-50 dark:bg-blue-900/20 dark:text-blue-300"
+            className="rounded-full bg-blue-100 px-3 py-2 text-xs font-semibold text-blue-700 hover:bg-blue-200 disabled:opacity-50 dark:bg-blue-900/20 dark:text-blue-300"
           >
             Promote Selected
           </button>
@@ -200,7 +200,7 @@ export default function LifecycleManagementPanel({ onLifecycleChanged }) {
             type="button"
             onClick={() => runBulkAction('checkout')}
             disabled={selectedStudentIds.length === 0 || actionLoading}
-            className="rounded-lg bg-red-100 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-200 disabled:opacity-50 dark:bg-red-900/20 dark:text-red-300"
+            className="rounded-full bg-red-100 px-3 py-2 text-xs font-semibold text-red-700 hover:bg-red-200 disabled:opacity-50 dark:bg-red-900/20 dark:text-red-300"
           >
             Force Checkout
           </button>

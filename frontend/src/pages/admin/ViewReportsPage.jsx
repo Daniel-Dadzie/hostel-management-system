@@ -319,7 +319,7 @@ export default function ViewReportsPage() {
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="px-3 py-2 border border-neutral-300 rounded bg-white dark:bg-neutral-800 dark:border-neutral-700 text-neutral-900 dark:text-white"
+              className="input-field"
             />
           </div>
           <div className="flex flex-col">
@@ -331,7 +331,7 @@ export default function ViewReportsPage() {
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="px-3 py-2 border border-neutral-300 rounded bg-white dark:bg-neutral-800 dark:border-neutral-700 text-neutral-900 dark:text-white"
+              className="input-field"
             />
           </div>
           {(startDate || endDate) && (
@@ -340,7 +340,7 @@ export default function ViewReportsPage() {
                 setStartDate('');
                 setEndDate('');
               }}
-              className="px-4 py-2 text-sm font-medium text-neutral-600 dark:text-neutral-300 bg-neutral-100 dark:bg-neutral-700 rounded hover:bg-neutral-200 dark:hover:bg-neutral-600 transition"
+              className="btn-ghost text-sm"
             >
               Clear Filters
             </button>
