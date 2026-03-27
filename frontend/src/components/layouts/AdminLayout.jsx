@@ -29,73 +29,112 @@ export default function AdminLayout() {
   const { user, logout } = useAuth();
 
   return (
-    <div className="flex min-h-screen flex-col bg-cream-50 dark:bg-neutral-950">
-      {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-neutral-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/85 dark:border-neutral-800 dark:bg-surface-dark/95 dark:supports-[backdrop-filter]:bg-surface-dark/85">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3">
-          <Link to="/admin" className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-primary-800 text-sm font-bold text-white shadow-md ring-1 ring-white/20">
-              H
-            </div>
-            <span className="text-base font-bold tracking-tight text-neutral-900 dark:text-white sm:text-[17px]">Admin Portal</span>
-          </Link>
-          <div className="flex w-full items-center justify-end gap-2 sm:w-auto sm:gap-4">
-            <UserAvatar user={user} fallbackName={user?.fullName || 'Administrator'} />
-            <span className="hidden text-sm font-medium text-neutral-600 dark:text-neutral-300 sm:inline">
-              {user?.fullName || 'Administrator'}
-            </span>
-            <ThemeToggle />
-            <button
-              onClick={logout}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-2.5 py-1.5 text-sm font-medium text-white hover:bg-red-700 sm:px-3"
-            >
-              <FaSignOutAlt aria-hidden="true" className="text-sm" />
-              <span className="hidden sm:inline">Logout</span>
-            </button>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-[#f4f1eb] text-neutral-900 dark:bg-neutral-950">
+      <div className="mx-auto flex min-h-screen max-w-[1600px] flex-col lg:flex-row">
+        <aside className="border-b border-black/5 bg-[#fbfaf8] lg:min-h-screen lg:w-[280px] lg:border-b-0 lg:border-r lg:border-r-black/5 dark:border-neutral-800 dark:bg-surface-dark">
+          <div className="flex h-full flex-col px-4 py-5 sm:px-5 lg:px-6 lg:py-7">
+            <Link to="/admin" className="flex items-center gap-3 border-b border-black/5 pb-5 dark:border-neutral-800">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#f4c400] text-sm font-black text-neutral-900 shadow-[0_10px_25px_rgba(244,196,0,0.25)]">
+                H
+              </div>
+              <div>
+                <p className="text-lg font-extrabold tracking-tight text-neutral-900 dark:text-white">Hostel Admin</p>
+                <p className="text-xs font-medium uppercase tracking-[0.18em] text-neutral-400 dark:text-neutral-500">Management</p>
+              </div>
+            </Link>
 
-      <div className="flex flex-1 flex-col md:flex-row">
-        {/* Sidebar */}
-        <aside className="border-b border-neutral-200 bg-white/95 dark:border-neutral-800 dark:bg-surface-dark/95 md:w-64 md:shrink-0 md:border-b-0 md:border-r">
-          <nav className="overflow-x-auto p-3 md:sticky md:top-[57px] md:space-y-1 md:p-4">
-            <div className="flex gap-2 md:block md:space-y-1">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <NavLink
-                  key={item.to}
-                  to={item.to}
-                  end={item.to === '/admin'}
-                  className={({ isActive }) =>
-                    `inline-flex min-w-max items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 md:flex md:px-4 md:py-2.5 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 ${
-                      isActive
-                        ? 'bg-primary-50 font-semibold text-primary-700 ring-1 ring-primary-200/80 dark:bg-primary-900/25 dark:text-primary-300 dark:ring-primary-800/40'
-                        : 'text-neutral-500 ring-1 ring-transparent hover:bg-neutral-100/80 hover:text-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-800/60 dark:hover:text-neutral-200'
-                    }`
-                  }
+            <div className="mt-5 rounded-[26px] bg-[#f4c400] p-4 text-neutral-900 shadow-[0_22px_50px_rgba(244,196,0,0.28)]">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-800/70">Welcome back</p>
+              <div className="mt-3 flex items-center gap-3">
+                <UserAvatar user={user} fallbackName={user?.fullName || 'Administrator'} />
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-extrabold">{user?.fullName || 'Administrator'}</p>
+                  <p className="truncate text-xs text-neutral-800/70">Admin Portal</p>
+                </div>
+              </div>
+              <div className="mt-4 flex items-center gap-2">
+                <ThemeToggle />
+                <button
+                  onClick={logout}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-white transition hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
                 >
-                  <Icon className="text-sm" aria-hidden="true" />
-                  {item.label}
-                </NavLink>
-              );
-            })}
+                  <FaSignOutAlt aria-hidden="true" className="text-xs" />
+                  Logout
+                </button>
+              </div>
             </div>
-          </nav>
+
+            <nav className="mt-6 overflow-x-auto lg:mt-8 lg:overflow-visible">
+              <div className="flex gap-2 pb-1 lg:block lg:space-y-2">
+                {navItems.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <NavLink
+                      key={item.to}
+                      to={item.to}
+                      end={item.to === '/admin'}
+                      className={({ isActive }) =>
+                        `group inline-flex min-w-max items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition-all duration-200 lg:flex lg:w-full ${
+                          isActive
+                            ? 'bg-white text-neutral-900 shadow-[0_12px_30px_rgba(15,23,42,0.08)] ring-1 ring-black/5 dark:bg-neutral-900 dark:text-white dark:ring-neutral-800'
+                            : 'text-neutral-500 hover:bg-white/80 hover:text-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-900/70 dark:hover:text-neutral-200'
+                        }`
+                      }
+                    >
+                      <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-neutral-100 text-neutral-700 transition group-hover:bg-[#f4c400] group-hover:text-neutral-900 dark:bg-neutral-800 dark:text-neutral-300 dark:group-hover:bg-[#f4c400] dark:group-hover:text-neutral-900">
+                        <Icon className="text-sm" aria-hidden="true" />
+                      </span>
+                      <span className="whitespace-nowrap">{item.label}</span>
+                    </NavLink>
+                  );
+                })}
+              </div>
+            </nav>
+
+            <div className="mt-auto hidden rounded-[24px] border border-black/5 bg-white p-4 shadow-[0_15px_35px_rgba(15,23,42,0.06)] lg:block dark:border-neutral-800 dark:bg-neutral-900">
+              <p className="text-sm font-bold text-neutral-900 dark:text-white">University Hostel System</p>
+              <p className="mt-1 text-xs leading-5 text-neutral-500 dark:text-neutral-400">
+                Manage rooms, payments, bookings, academic terms and reports from one dashboard.
+              </p>
+            </div>
+          </div>
         </aside>
 
-        {/* Main Content */}
-        <main className="flex-1 animate-fade-in p-4 sm:p-6">
-          <Outlet />
-        </main>
-      </div>
+        <div className="flex min-h-screen min-w-0 flex-1 flex-col">
+          <header className="border-b border-black/5 bg-[#f4f1eb]/90 px-4 py-4 backdrop-blur supports-[backdrop-filter]:bg-[#f4f1eb]/75 sm:px-6 lg:px-8 dark:border-neutral-800 dark:bg-neutral-950/90 dark:supports-[backdrop-filter]:bg-neutral-950/80">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-neutral-400 dark:text-neutral-500">Admin workspace</p>
+                <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-neutral-900 dark:text-white">Dashboard</h1>
+              </div>
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-neutral-600 shadow-[0_8px_24px_rgba(15,23,42,0.05)] ring-1 ring-black/5 dark:bg-neutral-900 dark:text-neutral-300 dark:ring-neutral-800">
+                  {new Date().toLocaleDateString('en-GB', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric'
+                  })}
+                </div>
+                <div className="hidden items-center gap-3 rounded-full bg-white px-3 py-2 shadow-[0_8px_24px_rgba(15,23,42,0.05)] ring-1 ring-black/5 sm:flex dark:bg-neutral-900 dark:ring-neutral-800">
+                  <UserAvatar user={user} fallbackName={user?.fullName || 'Administrator'} />
+                  <div className="pr-1">
+                    <p className="text-sm font-bold text-neutral-900 dark:text-white">{user?.fullName || 'Administrator'}</p>
+                    <p className="text-xs text-neutral-500 dark:text-neutral-400">Administrator</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </header>
 
-      <footer className="border-t border-neutral-200 bg-white dark:border-neutral-800 dark:bg-surface-dark">
-        <div className="mx-auto max-w-7xl px-4 py-6 text-center text-sm text-neutral-500 dark:text-neutral-400">
-          © {new Date().getFullYear()} University Hostel Management System. All rights reserved.
+          <main className="flex-1 animate-fade-in px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
+            <Outlet />
+          </main>
+
+          <footer className="border-t border-black/5 bg-[#f8f5ef] px-4 py-5 text-center text-sm text-neutral-500 dark:border-neutral-800 dark:bg-neutral-950 dark:text-neutral-400">
+            © {new Date().getFullYear()} University Hostel Management System. All rights reserved.
+          </footer>
         </div>
-      </footer>
+      </div>
     </div>
   );
 }

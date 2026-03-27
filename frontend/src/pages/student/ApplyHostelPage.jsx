@@ -180,7 +180,25 @@ export default function ApplyHostelPage() {
       const data = await applyForHostel(payload);
       setResult(data);
     } catch (err) {
-      setError(err.message);
+      // Intercept backend error for booking restriction
+      if (
+        err.message &&
+        (err.message.includes('already have an allocated room') ||
+         err.message.includes('cannot apply for another hostel'))
+      ) {
+        setError(
+          'You already have an allocated room. You cannot apply for another hostel until your current booking is cancelled or expired.'
+        );
+      } else if (
+        err.message &&
+        err.message.includes('already have an active hostel application')
+      ) {
+        setError(
+          'You already have a pending hostel application. Please complete or cancel it before applying again.'
+        );
+      } else {
+        setError(err.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -200,8 +218,8 @@ export default function ApplyHostelPage() {
     return (
       <div className="card">
         <h2 className="card-header text-neutral-900 dark:text-white">Room Allocation Confirmed</h2>
-        <p className="section-subtitle mt-2">
-          You already have an approved room allocation and cannot apply for another hostel.
+        <p className="section-subtitle mt-2 text-red-600 dark:text-red-400 font-semibold">
+          You already have an allocated room. You cannot apply for another hostel until your current booking is cancelled or expired.
         </p>
         <div className="mt-4">
           <button type="button" className="btn-primary" onClick={() => navigate('/student/booking')}>

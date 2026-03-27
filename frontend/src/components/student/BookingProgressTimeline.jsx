@@ -65,7 +65,7 @@ export default function BookingProgressTimeline({ booking }) {
 
   const isCompleted = (stepNum) => completedSteps.includes(stepNum - 1);
   const isCurrent = (stepNum) => currentStep === stepNum;
-  const isFailed = failedStep === stepNum;
+  const isFailed = (stepNum) => failedStep === stepNum;
 
   return (
     <div className="card">
@@ -83,14 +83,14 @@ export default function BookingProgressTimeline({ booking }) {
                       ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400'
                       : isCurrent(step.number)
                         ? 'bg-blue-100 text-blue-700 ring-2 ring-blue-300 dark:bg-blue-900/40 dark:text-blue-400 dark:ring-blue-700'
-                        : isFailed
+                        : isFailed(step.number)
                           ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400'
                           : 'bg-neutral-100 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400'
                   }`}
                 >
                   {isCompleted(step.number) ? (
                     <FaCheck className="text-lg" />
-                  ) : isFailed ? (
+                  ) : isFailed(step.number) ? (
                     '✕'
                   ) : (
                     step.number
@@ -141,7 +141,7 @@ export default function BookingProgressTimeline({ booking }) {
                     <FaClock className="text-xs" /> In Progress
                   </div>
                 )}
-                {isFailed && (
+                {isFailed(step.number) && (
                   <div className="mt-2 inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-1 text-xs font-medium text-red-700 dark:bg-red-900/30 dark:text-red-400">
                     Failed
                   </div>

@@ -91,9 +91,16 @@ export default function MyPaymentsPage() {
       setNotice(result?.message || 'Receipt submitted successfully.');
       setTransactionReference('');
       setReceiptFile(null);
-      await loadPaymentContext();
+      await loadPaymentContext(); // Always refresh booking/payment status after payment
     } catch (err) {
-      setError(err.message || 'Unable to submit receipt.');
+      // Show user-friendly error messages for backend exceptions
+      let msg = err.message || 'Unable to submit receipt.';
+      if (msg.includes('already been submitted')) {
+        msg = 'A payment receipt has already been submitted and approved for this booking.';
+      } else if (msg.includes('Payment is only allowed for pending bookings')) {
+        msg = 'Payment is only allowed for bookings that are pending payment.';
+      }
+      setError(msg);
     } finally {
       setSubmittingReceipt(false);
     }

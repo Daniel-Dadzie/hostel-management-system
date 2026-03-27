@@ -196,19 +196,19 @@ export default function PaymentTransactionHistoryPage() {
 
       {/* Summary Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="card">
+        <div className="card border border-neutral-200/80 bg-white/80 shadow-lg shadow-neutral-200/30 backdrop-blur-sm dark:border-neutral-800/80 dark:bg-neutral-900/70 dark:shadow-black/20">
           <p className="body-text text-neutral-500 dark:text-neutral-400">Total Transactions</p>
           <p className="card-header mt-2 text-neutral-900 dark:text-white">{stats.total}</p>
         </div>
-        <div className="card">
+        <div className="card border border-neutral-200/80 bg-white/80 shadow-lg shadow-neutral-200/30 backdrop-blur-sm dark:border-neutral-800/80 dark:bg-neutral-900/70 dark:shadow-black/20">
           <p className="body-text text-neutral-500 dark:text-neutral-400">Completed</p>
           <p className="card-header mt-2 text-emerald-600 dark:text-emerald-400">{stats.completed}</p>
         </div>
-        <div className="card">
+      <div className="card border border-neutral-200/80 bg-white/80 shadow-lg shadow-neutral-200/30 backdrop-blur-sm dark:border-neutral-800/80 dark:bg-neutral-900/70 dark:shadow-black/20">
           <p className="body-text text-neutral-500 dark:text-neutral-400">Pending</p>
           <p className="card-header mt-2 text-amber-600 dark:text-amber-400">{stats.pending}</p>
         </div>
-        <div className="card">
+      <div className="card border border-neutral-200/80 bg-white/80 shadow-lg shadow-neutral-200/30 backdrop-blur-sm dark:border-neutral-800/80 dark:bg-neutral-900/70 dark:shadow-black/20">
           <p className="body-text text-neutral-500 dark:text-neutral-400">Total Paid</p>
           <p className="card-header mt-2 text-neutral-900 dark:text-white">{formatAmount(stats.totalAmount)}</p>
         </div>

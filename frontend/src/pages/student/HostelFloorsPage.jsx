@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import { useEffect, useState } from 'react';
+import { useAuth } from '../../context/AuthContext';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FaArrowLeft } from 'react-icons/fa';
 import { listStudentHostelRooms, listStudentHostels } from '../../services/hostelService.js';
@@ -57,10 +58,12 @@ const FLOOR_ACCENTS = [
 export default function HostelFloorsPage() {
   const { hostelId } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [hostel, setHostel] = useState(null);
   const [floorSummaries, setFloorSummaries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [allRooms, setAllRooms] = useState([]);
 
   useEffect(() => {
     async function load() {
@@ -76,6 +79,7 @@ export default function HostelFloorsPage() {
         setHostel(found ?? null);
 
         const roomList = Array.isArray(rooms) ? rooms : [];
+        setAllRooms(roomList);
         const floors = [...new Set(roomList.map((r) => r.floorNumber))]
           .filter(Boolean)
           .sort((a, b) => a - b);
@@ -131,7 +135,11 @@ export default function HostelFloorsPage() {
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {floorSummaries.map((floor, idx) => {
             const accent = FLOOR_ACCENTS[idx % FLOOR_ACCENTS.length];
-            const hasRooms = floor.availableRooms > 0;
+            // Find if this floor has any room matching user's gender
+            const userGender = user?.gender || user?.Gender || user?.sex || '';
+            const hasGenderRoom = allRooms.some(
+              (r) => r.floorNumber === floor.floorNumber && r.roomGender === userGender
+            );
             return (
               <div
                 key={floor.floorNumber}
@@ -164,7 +172,7 @@ export default function HostelFloorsPage() {
                       label="Available Rooms"
                       value={String(floor.availableRooms)}
                       valueClass={
-                        hasRooms
+                        floor.availableRooms > 0
                           ? 'text-emerald-600 font-extrabold dark:text-emerald-400'
                           : 'text-red-500 font-extrabold dark:text-red-400'
                       }
@@ -173,7 +181,7 @@ export default function HostelFloorsPage() {
 
                   {/* View Rooms button */}
                   <div className="mt-auto">
-                    {hasRooms ? (
+                    {hasGenderRoom ? (
                       <button
                         type="button"
                         onClick={() =>
@@ -185,8 +193,8 @@ export default function HostelFloorsPage() {
                         <span className="transition-transform duration-200 group-hover:translate-x-1">{' →'}</span>
                       </button>
                     ) : (
-                      <div className="rounded-xl border border-red-200 bg-red-50 py-2.5 text-center text-sm font-semibold text-red-600 dark:border-red-800/30 dark:bg-red-900/15 dark:text-red-400">
-                        No Rooms Available
+                      <div className="rounded-xl border border-yellow-200 bg-yellow-50 py-2.5 text-center text-sm font-semibold text-yellow-600 dark:border-yellow-800/30 dark:bg-yellow-900/15 dark:text-yellow-400">
+                        Not available for your gender
                       </div>
                     )}
                   </div>

@@ -66,9 +66,12 @@ export default function StudentLayout() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-cream-50 dark:bg-neutral-950">
+    <div className="relative flex min-h-screen flex-col overflow-hidden bg-gradient-to-b from-primary-50 via-white to-emerald-50/40 dark:from-neutral-950 dark:via-neutral-900 dark:to-primary-950/20">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.12),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(59,130,246,0.08),transparent_30%)] dark:bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.08),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(59,130,246,0.06),transparent_30%)]"></div>
+      <div className="absolute -top-24 right-0 h-72 w-72 rounded-full bg-primary-200/20 blur-3xl dark:bg-primary-900/20"></div>
+
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-neutral-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/85 dark:border-neutral-800 dark:bg-surface-dark/95 dark:supports-[backdrop-filter]:bg-surface-dark/85">
+      <header className="sticky top-0 z-50 border-b border-neutral-200/80 bg-white/80 backdrop-blur-md supports-[backdrop-filter]:bg-white/70 dark:border-neutral-800/80 dark:bg-surface-dark/80 dark:supports-[backdrop-filter]:bg-surface-dark/70">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3">
           <Link to="/student/hostels" className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 text-sm font-bold text-white shadow-md ring-1 ring-white/20">
@@ -113,7 +116,7 @@ export default function StudentLayout() {
 
       <div className="flex flex-1 flex-col md:flex-row">
         {/* Sidebar */}
-        <aside className="border-b border-neutral-200 bg-white/95 dark:border-neutral-800 dark:bg-surface-dark/95 md:w-64 md:shrink-0 md:border-b-0 md:border-r">
+        <aside className="relative z-10 border-b border-neutral-200/80 bg-white/75 backdrop-blur-md dark:border-neutral-800/80 dark:bg-surface-dark/75 md:w-64 md:shrink-0 md:border-b-0 md:border-r">
           <nav className="overflow-x-auto p-3 md:sticky md:top-[57px] md:space-y-1 md:p-4">
             <div className="flex gap-2 md:block md:space-y-1">
             {navItems.map((item) => {
@@ -141,7 +144,7 @@ export default function StudentLayout() {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 animate-fade-in p-4 sm:p-6">
+        <main className="relative z-10 flex-1 animate-fade-in p-4 sm:p-6">
           <Outlet />
         </main>
       </div>
@@ -152,7 +155,7 @@ export default function StudentLayout() {
         </div>
       )}
 
-      <footer className="border-t border-neutral-200 bg-white dark:border-neutral-800 dark:bg-surface-dark">
+      <footer className="relative z-10 border-t border-neutral-200/80 bg-white/75 backdrop-blur-md dark:border-neutral-800/80 dark:bg-surface-dark/75">
         <div className="mx-auto max-w-7xl px-4 py-6 text-center text-sm text-neutral-500 dark:text-neutral-400">
           © {new Date().getFullYear()} University Hostel Management System. All rights reserved.
         </div>

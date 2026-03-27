@@ -89,6 +89,10 @@ public class StudentPaymentService {
       MultipartFile receipt) {
     Payment payment = validateAndGetStudentPayment(studentId, bookingId);
 
+    if (payment.getStatus() == PaymentStatus.COMPLETED) {
+      throw new IllegalArgumentException("A payment receipt has already been submitted and approved for this booking.");
+    }
+
     if (receipt == null || receipt.isEmpty()) {
       throw new IllegalArgumentException("Receipt file is required");
     }
