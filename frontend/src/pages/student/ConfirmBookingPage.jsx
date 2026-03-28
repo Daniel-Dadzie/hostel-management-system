@@ -12,7 +12,9 @@ import {
   FaUsers,
   FaWifi,
 } from 'react-icons/fa';
+import { toastService } from '../../hooks/useToast.js';
 import { listStudentHostelRooms, listStudentHostels } from '../../services/hostelService.js';
+import { applyForHostel } from '../../services/studentService.js';
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
