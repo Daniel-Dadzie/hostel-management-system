@@ -127,9 +127,9 @@ export default function RegisterPage() {
               <div className="px-8 pb-8 pt-9">
                 {/* Logo */}
                 <div className="mb-7 flex items-center gap-4">
-                  <div className="flex h-13 w-13 flex-shrink-0 items-center justify-center rounded-[16px] bg-[#0f6b46] text-lg font-black text-white shadow-[0_8px_24px_rgba(15,107,70,0.40)]">
+                  {/* <div className="flex h-13 w-13 flex-shrink-0 items-center justify-center rounded-[16px] bg-[#0f6b46] text-lg font-black text-white shadow-[0_8px_24px_rgba(15,107,70,0.40)]">
                     H
-                  </div>
+                  </div> */}
                   <div>
                     <p className="text-base font-extrabold tracking-tight text-neutral-900 dark:text-white">
                       Hostel Management
