@@ -43,25 +43,21 @@ jobs:
             echo "Waiting for MySQL..."; sleep 2;
           done
 
+      - name: Make mvnw executable
+        run: chmod +x backend/app/mvnw
+
       - name: Install backend dependencies & test
         working-directory: ./backend/app
-        run: |
-          ./mvnw test
+        run: ./mvnw test
 
       - name: Install frontend dependencies
         working-directory: ./frontend
-        run: |
-          npm ci
+        run: npm ci
 
       - name: Run frontend tests
         working-directory: ./frontend
-        run: |
-          npm test -- --watchAll=false
+        run: npm test -- --watchAll=false
 
       - name: Build frontend
         working-directory: ./frontend
-        run: |
-          npm run build
-
-      # - name: Deploy (customize this step)
-      #   run: echo "Add your deployment script here"
+        run: npm run build
