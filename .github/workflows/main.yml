@@ -44,12 +44,16 @@ jobs:
           done
 
       - name: Make mvnw executable
-        run: chmod +x backend/app/mvnw
+        run: |
+          find . -name "mvnw" -type f
+          chmod +x backend/app/mvnw
+          ls -la backend/app/mvnw
 
       - name: Install backend dependencies & test
         working-directory: ./backend/app
         run: ./mvnw test
 
+        
       - name: Install frontend dependencies
         working-directory: ./frontend
         run: npm ci
