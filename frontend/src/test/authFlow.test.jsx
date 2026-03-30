@@ -56,7 +56,7 @@ describe('Login Flow Integration Tests', () => {
     );
 
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/^password$/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
   });
 
@@ -71,7 +71,7 @@ describe('Login Flow Integration Tests', () => {
     );
 
     const emailInput = screen.getByLabelText(/email/i);
-    const passwordInput = screen.getByLabelText(/password/i);
+    const passwordInput = screen.getByLabelText(/^password$/i);
     const submitButton = screen.getByRole('button', { name: /sign in/i });
 
     await userEvent.type(emailInput, 'test@example.com');
@@ -111,7 +111,7 @@ describe('Login Flow Integration Tests', () => {
     window.history.pushState({}, 'Login', '/login');
 
     const emailInput = screen.getByLabelText(/email/i);
-    const passwordInput = screen.getByLabelText(/password/i);
+    const passwordInput = screen.getByLabelText(/^password$/i);
     const submitButton = screen.getByRole('button', { name: /sign in/i });
 
     await userEvent.type(emailInput, 'student@example.com');
@@ -150,7 +150,7 @@ describe('Login Flow Integration Tests', () => {
     window.history.pushState({}, 'Login', '/login');
 
     const emailInput = screen.getByLabelText(/email/i);
-    const passwordInput = screen.getByLabelText(/password/i);
+    const passwordInput = screen.getByLabelText(/^password$/i);
     const submitButton = screen.getByRole('button', { name: /sign in/i });
 
     await userEvent.type(emailInput, 'admin@example.com');
@@ -187,7 +187,7 @@ describe('Login Flow Integration Tests', () => {
     );
 
     const emailInput = screen.getByLabelText(/email/i);
-    const passwordInput = screen.getByLabelText(/password/i);
+    const passwordInput = screen.getByLabelText(/^password$/i);
     const submitButton = screen.getByRole('button', { name: /sign in/i });
 
     await userEvent.type(emailInput, 'test@example.com');
