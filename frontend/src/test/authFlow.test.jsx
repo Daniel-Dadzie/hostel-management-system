@@ -1,29 +1,35 @@
 /**
  * @vitest-environment jsdom
  */
+
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider, useAuth } from '../context/AuthContext';
 import LoginPage from '../pages/LoginPage';
 import RegisterPage from '../pages/RegisterPage';
 
-// Mock services
+// --------------------
+// 🔹 Mocks
+// --------------------
 vi.mock('../services/authService', () => ({
   loginUser: vi.fn(),
-  registerUser: vi.fn(() => Promise.resolve({ message: 'Success' })),
-  forgotPassword: vi.fn(),
-  resetPassword: vi.fn(),
+  registerUser: vi.fn(),
 }));
 
 vi.mock('../services/profileService', () => ({
   getMyProfile: vi.fn(),
 }));
 
-// Test wrapper component
-function TestWrapper({ children }) {
+import { loginUser, registerUser } from '../services/authService';
+import { getMyProfile } from '../services/profileService';
+
+// --------------------
+// 🔹 Test Utils
+// --------------------
+function renderWithProviders(ui, { route = '/login' } = {}) {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: { retry: false },
@@ -31,188 +37,115 @@ function TestWrapper({ children }) {
     },
   });
 
-  return (
+  window.history.pushState({}, 'Test', route);
+
+  return render(
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <BrowserRouter>
-          {children}
-        </BrowserRouter>
+        <MemoryRouter initialEntries={[route]}>
+          {ui}
+        </MemoryRouter>
       </AuthProvider>
     </QueryClientProvider>
   );
 }
 
-describe('Login Flow Integration Tests', () => {
+// --------------------
+// 🔹 Login Tests
+// --------------------
+describe('Auth - Login Flow', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    localStorage.clear();
+
+    // mock localStorage properly
+    vi.spyOn(Storage.prototype, 'setItem');
   });
 
-  it('should display login form with email and password fields', () => {
-    render(
-      <TestWrapper>
-        <LoginPage />
-      </TestWrapper>
-    );
+  it('renders login form', () => {
+    renderWithProviders(<LoginPage />);
 
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/^password$/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
   });
 
-  it('should show error message for invalid credentials', async () => {
-    const { loginUser } = await import('../services/authService');
+  it('shows error on invalid login', async () => {
     loginUser.mockRejectedValue(new Error('Invalid email or password'));
 
-    render(
-      <TestWrapper>
-        <LoginPage />
-      </TestWrapper>
-    );
+    renderWithProviders(<LoginPage />);
 
-    const emailInput = screen.getByLabelText(/email/i);
-    const passwordInput = screen.getByLabelText(/^password$/i);
-    const submitButton = screen.getByRole('button', { name: /sign in/i });
+    await userEvent.type(screen.getByLabelText(/email/i), 'test@mail.com');
+    await userEvent.type(screen.getByLabelText(/^password$/i), 'wrong');
+    await userEvent.click(screen.getByRole('button', { name: /sign in/i }));
 
-    await userEvent.type(emailInput, 'test@example.com');
-    await userEvent.type(passwordInput, 'wrongpassword');
-    await userEvent.click(submitButton);
-
-    await waitFor(() => {
-      expect(screen.getByText(/invalid email or password/i)).toBeInTheDocument();
-    });
+    expect(await screen.findByText(/invalid email or password/i)).toBeInTheDocument();
   });
 
-  it('should redirect to student dashboard on successful student login', async () => {
-    const { loginUser } = await import('../services/authService');
-    const { getMyProfile } = await import('../services/profileService');
+  it('redirects student after login', async () => {
+    loginUser.mockResolvedValue({ token: 'token', role: 'STUDENT' });
+    getMyProfile.mockResolvedValue({ id: 1 });
 
-    loginUser.mockResolvedValue({
-      token: 'mock-student-token',
-      role: 'STUDENT'
-    });
-
-    getMyProfile.mockResolvedValue({
-      id: 1,
-      fullName: 'John Doe',
-      email: 'john@example.com'
-    });
-
-    render(
-      <TestWrapper>
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/student/hostels" element={<div data-testid="student-dashboard">Student Dashboard</div>} />
-        </Routes>
-      </TestWrapper>
+    renderWithProviders(
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/student/hostels" element={<div data-testid="student">Student</div>} />
+      </Routes>,
+      { route: '/login' }
     );
 
-    // Navigate to login page
-    window.history.pushState({}, 'Login', '/login');
+    await userEvent.type(screen.getByLabelText(/email/i), 'student@mail.com');
+    await userEvent.type(screen.getByLabelText(/^password$/i), 'password');
+    await userEvent.click(screen.getByRole('button', { name: /sign in/i }));
 
-    const emailInput = screen.getByLabelText(/email/i);
-    const passwordInput = screen.getByLabelText(/^password$/i);
-    const submitButton = screen.getByRole('button', { name: /sign in/i });
-
-    await userEvent.type(emailInput, 'student@example.com');
-    await userEvent.type(passwordInput, 'correctpassword');
-    await userEvent.click(submitButton);
-
-    await waitFor(() => {
-      expect(screen.getByTestId('student-dashboard')).toBeInTheDocument();
-    }, { timeout: 3000 });
+    expect(await screen.findByTestId('student')).toBeInTheDocument();
   });
 
-  it('should redirect to admin dashboard on successful admin login', async () => {
-    const { loginUser } = await import('../services/authService');
-    const { getMyProfile } = await import('../services/profileService');
+  it('redirects admin after login', async () => {
+    loginUser.mockResolvedValue({ token: 'token', role: 'ADMIN' });
+    getMyProfile.mockResolvedValue({ id: 1 });
 
-    loginUser.mockResolvedValue({
-      token: 'mock-admin-token',
-      role: 'ADMIN'
-    });
-
-    getMyProfile.mockResolvedValue({
-      id: 1,
-      fullName: 'Admin User',
-      email: 'admin@example.com'
-    });
-
-    render(
-      <TestWrapper>
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/admin" element={<div data-testid="admin-dashboard">Admin Dashboard</div>} />
-        </Routes>
-      </TestWrapper>
+    renderWithProviders(
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/admin" element={<div data-testid="admin">Admin</div>} />
+      </Routes>,
+      { route: '/login' }
     );
 
-    window.history.pushState({}, 'Login', '/login');
+    await userEvent.type(screen.getByLabelText(/email/i), 'admin@mail.com');
+    await userEvent.type(screen.getByLabelText(/^password$/i), 'password');
+    await userEvent.click(screen.getByRole('button', { name: /sign in/i }));
 
-    const emailInput = screen.getByLabelText(/email/i);
-    const passwordInput = screen.getByLabelText(/^password$/i);
-    const submitButton = screen.getByRole('button', { name: /sign in/i });
-
-    await userEvent.type(emailInput, 'admin@example.com');
-    await userEvent.type(passwordInput, 'adminpassword');
-    await userEvent.click(submitButton);
-
-    await waitFor(() => {
-      expect(screen.getByTestId('admin-dashboard')).toBeInTheDocument();
-    }, { timeout: 3000 });
+    expect(await screen.findByTestId('admin')).toBeInTheDocument();
   });
 
-  it('should store token in localStorage on successful login', async () => {
-    const { loginUser } = await import('../services/authService');
-    const { getMyProfile } = await import('../services/profileService');
+  it('stores token in localStorage', async () => {
+    loginUser.mockResolvedValue({ token: 'abc123', role: 'STUDENT' });
+    getMyProfile.mockResolvedValue({ id: 1 });
 
-    loginUser.mockResolvedValue({
-      token: 'test-token-123',
-      role: 'STUDENT'
-    });
+    renderWithProviders(<LoginPage />);
 
-    getMyProfile.mockResolvedValue({
-      id: 1,
-      fullName: 'John Doe',
-      email: 'john@example.com'
-    });
-
-    render(
-      <TestWrapper>
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/student/hostels" element={<div>Hostels</div>} />
-        </Routes>
-      </TestWrapper>
-    );
-
-    const emailInput = screen.getByLabelText(/email/i);
-    const passwordInput = screen.getByLabelText(/^password$/i);
-    const submitButton = screen.getByRole('button', { name: /sign in/i });
-
-    await userEvent.type(emailInput, 'test@example.com');
-    await userEvent.type(passwordInput, 'password123');
-    await userEvent.click(submitButton);
+    await userEvent.type(screen.getByLabelText(/email/i), 'test@mail.com');
+    await userEvent.type(screen.getByLabelText(/^password$/i), 'password');
+    await userEvent.click(screen.getByRole('button', { name: /sign in/i }));
 
     await waitFor(() => {
-      expect(localStorage.setItem).toHaveBeenCalledWith('hms.token', 'test-token-123');
+      expect(localStorage.setItem).toHaveBeenCalledWith('hms.token', 'abc123');
       expect(localStorage.setItem).toHaveBeenCalledWith('hms.role', 'STUDENT');
     });
   });
 });
 
-describe('Registration Flow Integration Tests', () => {
+// --------------------
+// 🔹 Register Tests
+// --------------------
+describe('Auth - Registration Flow', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    localStorage.clear();
   });
 
-  it('should display registration form with all required fields', () => {
-    render(
-      <TestWrapper>
-        <RegisterPage />
-      </TestWrapper>
-    );
+  it('renders registration form', () => {
+    renderWithProviders(<RegisterPage />, { route: '/register' });
 
     expect(screen.getByLabelText(/full name/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
@@ -220,97 +153,80 @@ describe('Registration Flow Integration Tests', () => {
     expect(screen.getByLabelText(/^password/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/confirm password/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/gender/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /create account/i })).toBeInTheDocument();
+  
   });
 
-  it('should show error for mismatched passwords', async () => {
-    render(
-      <TestWrapper>
-        <RegisterPage />
-      </TestWrapper>
-    );
+  it('validates password mismatch', async () => {
+    renderWithProviders(<RegisterPage />, { route: '/register' });
 
-    const passwordInput = screen.getByLabelText(/^password/i);
-    const confirmPasswordInput = screen.getByLabelText(/confirm password/i);
-    const submitButton = screen.getByRole('button', { name: /register/i });
+    await userEvent.type(screen.getByLabelText(/^password/i), 'Password123');
+    await userEvent.type(screen.getByLabelText(/confirm password/i), 'Mismatch123');
 
-    await userEvent.type(passwordInput, 'Password123');
-    await userEvent.type(confirmPasswordInput, 'DifferentPassword123');
-    await userEvent.click(submitButton);
+    await userEvent.click(screen.getByRole('button', { name: /create account/i }));
+
+    expect(await screen.findByText(/passwords do not match/i)).toBeInTheDocument();
+  });
+
+  it('submits valid registration', async () => {
+    registerUser.mockResolvedValue({ message: 'Success' });
+
+    renderWithProviders(<RegisterPage />, { route: '/register' });
+
+    await userEvent.type(screen.getByLabelText(/full name/i), 'John Doe');
+    await userEvent.type(screen.getByLabelText(/email/i), 'john@mail.com');
+    await userEvent.type(screen.getByLabelText(/phone/i), '123456789');
+    await userEvent.type(screen.getByLabelText(/^password/i), 'Password123');
+    await userEvent.type(screen.getByLabelText(/confirm password/i), 'Password123');
+
+    await userEvent.click(screen.getByRole('button', { name: /create account/i }));
 
     await waitFor(() => {
-      expect(screen.getByText(/passwords do not match/i)).toBeInTheDocument();
+      expect(registerUser).toHaveBeenCalled();
     });
   });
 });
 
-describe('Auth Context Integration Tests', () => {
+// --------------------
+// 🔹 Auth Context Tests
+// --------------------
+describe('Auth Context', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    localStorage.clear();
   });
 
-  it('should provide authentication state to child components', () => {
-    function TestConsumer() {
-      const { isAuthenticated, user, role } = useAuth();
-      return (
-        <div>
-          <span data-testid="auth-status">{isAuthenticated ? 'authenticated' : 'not-authenticated'}</span>
-          <span data-testid="user-role">{role}</span>
-        </div>
-      );
+  it('default state is unauthenticated', () => {
+    function TestComponent() {
+      const { isAuthenticated } = useAuth();
+      return <span data-testid="status">{String(isAuthenticated)}</span>;
     }
 
-    render(
-      <TestWrapper>
-        <TestConsumer />
-      </TestWrapper>
-    );
+    renderWithProviders(<TestComponent />);
 
-    expect(screen.getByTestId('auth-status')).toHaveTextContent('not-authenticated');
+    expect(screen.getByTestId('status')).toHaveTextContent('false');
   });
 
-  it('should update auth state after login', async () => {
-    const { loginUser } = await import('../services/authService');
-    const { getMyProfile } = await import('../services/profileService');
+  it('updates after login', async () => {
+    loginUser.mockResolvedValue({ token: 'token', role: 'STUDENT' });
+    getMyProfile.mockResolvedValue({ id: 1 });
 
-    loginUser.mockResolvedValue({
-      token: 'test-token',
-      role: 'STUDENT'
-    });
-
-    getMyProfile.mockResolvedValue({
-      id: 1,
-      fullName: 'John Doe',
-      email: 'john@example.com'
-    });
-
-    function TestConsumer() {
+    function TestComponent() {
       const { isAuthenticated, login } = useAuth();
 
-      const handleLogin = async () => {
-        await login('test@example.com', 'password');
-      };
-
       return (
-        <div>
-          <span data-testid="auth-status">{isAuthenticated ? 'authenticated' : 'not-authenticated'}</span>
-          <button onClick={handleLogin} data-testid="login-btn">Login</button>
-        </div>
+        <>
+          <span data-testid="status">{String(isAuthenticated)}</span>
+          <button onClick={() => login('a', 'b')}>Login</button>
+        </>
       );
     }
 
-    render(
-      <TestWrapper>
-        <TestConsumer />
-      </TestWrapper>
-    );
+    renderWithProviders(<TestComponent />);
 
-    expect(screen.getByTestId('auth-status')).toHaveTextContent('not-authenticated');
-
-    await userEvent.click(screen.getByTestId('login-btn'));
+    await userEvent.click(screen.getByText(/login/i));
 
     await waitFor(() => {
-      expect(screen.getByTestId('auth-status')).toHaveTextContent('authenticated');
+      expect(screen.getByTestId('status')).toHaveTextContent('true');
     });
   });
 });
