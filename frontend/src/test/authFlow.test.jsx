@@ -10,6 +10,8 @@ import { AuthProvider, useAuth } from '../context/AuthContext';
 import LoginPage from '../pages/LoginPage';
 import RegisterPage from '../pages/RegisterPage';
 
+/* ---------------- helpers ---------------- */
+
 function createQueryClient() {
   return new QueryClient({
     defaultOptions: {
@@ -57,6 +59,8 @@ function renderWithProviders(
   );
 }
 
+/* ---------------- Login Flow ---------------- */
+
 describe('Login Flow Integration Tests', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
@@ -64,7 +68,7 @@ describe('Login Flow Integration Tests', () => {
     vi.spyOn(Storage.prototype, 'setItem');
   });
 
-  it('should display login form with email and password fields', () => {
+  it('renders login form', () => {
     renderWithProviders(
       <Routes>
         <Route path="/login" element={<LoginPage />} />
@@ -77,7 +81,7 @@ describe('Login Flow Integration Tests', () => {
     expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
   });
 
-  it('should show error message for invalid credentials', async () => {
+  it('shows error for invalid credentials', async () => {
     const authService = createAuthServiceMock({
       loginUser: vi.fn().mockRejectedValue(new Error('Invalid email or password')),
     });
@@ -96,15 +100,16 @@ describe('Login Flow Integration Tests', () => {
       screen.getByLabelText(/^password$/i, { selector: 'input' }),
       'wrongpassword'
     );
+
     await user.click(screen.getByRole('button', { name: /sign in/i }));
 
     expect(await screen.findByText(/invalid email or password/i)).toBeInTheDocument();
   });
 
-  it('should redirect to student dashboard on successful student login', async () => {
+  it('redirects student after login', async () => {
     const authService = createAuthServiceMock({
       loginUser: vi.fn().mockResolvedValue({
-        token: 'mock-student-token',
+        token: 'student-token',
         role: 'STUDENT',
       }),
     });
@@ -112,8 +117,8 @@ describe('Login Flow Integration Tests', () => {
     const profileService = createProfileServiceMock({
       getMyProfile: vi.fn().mockResolvedValue({
         id: 1,
-        fullName: 'John Doe',
-        email: 'john@example.com',
+        fullName: 'Student',
+        email: 'student@example.com',
       }),
     });
 
@@ -122,7 +127,7 @@ describe('Login Flow Integration Tests', () => {
         <Route path="/login" element={<LoginPage />} />
         <Route
           path="/student/hostels"
-          element={<div data-testid="student-dashboard">Student Dashboard</div>}
+          element={<div data-testid="student-dashboard" />}
         />
       </Routes>,
       { route: '/login', authService, profileService }
@@ -130,20 +135,21 @@ describe('Login Flow Integration Tests', () => {
 
     const user = userEvent.setup();
 
-    await user.type(screen.getByLabelText(/email address/i), 'student@example.com');
+    await user.type(screen.getByLabelText(/email address/i), 'student@test.com');
     await user.type(
       screen.getByLabelText(/^password$/i, { selector: 'input' }),
-      'correctpassword'
+      'password'
     );
+
     await user.click(screen.getByRole('button', { name: /sign in/i }));
 
     expect(await screen.findByTestId('student-dashboard')).toBeInTheDocument();
   });
 
-  it('should redirect to admin dashboard on successful admin login', async () => {
+  it('redirects admin after login', async () => {
     const authService = createAuthServiceMock({
       loginUser: vi.fn().mockResolvedValue({
-        token: 'mock-admin-token',
+        token: 'admin-token',
         role: 'ADMIN',
       }),
     });
@@ -151,7 +157,7 @@ describe('Login Flow Integration Tests', () => {
     const profileService = createProfileServiceMock({
       getMyProfile: vi.fn().mockResolvedValue({
         id: 1,
-        fullName: 'Admin User',
+        fullName: 'Admin',
         email: 'admin@example.com',
       }),
     });
@@ -159,27 +165,28 @@ describe('Login Flow Integration Tests', () => {
     renderWithProviders(
       <Routes>
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/admin" element={<div data-testid="admin-dashboard">Admin Dashboard</div>} />
+        <Route path="/admin" element={<div data-testid="admin-dashboard" />} />
       </Routes>,
       { route: '/login', authService, profileService }
     );
 
     const user = userEvent.setup();
 
-    await user.type(screen.getByLabelText(/email address/i), 'admin@example.com');
+    await user.type(screen.getByLabelText(/email address/i), 'admin@test.com');
     await user.type(
       screen.getByLabelText(/^password$/i, { selector: 'input' }),
-      'adminpassword'
+      'password'
     );
+
     await user.click(screen.getByRole('button', { name: /sign in/i }));
 
     expect(await screen.findByTestId('admin-dashboard')).toBeInTheDocument();
   });
 
-  it('should store token in localStorage on successful login', async () => {
+  it('stores token in localStorage', async () => {
     const authService = createAuthServiceMock({
       loginUser: vi.fn().mockResolvedValue({
-        token: 'test-token-123',
+        token: 'stored-token',
         role: 'STUDENT',
       }),
     });
@@ -187,34 +194,37 @@ describe('Login Flow Integration Tests', () => {
     const profileService = createProfileServiceMock({
       getMyProfile: vi.fn().mockResolvedValue({
         id: 1,
-        fullName: 'John Doe',
-        email: 'john@example.com',
+        fullName: 'User',
+        email: 'user@test.com',
       }),
     });
 
     renderWithProviders(
       <Routes>
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/student/hostels" element={<div>Hostels</div>} />
+        <Route path="/student/hostels" element={<div />} />
       </Routes>,
       { route: '/login', authService, profileService }
     );
 
     const user = userEvent.setup();
 
-    await user.type(screen.getByLabelText(/email address/i), 'test@example.com');
+    await user.type(screen.getByLabelText(/email address/i), 'user@test.com');
     await user.type(
       screen.getByLabelText(/^password$/i, { selector: 'input' }),
-      'password123'
+      'password'
     );
+
     await user.click(screen.getByRole('button', { name: /sign in/i }));
 
     await waitFor(() => {
-      expect(localStorage.setItem).toHaveBeenCalledWith('hms.token', 'test-token-123');
+      expect(localStorage.setItem).toHaveBeenCalledWith('hms.token', 'stored-token');
       expect(localStorage.setItem).toHaveBeenCalledWith('hms.role', 'STUDENT');
     });
   });
 });
+
+/* ---------------- Register Flow ---------------- */
 
 describe('Registration Flow Integration Tests', () => {
   beforeEach(() => {
@@ -222,7 +232,7 @@ describe('Registration Flow Integration Tests', () => {
     localStorage.clear();
   });
 
-  it('should display registration form with all required fields', () => {
+  it('renders registration form', () => {
     renderWithProviders(
       <Routes>
         <Route path="/register" element={<RegisterPage />} />
@@ -233,12 +243,12 @@ describe('Registration Flow Integration Tests', () => {
     expect(screen.getByLabelText(/full name/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/phone/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/gender/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/^password/i, { selector: 'input' })).toBeInTheDocument();
     expect(screen.getByLabelText(/confirm password/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/gender/i)).toBeInTheDocument();
   });
 
-  it('should show error for mismatched passwords', async () => {
+  it('shows error when passwords do not match', async () => {
     renderWithProviders(
       <Routes>
         <Route path="/register" element={<RegisterPage />} />
@@ -248,39 +258,55 @@ describe('Registration Flow Integration Tests', () => {
 
     const user = userEvent.setup();
 
+    /* required fields must be filled or form won't submit */
+    await user.type(screen.getByLabelText(/full name/i), 'John Doe');
+    await user.type(screen.getByLabelText(/email/i), 'john@example.com');
+    await user.type(screen.getByLabelText(/phone/i), '0240000000');
+    await user.selectOptions(screen.getByLabelText(/gender/i), 'MALE');
+
     await user.type(
-      screen.getByLabelText(/^password/i, { selector: 'input' }),
+      screen.getByLabelText(/^password$/i, { selector: 'input' }),
       'Password123'
     );
-    await user.type(screen.getByLabelText(/confirm password/i), 'DifferentPassword123');
+
+    await user.type(
+      screen.getByLabelText(/confirm password/i),
+      'WrongPassword'
+    );
+
     await user.click(screen.getByRole('button', { name: /create account/i }));
 
     expect(await screen.findByText(/passwords do not match/i)).toBeInTheDocument();
   });
 
-  it('should submit registration successfully', async () => {
+  it('submits registration successfully', async () => {
     const authService = createAuthServiceMock({
       registerUser: vi.fn().mockResolvedValue({ message: 'Success' }),
     });
 
     renderWithProviders(
-      <Routes>
-        <Route path="/register" element={<RegisterPage />} />
-      </Routes>,
-      { route: '/register', authService }
-    );
-
+  <Routes>
+    <Route path="/register" element={<RegisterPage />} />
+    <Route path="/login" element={<div data-testid="login-page">Login Page</div>} />
+  </Routes>,
+  { route: '/register', authService }
+);
     const user = userEvent.setup();
 
     await user.type(screen.getByLabelText(/full name/i), 'John Doe');
     await user.type(screen.getByLabelText(/email/i), 'john@example.com');
     await user.type(screen.getByLabelText(/phone/i), '0240000000');
+    await user.selectOptions(screen.getByLabelText(/gender/i), 'MALE');
+
     await user.type(
-      screen.getByLabelText(/^password/i, { selector: 'input' }),
+      screen.getByLabelText(/^password$/i, { selector: 'input' }),
       'Password123'
     );
-    await user.type(screen.getByLabelText(/confirm password/i), 'Password123');
-    await user.selectOptions(screen.getByLabelText(/gender/i), 'MALE');
+
+    await user.type(
+      screen.getByLabelText(/confirm password/i),
+      'Password123'
+    );
 
     await user.click(screen.getByRole('button', { name: /create account/i }));
 
@@ -290,6 +316,8 @@ describe('Registration Flow Integration Tests', () => {
   });
 });
 
+/* ---------------- Auth Context ---------------- */
+
 describe('Auth Context Integration Tests', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
@@ -297,29 +325,21 @@ describe('Auth Context Integration Tests', () => {
     vi.spyOn(Storage.prototype, 'setItem');
   });
 
-  it('should provide authentication state to child components', () => {
-    function TestConsumer() {
-      const { isAuthenticated, role } = useAuth();
-
-      return (
-        <div>
-          <span data-testid="auth-status">
-            {isAuthenticated ? 'authenticated' : 'not-authenticated'}
-          </span>
-          <span data-testid="user-role">{role ?? ''}</span>
-        </div>
-      );
+  it('default state is unauthenticated', () => {
+    function Consumer() {
+      const { isAuthenticated } = useAuth();
+      return <span data-testid="status">{String(isAuthenticated)}</span>;
     }
 
-    renderWithProviders(<TestConsumer />);
+    renderWithProviders(<Consumer />);
 
-    expect(screen.getByTestId('auth-status')).toHaveTextContent('not-authenticated');
+    expect(screen.getByTestId('status')).toHaveTextContent('false');
   });
 
-  it('should update auth state after login', async () => {
+  it('updates state after login', async () => {
     const authService = createAuthServiceMock({
       loginUser: vi.fn().mockResolvedValue({
-        token: 'test-token',
+        token: 'abc123',
         role: 'STUDENT',
       }),
     });
@@ -327,39 +347,37 @@ describe('Auth Context Integration Tests', () => {
     const profileService = createProfileServiceMock({
       getMyProfile: vi.fn().mockResolvedValue({
         id: 1,
-        fullName: 'John Doe',
-        email: 'john@example.com',
+        fullName: 'User',
       }),
     });
 
-    function TestConsumer() {
-      const { isAuthenticated, login } = useAuth();
-
-      const handleLogin = async () => {
-        await login('test@example.com', 'password');
-      };
+    function Consumer() {
+      const { login, isAuthenticated } = useAuth();
 
       return (
-        <div>
-          <span data-testid="auth-status">
-            {isAuthenticated ? 'authenticated' : 'not-authenticated'}
+        <>
+          <span data-testid="status">
+            {isAuthenticated ? 'yes' : 'no'}
           </span>
-          <button onClick={handleLogin} data-testid="login-btn">
-            Login
+
+          <button
+            data-testid="login-btn"
+            onClick={() => login('test@test.com', 'pass')}
+          >
+            login
           </button>
-        </div>
+        </>
       );
     }
 
-    renderWithProviders(<TestConsumer />, { authService, profileService });
+    renderWithProviders(<Consumer />, { authService, profileService });
 
-    expect(screen.getByTestId('auth-status')).toHaveTextContent('not-authenticated');
+    expect(screen.getByTestId('status')).toHaveTextContent('no');
 
-    const user = userEvent.setup();
-    await user.click(screen.getByTestId('login-btn'));
+    await userEvent.click(screen.getByTestId('login-btn'));
 
     await waitFor(() => {
-      expect(screen.getByTestId('auth-status')).toHaveTextContent('authenticated');
+      expect(screen.getByTestId('status')).toHaveTextContent('yes');
     });
   });
 });
