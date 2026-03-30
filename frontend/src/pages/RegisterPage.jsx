@@ -305,9 +305,9 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            <p className="mt-6 text-center text-xs text-white/40">
+            {/* <p className="mt-6 text-center text-xs text-white/40">
               © {new Date().getFullYear()} University Hostel Management System
-            </p>
+            </p> */}
           </div>
         </div>
       </div>
