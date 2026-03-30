@@ -1,4 +1,7 @@
+import React from 'react';
 import PropTypes from 'prop-types';
+import { Card } from '../../ui/Card';
+import { Text } from '../../ui/Text';
 
 /**
  * Stats card component for dashboard metrics
@@ -14,42 +17,32 @@ export function StatsCard({
   chart
 }) {
   return (
-    <div className="overflow-hidden rounded-[26px] border border-[#e3e9df] bg-[#fbfcfa] shadow-[0_14px_32px_rgba(15,23,42,0.05)] dark:border-[#223129] dark:bg-[#141a17]">
-      <div className={`h-1.5 w-full bg-gradient-to-r ${gradient}`} />
-      <div className="p-4 sm:p-5">
-        <div className="mb-3 flex items-center justify-between">
-          <p className="text-xs font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-500">
-            {label}
-          </p>
+    <Card style={{ overflow: 'hidden', borderRadius: 26, padding: 0 }}>
+      <div style={{ height: 6, width: '100%', background: 'linear-gradient(to right, #2563eb, #1d4ed8)' }} />
+      <div style={{ padding: '1.25rem' }}>
+        <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Text size="sm" weight="bold" style={{ textTransform: 'uppercase', letterSpacing: '0.08em', color: '#94a3b8' }}>{label}</Text>
           {Icon && (
-            <div className={`flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br ${gradient} text-white shadow-md`}>
-              <Icon className="text-xs" />
+            <div style={{ display: 'flex', height: 40, width: 40, alignItems: 'center', justifyContent: 'center', borderRadius: '50%', background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', color: '#fff', boxShadow: '0 2px 8px rgba(37,99,235,0.12)' }}>
+              <Icon style={{ fontSize: 16 }} />
             </div>
           )}
         </div>
-        <div className="mb-2">
-          <p className="text-2xl sm:text-3xl font-extrabold text-neutral-900 dark:text-white">{value}</p>
-          <p className="mt-0.5 text-xs sm:text-sm text-neutral-500 dark:text-neutral-400">{subtext}</p>
+        <div style={{ marginBottom: 8 }}>
+          <Text as="p" size="xxl" weight="extrabold" style={{ color: '#1e293b' }}>{value}</Text>
+          <Text as="p" size="sm" style={{ marginTop: 4, color: '#64748b' }}>{subtext}</Text>
         </div>
-
         {trend && (
-          <div className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${
-            trend > 0
-              ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-              : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-          }`}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, borderRadius: 9999, padding: '2px 8px', fontSize: 13, fontWeight: 500, background: trend > 0 ? '#d1fae5' : '#fee2e2', color: trend > 0 ? '#047857' : '#b91c1c' }}>
             <span>{trend > 0 ? '↑' : '↓'} {Math.abs(trend)}%</span>
-            {trendLabel && <span className="text-neutral-600 dark:text-neutral-400">{trendLabel}</span>}
+            {trendLabel && <span style={{ color: '#64748b' }}>{trendLabel}</span>}
           </div>
         )}
-
         {chart && (
-          <div className="mt-3 h-10">
-            {chart}
-          </div>
+          <div style={{ marginTop: 12, height: 40 }}>{chart}</div>
         )}
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -69,27 +62,27 @@ StatsCard.propTypes = {
  */
 export function MiniStatsCard({ label, value, icon: Icon, color = 'primary' }) {
   const colorMap = {
-    primary: 'text-primary-600 bg-primary-50 dark:text-primary-400 dark:bg-primary-900/20',
-    emerald: 'text-emerald-600 bg-emerald-50 dark:text-emerald-400 dark:bg-emerald-900/20',
-    red: 'text-red-600 bg-red-50 dark:text-red-400 dark:bg-red-900/20',
-    yellow: 'text-yellow-600 bg-yellow-50 dark:text-yellow-400 dark:bg-yellow-900/20',
-    blue: 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/20'
+    primary: { color: '#2563eb', bg: '#eff6ff' },
+    emerald: { color: '#059669', bg: '#ecfdf5' },
+    red: { color: '#dc2626', bg: '#fee2e2' },
+    yellow: { color: '#ca8a04', bg: '#fef9c3' },
+    blue: { color: '#2563eb', bg: '#dbeafe' }
   };
-
+  const c = colorMap[color] || colorMap.primary;
   return (
-    <div className="rounded-[24px] border border-[#e3e9df] bg-[#fbfcfa] p-4 shadow-[0_12px_28px_rgba(15,23,42,0.04)] dark:border-[#223129] dark:bg-[#141a17]">
-      <div className="flex items-center gap-2.5">
+    <Card style={{ borderRadius: 24, padding: 16 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         {Icon && (
-          <div className={`flex h-11 w-11 items-center justify-center rounded-full ${colorMap[color]}`}>
-            <Icon className="text-lg" />
+          <div style={{ display: 'flex', height: 44, width: 44, alignItems: 'center', justifyContent: 'center', borderRadius: '50%', background: c.bg, color: c.color }}>
+            <Icon style={{ fontSize: 20 }} />
           </div>
         )}
         <div>
-          <p className="text-xs font-medium text-neutral-600 dark:text-neutral-400">{label}</p>
-          <p className="text-lg font-bold text-neutral-900 dark:text-white">{value}</p>
+          <Text size="sm" style={{ color: '#64748b', fontWeight: 500 }}>{label}</Text>
+          <Text size="xl" weight="bold" style={{ color: '#1e293b' }}>{value}</Text>
         </div>
       </div>
-    </div>
+    </Card>
   );
 }
 

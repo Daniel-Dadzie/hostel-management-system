@@ -1,4 +1,6 @@
 import PropTypes from 'prop-types';
+import { Card } from '../../ui/Card.jsx';
+import { Text } from '../../ui/Text.jsx';
 
 export default function ApplyResultCard({ result, onViewBooking, onApplyAgain }) {
   const isSuccess = result.status !== 'REJECTED';
@@ -8,31 +10,31 @@ export default function ApplyResultCard({ result, onViewBooking, onApplyAgain })
 
   return (
     <div className="mx-auto max-w-lg">
-      <div className={`card ${cardClass}`}>
+      <Card style={{ border: '1px solid', borderColor: isSuccess ? '#6ee7b7' : '#fca5a5', margin: 0 }}>
         <div className="text-center">
           <div className={`mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full ${iconClass}`}>
             <span className="text-3xl">{isSuccess ? '✅' : '❌'}</span>
           </div>
 
-          <h2 className={`card-header ${titleClass}`}>
+          <Text as="h2" size="xl" weight="bold" style={{ color: isSuccess ? '#059669' : '#dc2626' }}>
             {isSuccess ? 'Application Submitted!' : 'Application Rejected'}
-          </h2>
+          </Text>
 
-          <p className="body-text mt-2 text-neutral-600 dark:text-neutral-400">
+          <Text size="base" style={{ marginTop: 8, color: '#52525b' }}>
             {isSuccess
               ? 'Your hostel application has been submitted successfully.'
               : 'Unfortunately, no rooms are available matching your preferences.'}
-          </p>
+          </Text>
 
           {isSuccess && result.hostelName ? (
             <div className="mt-4 rounded-lg bg-neutral-50 p-4 dark:bg-neutral-800">
-              <p className="body-text text-neutral-500 dark:text-neutral-400">Allocated Room</p>
-              <p className="card-header text-neutral-900 dark:text-white">
+              <Text size="sm" style={{ color: '#6b7280' }}>Allocated Room</Text>
+              <Text as="h3" size="lg" weight="bold" style={{ color: '#18181b' }}>
                 {result.hostelName} - Room {result.roomNumber}
-              </p>
-              <p className="mt-2 text-sm text-yellow-600 dark:text-yellow-400">
+              </Text>
+              <Text size="sm" style={{ marginTop: 8, color: '#ca8a04' }}>
                 Status: {result.status?.replace('_', ' ')}
-              </p>
+              </Text>
             </div>
           ) : null}
 
@@ -48,7 +50,7 @@ export default function ApplyResultCard({ result, onViewBooking, onApplyAgain })
             </button>
           </div>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

@@ -180,7 +180,6 @@ export default function ApplyHostelPage() {
       const data = await applyForHostel(payload);
       setResult(data);
     } catch (err) {
-      // Intercept backend error for booking restriction
       if (
         err.message &&
         (err.message.includes('already have an allocated room') ||
@@ -216,9 +215,9 @@ export default function ApplyHostelPage() {
 
   if (allocatedBooking) {
     return (
-      <div className="card">
-        <h2 className="card-header text-neutral-900 dark:text-white">Room Allocation Confirmed</h2>
-        <p className="section-subtitle mt-2 text-red-600 dark:text-red-400 font-semibold">
+      <div className="card p-6">
+        <h2 className="text-xl font-bold text-neutral-900 dark:text-white">Room Allocation Confirmed</h2>
+        <p className="mt-2 font-semibold text-red-600">
           You already have an allocated room. You cannot apply for another hostel until your current booking is cancelled or expired.
         </p>
         <div className="mt-4">

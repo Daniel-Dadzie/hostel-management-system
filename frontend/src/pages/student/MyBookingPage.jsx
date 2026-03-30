@@ -1,9 +1,12 @@
+
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getMyBooking } from '../../services/studentService.js';
 import { toastService } from '../../hooks/useToast.js';
 import PaymentCountdown from '../../components/student/PaymentCountdown.jsx';
 import BookingProgressTimeline from '../../components/student/BookingProgressTimeline.jsx';
+import { Card } from '../../ui/Card.jsx';
+import { Text } from '../../ui/Text.jsx';
 
 export default function MyBookingPage() {
   const [booking, setBooking] = useState(null);
@@ -129,17 +132,17 @@ export default function MyBookingPage() {
       <h1 className="page-title mb-6 text-neutral-900 dark:text-white">My Booking</h1>
 
       {/* Status Card */}
-      <div className={`card ${status.color}`}>
+      <Card style={{ border: status.color ? `2px solid var(--tw-${status.color})` : undefined }}>
         <div className="flex items-center gap-4">
           <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/50 dark:bg-black/20">
             <span className="text-3xl">{status.icon}</span>
           </div>
           <div>
-            <h2 className="card-header">{status.title}</h2>
-            <p className="body-text opacity-80">{status.description}</p>
+            <Text as="h2" size="xl" weight="bold">{status.title}</Text>
+            <Text size="base" style={{ opacity: 0.8 }}>{status.description}</Text>
           </div>
         </div>
-      </div>
+      </Card>
 
       {/* Payment Countdown Timer */}
       {booking?.status === 'PENDING_PAYMENT' && booking?.paymentDueAt && (
@@ -160,66 +163,57 @@ export default function MyBookingPage() {
 
       {/* Booking Details */}
       {booking && (
-        <div className="mt-6 card">
-          <h3 className="card-header mb-4 text-neutral-900 dark:text-white">Booking Details</h3>
-          
+        <Card style={{ marginTop: 24 }}>
+          <Text as="h3" size="lg" weight="bold" style={{ marginBottom: 16, color: '#18181b' }}>Booking Details</Text>
           <div className="space-y-4">
             <div className="flex justify-between border-b border-neutral-200 pb-3 dark:border-neutral-700">
-              <span className="text-neutral-500 dark:text-neutral-400">Booking ID</span>
-              <span className="font-medium text-neutral-900 dark:text-white">#{booking.id}</span>
+              <Text size="sm" style={{ color: '#6b7280' }}>Booking ID</Text>
+              <Text size="base" weight="medium">#{booking.id}</Text>
             </div>
-
             {booking.hostelName && (
               <div className="flex justify-between border-b border-neutral-200 pb-3 dark:border-neutral-700">
-                <span className="text-neutral-500 dark:text-neutral-400">Hostel</span>
-                <span className="font-medium text-neutral-900 dark:text-white">{booking.hostelName}</span>
+                <Text size="sm" style={{ color: '#6b7280' }}>Hostel</Text>
+                <Text size="base" weight="medium">{booking.hostelName}</Text>
               </div>
             )}
-
             {booking.roomNumber && (
               <div className="flex justify-between border-b border-neutral-200 pb-3 dark:border-neutral-700">
-                <span className="text-neutral-500 dark:text-neutral-400">Room Number</span>
-                <span className="font-medium text-neutral-900 dark:text-white">{booking.roomNumber}</span>
+                <Text size="sm" style={{ color: '#6b7280' }}>Room Number</Text>
+                <Text size="base" weight="medium">{booking.roomNumber}</Text>
               </div>
             )}
-
             {booking.paymentDueAt && booking.status === 'PENDING_PAYMENT' && (
               <div className="flex justify-between border-b border-neutral-200 pb-3 dark:border-neutral-700">
-                <span className="text-neutral-500 dark:text-neutral-400">Payment Due</span>
-                <span className="font-medium text-red-600 dark:text-red-400">
-                  {new Date(booking.paymentDueAt).toLocaleString()}
-                </span>
+                <Text size="sm" style={{ color: '#6b7280' }}>Payment Due</Text>
+                <Text size="base" weight="medium" style={{ color: '#dc2626' }}>{new Date(booking.paymentDueAt).toLocaleString()}</Text>
               </div>
             )}
-
             <div className="flex justify-between">
-              <span className="text-neutral-500 dark:text-neutral-400">Status</span>
+              <Text size="sm" style={{ color: '#6b7280' }}>Status</Text>
               <span className={`rounded-full px-3 py-1 text-sm font-medium ${status.color}`}>
                 {booking.status?.replace('_', ' ')}
               </span>
             </div>
           </div>
-        </div>
+        </Card>
       )}
 
       {/* Payment Action */}
       {booking?.status === 'PENDING_PAYMENT' && (
-        <div className="mt-6 card bg-primary-50 dark:bg-primary-900/20">
+        <Card style={{ marginTop: 24, background: 'var(--color-primary-50)', color: 'var(--color-primary-900)' }}>
           <div className="flex items-center gap-4">
             <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary-700 text-white">
               <span className="text-xl">💳</span>
             </div>
             <div className="flex-1">
-              <h3 className="card-header text-neutral-900 dark:text-white">Complete Payment</h3>
-              <p className="body-text text-neutral-600 dark:text-neutral-400">
-                Pay now to confirm your booking
-              </p>
+              <Text as="h3" size="lg" weight="bold" style={{ color: '#18181b' }}>Complete Payment</Text>
+              <Text size="base" style={{ color: '#52525b' }}>Pay now to confirm your booking</Text>
             </div>
             <Link to="/student/payments" className="btn-primary">
               Pay Now
             </Link>
           </div>
-        </div>
+        </Card>
       )}
     </div>
   );

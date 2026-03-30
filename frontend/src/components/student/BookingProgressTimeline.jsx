@@ -1,5 +1,6 @@
-import { FaCheck, FaClock, FaUser, FaHome } from 'react-icons/fa';
-import { MdCheckCircle } from 'react-icons/md';
+import { FaCheck, FaClock } from 'react-icons/fa';
+import { Card } from '../../ui/Card.jsx';
+import { Text } from '../../ui/Text.jsx';
 
 /**
  * BookingProgressTimeline Component
@@ -22,7 +23,8 @@ export default function BookingProgressTimeline({ booking }) {
       return { currentStep: 1, completedSteps: [0] };
     }
     if (status === 'APPROVED') {
-      return { currentStep: 3, completedSteps: [0, 1, 2] };
+      // Mark all steps as completed for 100% progress
+      return { currentStep: 3, completedSteps: [0, 1, 2, 3] };
     }
     if (status === 'REJECTED' || status === 'EXPIRED' || status === 'CANCELLED') {
       return { currentStep: -1, completedSteps: [0], failedStep: 1 };
@@ -68,8 +70,8 @@ export default function BookingProgressTimeline({ booking }) {
   const isFailed = (stepNum) => failedStep === stepNum;
 
   return (
-    <div className="card">
-      <h3 className="card-header mb-6 text-neutral-900 dark:text-white">Booking Progress</h3>
+    <Card>
+      <Text as="h3" size="lg" weight="bold" style={{ marginBottom: 24, color: '#18181b' }}>Booking Progress</Text>
 
       <div className="space-y-6">
         {steps.map((step, idx) => (
@@ -91,7 +93,7 @@ export default function BookingProgressTimeline({ booking }) {
                   {isCompleted(step.number) ? (
                     <FaCheck className="text-lg" />
                   ) : isFailed(step.number) ? (
-                    '✕'
+                    '\u2715'
                   ) : (
                     step.number
                   )}
@@ -179,6 +181,6 @@ export default function BookingProgressTimeline({ booking }) {
           />
         </div>
       </div>
-    </div>
+    </Card>
   );
 }

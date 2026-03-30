@@ -1,4 +1,7 @@
+import React from 'react';
 import PropTypes from 'prop-types';
+import { Card } from '../../ui/Card';
+import { Text } from '../../ui/Text';
 
 export function formatStatusLabel(value) {
   return value?.replaceAll('_', ' ') || 'Unknown';
@@ -29,29 +32,38 @@ DashboardPanel.propTypes = {
 
 export function MetricCard({ label, value, sub, icon: Icon, progress }) {
   return (
-    <div
-      className="card flex h-full flex-col justify-between rounded-[26px] p-5 shadow-[0_14px_30px_rgba(15,23,42,0.05)] dark:shadow-[0_20px_40px_rgba(0,0,0,0.32)] transition-all duration-200 border border-[#e3e9df] dark:border-[#223129] bg-[#fbfcfa] dark:bg-[#141a17] cursor-pointer group hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:shadow-[0_18px_40px_rgba(15,107,70,0.18)]"
-    >
-      <div className="mb-6 flex flex-col items-center justify-center gap-3">
-        <div className="flex h-11 w-11 items-center justify-center rounded-full border border-[#dde8df] bg-[#f5faf6] text-[#0f6b46] dark:border-white/10 dark:bg-[linear-gradient(180deg,#2b2e34_0%,#202227_100%)] dark:text-[#9fc3ff] group-hover:bg-emerald-100 group-hover:text-emerald-700 dark:group-hover:bg-emerald-900/40 dark:group-hover:text-emerald-300 transition-colors">
-          <Icon className="text-xl" />
+    <Card style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%', borderRadius: 26, cursor: 'pointer' }}>
+      <div style={{ marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
+        <div style={{
+          display: 'flex',
+          height: 44,
+          width: 44,
+          alignItems: 'center',
+          justifyContent: 'center',
+          borderRadius: '50%',
+          border: '1px solid #dde8df',
+          background: '#f5faf6',
+          color: '#0f6b46',
+          marginBottom: 0,
+        }}>
+          <Icon style={{ fontSize: 22 }} />
         </div>
-        <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-neutral-400 dark:text-white/36 text-center">{label}</p>
-        <p className="mt-2 text-[2.15rem] font-black leading-none tracking-[-0.06em] text-neutral-900 dark:text-white text-center">{value}</p>
+        <Text size="sm" weight="bold" style={{ textTransform: 'uppercase', letterSpacing: '0.24em', color: '#94a3b8', textAlign: 'center', fontSize: 11 }}>{label}</Text>
+        <Text as="p" size="xxxl" weight="extrabold" style={{ marginTop: 8, letterSpacing: '-0.06em', textAlign: 'center', color: '#1e293b', lineHeight: 1 }}>{value}</Text>
       </div>
-      <p className="text-sm text-neutral-500 dark:text-white/56 text-center">{sub}</p>
-      {progress !== null && progress !== undefined ? (
-        <div className="mt-5">
-          <div className="mb-2 flex items-center justify-between text-xs font-semibold text-neutral-500 dark:text-white/56">
+      <Text size="base" style={{ color: '#64748b', textAlign: 'center', fontSize: 14 }}>{sub}</Text>
+      {(progress !== null && progress !== undefined) ? (
+        <div style={{ marginTop: 20 }}>
+          <div style={{ marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 13, fontWeight: 600, color: '#64748b' }}>
             <span>Occupancy progress</span>
-            <span className="text-[#0f6b46] dark:text-[#9fc3ff]">{progress}%</span>
+            <span style={{ color: '#0f6b46' }}>{progress}%</span>
           </div>
-          <div className="h-2 overflow-hidden rounded-full bg-neutral-100 dark:bg-[#2a2d33]">
-            <div className="h-full rounded-full bg-[#0f6b46] dark:bg-[linear-gradient(90deg,#428bff_0%,#1bb2aa_100%)]" style={{ width: `${progress}%` }} />
+          <div style={{ height: 8, overflow: 'hidden', borderRadius: 8, background: '#f1f5f9' }}>
+            <div style={{ height: '100%', borderRadius: 8, background: '#0f6b46', width: `${progress}%` }} />
           </div>
         </div>
       ) : null}
-    </div>
+    </Card>
   );
 }
 
@@ -60,6 +72,5 @@ MetricCard.propTypes = {
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
   sub: PropTypes.string.isRequired,
   icon: PropTypes.elementType.isRequired,
-  progress: PropTypes.number,
-  featured: PropTypes.bool
+  progress: PropTypes.number
 };

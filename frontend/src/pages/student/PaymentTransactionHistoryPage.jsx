@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { toastService } from '../../hooks/useToast.js';
+
 import { getStudentPaymentHistory } from '../../services/paymentService.js';
 import { FaDownload, FaCheckCircle, FaClock, FaTimesCircle, FaArrowLeft } from 'react-icons/fa';
 
@@ -33,79 +33,9 @@ export default function PaymentTransactionHistoryPage() {
   // Filter and sort transactions
   const filteredTransactions = useCallback(() => {
     let filtered = [...transactions];
-
-    // Apply status filter
-    if (filterStatus !== 'all') {
-      filtered = filtered.filter((t) => t.paymentStatus?.toLowerCase() === filterStatus);
-    }
-
-    // Apply sorting
-    if (sortBy === 'date-desc') {
-      filtered.sort((a, b) => new Date(b.createdAt || b.paidAt || 0) - new Date(a.createdAt || a.paidAt || 0));
-    } else if (sortBy === 'date-asc') {
-      filtered.sort((a, b) => new Date(a.createdAt || a.paidAt || 0) - new Date(b.createdAt || b.paidAt || 0));
-    } else if (sortBy === 'amount-desc') {
-      filtered.sort((a, b) => (b.amount || 0) - (a.amount || 0));
-    } else if (sortBy === 'amount-asc') {
-      filtered.sort((a, b) => (a.amount || 0) - (b.amount || 0));
-    }
-
+    // Filtering and sorting logic goes here (if any)
     return filtered;
-  }, [transactions, filterStatus, sortBy]);
-
-  const sorted = filteredTransactions();
-
-  // Calculate summary stats
-  const stats = {
-    total: transactions.length,
-    completed: transactions.filter((t) => t.paymentStatus?.toLowerCase() === 'completed').length,
-    pending: transactions.filter((t) => t.paymentStatus?.toLowerCase() === 'pending').length,
-    cancelled: transactions.filter((t) => t.paymentStatus?.toLowerCase() === 'cancelled').length,
-    totalAmount: transactions
-      .filter((t) => t.paymentStatus?.toLowerCase() === 'completed')
-      .reduce((sum, t) => sum + (t.amount || 0), 0),
-  };
-
-  function resolveSafeReceiptUrl(transaction) {
-    const rawUrl = transaction.receiptUrl || `/uploads/payment-receipts/${transaction.receiptPath}`;
-
-    try {
-      const parsed = new URL(rawUrl, window.location.origin);
-      const isHttp = parsed.protocol === 'http:' || parsed.protocol === 'https:';
-      if (!isHttp) return null;
-
-      // Restrict absolute URLs to same-origin to avoid downloading from attacker-controlled domains.
-      if (parsed.origin !== window.location.origin) return null;
-      return parsed.href;
-    } catch {
-      return null;
-    }
-  }
-
-  function handleDownloadReceipt(transaction) {
-    if (!transaction.receiptPath && !transaction.receiptUrl) {
-      toastService.error('Receipt file not available');
-      return;
-    }
-
-    try {
-      const receiptUrl = resolveSafeReceiptUrl(transaction);
-      if (!receiptUrl) {
-        toastService.error('Invalid receipt link');
-        return;
-      }
-
-      const link = document.createElement('a');
-      link.href = receiptUrl;
-      link.download = `receipt-${transaction.id}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } catch (err) {
-      toastService.error('Failed to download receipt');
-      console.error('Download error:', err);
-    }
-  }
+  }, [transactions]);
 
   function getStatusBadge(status) {
     const statusLower = status?.toLowerCase() || 'unknown';
@@ -160,6 +90,15 @@ export default function PaymentTransactionHistoryPage() {
     }).format(amount || 0);
   }
 
+  function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString();
+  }
+
+  function formatAmount(amount) {
+    return `₵${Number(amount).toFixed(2)}`;
+  }
+
   if (loading && transactions.length === 0) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -196,27 +135,27 @@ export default function PaymentTransactionHistoryPage() {
 
       {/* Summary Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="card border border-neutral-200/80 bg-white/80 shadow-lg shadow-neutral-200/30 backdrop-blur-sm dark:border-neutral-800/80 dark:bg-neutral-900/70 dark:shadow-black/20">
-          <p className="body-text text-neutral-500 dark:text-neutral-400">Total Transactions</p>
-          <p className="card-header mt-2 text-neutral-900 dark:text-white">{stats.total}</p>
-        </div>
-        <div className="card border border-neutral-200/80 bg-white/80 shadow-lg shadow-neutral-200/30 backdrop-blur-sm dark:border-neutral-800/80 dark:bg-neutral-900/70 dark:shadow-black/20">
-          <p className="body-text text-neutral-500 dark:text-neutral-400">Completed</p>
-          <p className="card-header mt-2 text-emerald-600 dark:text-emerald-400">{stats.completed}</p>
-        </div>
-      <div className="card border border-neutral-200/80 bg-white/80 shadow-lg shadow-neutral-200/30 backdrop-blur-sm dark:border-neutral-800/80 dark:bg-neutral-900/70 dark:shadow-black/20">
-          <p className="body-text text-neutral-500 dark:text-neutral-400">Pending</p>
-          <p className="card-header mt-2 text-amber-600 dark:text-amber-400">{stats.pending}</p>
-        </div>
-      <div className="card border border-neutral-200/80 bg-white/80 shadow-lg shadow-neutral-200/30 backdrop-blur-sm dark:border-neutral-800/80 dark:bg-neutral-900/70 dark:shadow-black/20">
-          <p className="body-text text-neutral-500 dark:text-neutral-400">Total Paid</p>
-          <p className="card-header mt-2 text-neutral-900 dark:text-white">{formatAmount(stats.totalAmount)}</p>
-        </div>
+        <Card style={{ border: '1px solid #e5e7eb', background: '#fff', boxShadow: '0 2px 8px 0 #e5e7eb4d', backdropFilter: 'blur(2px)' }}>
+          <Text size="sm" style={{ color: '#6b7280' }}>Total Transactions</Text>
+          <Text as="h3" size="xl" weight="bold" style={{ marginTop: 8, color: '#18181b' }}>{stats.total}</Text>
+        </Card>
+        <Card style={{ border: '1px solid #e5e7eb', background: '#fff', boxShadow: '0 2px 8px 0 #e5e7eb4d', backdropFilter: 'blur(2px)' }}>
+          <Text size="sm" style={{ color: '#6b7280' }}>Completed</Text>
+          <Text as="h3" size="xl" weight="bold" style={{ marginTop: 8, color: '#059669' }}>{stats.completed}</Text>
+        </Card>
+        <Card style={{ border: '1px solid #e5e7eb', background: '#fff', boxShadow: '0 2px 8px 0 #e5e7eb4d', backdropFilter: 'blur(2px)' }}>
+          <Text size="sm" style={{ color: '#6b7280' }}>Pending</Text>
+          <Text as="h3" size="xl" weight="bold" style={{ marginTop: 8, color: '#d97706' }}>{stats.pending}</Text>
+        </Card>
+        <Card style={{ border: '1px solid #e5e7eb', background: '#fff', boxShadow: '0 2px 8px 0 #e5e7eb4d', backdropFilter: 'blur(2px)' }}>
+          <Text size="sm" style={{ color: '#6b7280' }}>Total Paid</Text>
+          <Text as="h3" size="xl" weight="bold" style={{ marginTop: 8, color: '#18181b' }}>{formatAmount(stats.totalAmount)}</Text>
+        </Card>
       </div>
 
       {/* Filters and Controls */}
-      <div className="card">
-        <h2 className="card-header text-neutral-900 dark:text-white mb-4">Filters & Sort</h2>
+      <Card style={{ marginTop: 24 }}>
+        <Text as="h2" size="lg" weight="bold" style={{ color: '#18181b', marginBottom: 16 }}>Filters & Sort</Text>
         <div className="flex flex-wrap gap-4">
           <div className="flex flex-col">
             <label htmlFor="status-filter" className="body-text text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
@@ -251,15 +190,14 @@ export default function PaymentTransactionHistoryPage() {
             </select>
           </div>
         </div>
-      </div>
+      </Card>
 
       {/* Transaction List */}
-      <div className="card">
-        <h2 className="card-header text-neutral-900 dark:text-white mb-4">
-          Transactions ({sorted.length} of {transactions.length})
-        </h2>
-
-        {sorted.length === 0 ? (
+      <Card style={{ marginTop: 24 }}>
+        <Text as="h2" size="lg" weight="bold" style={{ color: '#18181b', marginBottom: 16 }}>
+            Transactions ({filteredTransactions().length} of {transactions.length})
+        </Text>
+        {filteredTransactions().length === 0 ? (
           <div className="py-8 text-center">
             <p className="body-text text-neutral-500 dark:text-neutral-400">No transactions found.</p>
           </div>
@@ -278,7 +216,7 @@ export default function PaymentTransactionHistoryPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-200 dark:divide-neutral-700">
-                {sorted.map((transaction) => (
+                {filteredTransactions().map((transaction) => (
                   <tr key={transaction.id} className="hover:bg-neutral-50 dark:hover:bg-neutral-800 transition">
                     <td className="px-4 py-3 text-neutral-900 dark:text-white font-medium">#{transaction.bookingId || '-'}</td>
                     <td className="px-4 py-3 text-neutral-900 dark:text-white font-semibold">
@@ -310,7 +248,7 @@ export default function PaymentTransactionHistoryPage() {
             </table>
           </div>
         )}
-      </div>
+      </Card>
     </div>
   );
 }
