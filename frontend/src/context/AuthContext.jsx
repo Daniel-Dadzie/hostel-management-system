@@ -1,14 +1,19 @@
 import PropTypes from 'prop-types';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { loginUser, registerUser, forgotPassword as fp, resetPassword as rp } from '../services/authService.js';
-import { getMyProfile } from '../services/profileService.js';
+import * as defaultAuthService from '../services/authService.js';
+import * as defaultProfileService from '../services/profileService.js';
 
 const AuthContext = createContext(null);
+
 const TOKEN_KEY = 'hms.token';
 const REFRESH_TOKEN_KEY = 'hms.refreshToken';
 const ROLE_KEY = 'hms.role';
 
-export function AuthProvider({ children }) {
+export function AuthProvider({
+  children,
+  authService = defaultAuthService,
+  profileService = defaultProfileService,
+}) {
   const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY) || '');
   const [role, setRole] = useState(() => localStorage.getItem(ROLE_KEY) || '');
   const [user, setUser] = useState(null);
@@ -27,10 +32,9 @@ export function AuthProvider({ children }) {
 
   const loadProfile = useCallback(async () => {
     try {
-      const data = await getMyProfile();
+      const data = await profileService.getMyProfile();
       setUser(data);
     } catch (error) {
-      // Only logout on auth failures (401/403), not network errors
       if (error?.response?.status === 401 || error?.response?.status === 403) {
         logout();
       } else {
@@ -39,38 +43,46 @@ export function AuthProvider({ children }) {
     } finally {
       setLoading(false);
     }
-  }, [logout]);
+  }, [profileService, logout]);
 
   useEffect(() => {
     if (!token) {
       setLoading(false);
       return;
     }
-
     loadProfile();
-  }, [token, role, loadProfile]);
+  }, [token, loadProfile]);
 
   async function login(email, password) {
-    const data = await loginUser(email, password);
-    // Handle new token format with accessToken and refreshToken
+    const data = await authService.loginUser(email, password);
+
     const accessToken = data.accessToken || data.token;
     const refreshToken = data.refreshToken;
+
     setToken(accessToken);
     setRole(data.role);
+
     localStorage.setItem(TOKEN_KEY, accessToken);
     if (refreshToken) {
       localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
     }
     localStorage.setItem(ROLE_KEY, data.role);
+
     await loadProfile();
     return data;
   }
 
-  const register = registerUser;
+  async function register(userData) {
+    return authService.registerUser(userData);
+  }
 
-  const forgotPassword = fp;
+  async function forgotPassword(email) {
+    return authService.forgotPassword(email);
+  }
 
-  const resetPassword = rp;
+  async function resetPassword(tokenValue, newPassword) {
+    return authService.resetPassword(tokenValue, newPassword);
+  }
 
   const value = useMemo(
     () => ({
@@ -86,9 +98,9 @@ export function AuthProvider({ children }) {
       setUser,
       forgotPassword,
       resetPassword,
-      getAuthHeaders: () => ({ Authorization: `Bearer ${token}` })
+      getAuthHeaders: () => ({ Authorization: `Bearer ${token}` }),
     }),
-    [token, role, user, isAuthenticated, loading, logout, loadProfile]
+    [token, role, user, isAuthenticated, loading, loadProfile, logout]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -105,5 +117,14 @@ export function useAuth() {
 export default AuthContext;
 
 AuthProvider.propTypes = {
-  children: PropTypes.node.isRequired
+  children: PropTypes.node.isRequired,
+  authService: PropTypes.shape({
+    loginUser: PropTypes.func,
+    registerUser: PropTypes.func,
+    forgotPassword: PropTypes.func,
+    resetPassword: PropTypes.func,
+  }),
+  profileService: PropTypes.shape({
+    getMyProfile: PropTypes.func,
+  }),
 };
