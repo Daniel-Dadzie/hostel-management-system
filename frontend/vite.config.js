@@ -94,7 +94,17 @@ export default defineConfig(() => {
     test: {
       environment: 'jsdom',
       globals: true,
-      setupFiles: './src/test/setup.js'
+      setupFiles: './src/test/setup.js',
+      coverage: {
+        provider: 'v8',
+        reporter: ['text', 'lcov', 'html'],
+        include: ['src/**/*.{js,jsx}'],
+        exclude: [
+          'src/test/**',
+          'src/main.jsx',
+          'src/index.css',
+        ],
+      },
     },
     server: {
       host: '0.0.0.0',
