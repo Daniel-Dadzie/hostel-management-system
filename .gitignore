@@ -34,6 +34,16 @@ frontend/dist/
 frontend/.vite/
 frontend/.cache/
 
+# --- Root-level node_modules (if any) ---
+node_modules/
+
+# --- Test coverage artifacts ---
+coverage/
+**/*.lcov
+.nyc_output/
+frontend/coverage/
+backend/app/target/site/jacoco/
+
 # --- Misc ---
 .dist/
 
