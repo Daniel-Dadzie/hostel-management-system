@@ -12,9 +12,9 @@ import {
   FaUsers,
   FaWifi,
 } from 'react-icons/fa';
-import { toastService } from '../../hooks/useToast.js';
 import { listStudentHostelRooms, listStudentHostels } from '../../services/hostelService.js';
 import { applyForHostel } from '../../services/studentService.js';
+import ApplyResultCard from '../../components/student/ApplyResultCard.jsx';
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
@@ -114,6 +114,8 @@ export default function ConfirmBookingPage() {
   const [room,   setRoom]   = useState(null);
   const [loading, setLoading] = useState(true);
   const [error,   setError]  = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [result, setResult] = useState(null);
 
   useEffect(() => {
     async function load() {
@@ -146,10 +148,45 @@ export default function ConfirmBookingPage() {
     }
   }
 
-  function goConfirm() {
-    navigate(
-      `/student/apply?hostelId=${hostelId}&floorNumber=${floorNumber}&roomId=${roomId}`
-    );
+  async function handleSubmit() {
+    if (!room || submitting) return;
+    setError('');
+    setSubmitting(true);
+
+    try {
+      const payload = {
+        hostelId: hostelId ? Number(hostelId) : null,
+        floorNumber: floorNumber ? Number(floorNumber) : null,
+        roomId: roomId ? Number(roomId) : null,
+        hasAc: Boolean(room.hasAc),
+        hasWifi: Boolean(room.hasWifi),
+        mattressType: room.mattressType || 'NORMAL',
+        specialRequests: ''
+      };
+      const data = await applyForHostel(payload);
+      setResult(data);
+    } catch (err) {
+      if (
+        err?.message &&
+        (err.message.includes('already have an allocated room') ||
+         err.message.includes('cannot apply for another hostel'))
+      ) {
+        setError(
+          'You already have an allocated room. You cannot apply for another hostel until your current booking is cancelled or expired.'
+        );
+      } else if (
+        err?.message &&
+        err.message.includes('already have an active hostel application')
+      ) {
+        setError(
+          'You already have a pending hostel application. Please complete or cancel it before applying again.'
+        );
+      } else {
+        setError(err?.message || 'Failed to submit booking request.');
+      }
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   // ── loading ──
@@ -173,6 +210,16 @@ export default function ConfirmBookingPage() {
           ← Go Back
         </button>
       </div>
+    );
+  }
+
+  if (result) {
+    return (
+      <ApplyResultCard
+        result={result}
+        onViewBooking={() => navigate('/student/booking')}
+        onApplyAgain={() => navigate('/student/hostels')}
+      />
     );
   }
 
@@ -319,7 +366,8 @@ export default function ConfirmBookingPage() {
           {/* Confirm */}
           <button
             type="button"
-            onClick={goConfirm}
+            onClick={handleSubmit}
+            disabled={submitting}
             className="flex-1 rounded-2xl bg-primary-600 py-3 text-sm font-bold text-white shadow-md transition-colors hover:bg-primary-700 active:bg-primary-800"
           >
             Confirm →

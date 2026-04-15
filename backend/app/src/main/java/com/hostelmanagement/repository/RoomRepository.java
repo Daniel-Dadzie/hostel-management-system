@@ -63,4 +63,7 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
 
   @Query("SELECT r FROM Room r JOIN FETCH r.hostel h WHERE r.id = :id")
   Optional<Room> findByIdWithHostel(@Param("id") Long id);
+
+  @Query("SELECT COUNT(r) FROM Room r WHERE r.status = :status")
+long countByStatus(@Param("status") RoomStatus status);
 }

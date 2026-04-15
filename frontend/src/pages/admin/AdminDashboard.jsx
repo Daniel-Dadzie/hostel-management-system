@@ -3,6 +3,7 @@ import { FaBed, FaBuilding, FaExclamationTriangle, FaTools, FaUsers } from 'reac
 import { listAdminBookings, updateAdminBookingStatus } from '../../services/bookingService.js';
 import LifecycleManagementPanel from '../../components/admin/LifecycleManagementPanel.jsx';
 import AdminDashboardOverviewTab from '../../components/admin/AdminDashboardOverviewTab.jsx';
+import AnalyticsDashboard from '../../components/admin/AnalyticsDashboard.jsx';
 import { AnnouncementsTab, BookingsPaymentsTab, MaintenanceTab, StudentsTab } from '../../components/admin/AdminDashboardOperationsTabs.jsx';
 import { MetricCard, formatStatusLabel } from '../../components/admin/AdminDashboardShared.jsx';
 import { listHostels } from '../../services/hostelService.js';
@@ -41,7 +42,7 @@ const PRIORITY_CHIP = {
   LOW: 'bg-neutral-100 text-neutral-600 dark:bg-[rgba(12,52,44,0.7)] dark:text-[#dcebd0]/70'
 };
 
-const TABS = ['Overview', 'Bookings & Payments', 'Students', 'Lifecycle Management', 'Maintenance', 'Announcements'];
+const TABS = ['Overview', 'Analytics', 'Bookings & Payments', 'Students', 'Lifecycle Management', 'Maintenance', 'Announcements'];
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState(0);
@@ -242,11 +243,12 @@ export default function AdminDashboard() {
       {/* ── Tab Content ── */}
       <div className="min-w-0">
         {activeTab === 0 && <AdminDashboardOverviewTab occupancyByHostel={occupancyByHostel} bookings={bookings} STATUS_CHIP={STATUS_CHIP} formatStatusLabel={formatStatusLabel} />}
-        {activeTab === 1 && <BookingsPaymentsTab pendingPayments={pendingPayments} filteredBookings={filteredBookings} bookingSearch={bookingSearch} setBookingSearch={setBookingSearch} STATUS_CHIP={STATUS_CHIP} formatStatusLabel={formatStatusLabel} renderBookingActions={renderBookingActions} />}
-        {activeTab === 2 && <StudentsTab filteredStudents={filteredStudents} studentSearch={studentSearch} setStudentSearch={setStudentSearch} exportDefaultersCSV={exportDefaultersCSV} STATUS_CHIP={STATUS_CHIP} formatStatusLabel={formatStatusLabel} />}
-        {activeTab === 3 && <LifecycleManagementPanel onLifecycleChanged={refreshBookings} />}
-        {activeTab === 4 && <MaintenanceTab tickets={tickets} openTickets={openTickets} updateTicketStatus={updateTicketStatus} PRIORITY_CHIP={PRIORITY_CHIP} TICKET_CHIP={TICKET_CHIP} formatStatusLabel={formatStatusLabel} />}
-        {activeTab === 5 && <AnnouncementsTab annSaved={annSaved} newAnn={newAnn} setNewAnn={setNewAnn} handlePublishAnn={handlePublishAnn} announcements={announcements} deleteAnnouncement={deleteAnnouncement} />}
+        {activeTab === 1 && <AnalyticsDashboard />}
+        {activeTab === 2 && <BookingsPaymentsTab pendingPayments={pendingPayments} filteredBookings={filteredBookings} bookingSearch={bookingSearch} setBookingSearch={setBookingSearch} STATUS_CHIP={STATUS_CHIP} formatStatusLabel={formatStatusLabel} renderBookingActions={renderBookingActions} />}
+        {activeTab === 3 && <StudentsTab filteredStudents={filteredStudents} studentSearch={studentSearch} setStudentSearch={setStudentSearch} exportDefaultersCSV={exportDefaultersCSV} STATUS_CHIP={STATUS_CHIP} formatStatusLabel={formatStatusLabel} />}
+        {activeTab === 4 && <LifecycleManagementPanel onLifecycleChanged={refreshBookings} />}
+        {activeTab === 5 && <MaintenanceTab tickets={tickets} openTickets={openTickets} updateTicketStatus={updateTicketStatus} PRIORITY_CHIP={PRIORITY_CHIP} TICKET_CHIP={TICKET_CHIP} formatStatusLabel={formatStatusLabel} />}
+        {activeTab === 6 && <AnnouncementsTab annSaved={annSaved} newAnn={newAnn} setNewAnn={setNewAnn} handlePublishAnn={handlePublishAnn} announcements={announcements} deleteAnnouncement={deleteAnnouncement} />}
       </div>
     </div>
   );

@@ -12,8 +12,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import com.hostelmanagement.web.notification.NotificationMessage;
 
 /**
  * Sends transactional notification emails off the main request thread.
@@ -25,6 +27,9 @@ import org.springframework.stereotype.Service;
  * <p>SMTP is optional. If {@code spring.mail.host} is not set, Spring Boot will not
  * auto-configure {@link JavaMailSender} and the service falls back to structured log-only mode.
  * This means the app starts and runs normally in dev/CI environments without an SMTP server.
+ *
+ * <p>Also provides WebSocket/STOMP notification methods for real-time browser notifications
+ * when admins approve payments or bookings.
  */
 @Service
 public class NotificationService {
@@ -38,10 +43,19 @@ public class NotificationService {
   /* nullable – JavaMailSender is only configured when spring.mail.host is set */
   private final Optional<JavaMailSender> mailSender;
 
-  public NotificationService(@Autowired(required = false) JavaMailSender mailSender) {
+  /* nullable – SimpMessagingTemplate is optional for WebSocket notifications */
+  private final Optional<SimpMessagingTemplate> messagingTemplate;
+
+  public NotificationService(
+      @Autowired(required = false) JavaMailSender mailSender,
+      @Autowired(required = false) SimpMessagingTemplate messagingTemplate) {
     this.mailSender = Optional.ofNullable(mailSender);
+    this.messagingTemplate = Optional.ofNullable(messagingTemplate);
     if (mailSender == null) {
       log.info("[NOTIFICATION] SMTP not configured – emails will be logged only.");
+    }
+    if (messagingTemplate == null) {
+      log.info("[NOTIFICATION] WebSocket not configured – real-time notifications disabled.");
     }
   }
 
@@ -99,7 +113,7 @@ public class NotificationService {
   }
 
   /**
-   * Called after a password-reset token is generated for an account.
+   * Called after an admin approves a student's password-reset token is generated for an account.
    */
   @Async("taskExecutor")
   public void sendPasswordReset(String email, String name, String resetUrl, Instant expiresAt) {
@@ -108,6 +122,79 @@ public class NotificationService {
         email,
         "Password Reset Request",
         passwordResetBody(name, resetUrl, expiresAt));
+  }
+
+  // ─── WebSocket/Real-time Notifications ──────────────────────────────────
+
+  /**
+   * Sends a real-time WebSocket notification to a student when their payment is approved.
+   * Used for instant browser notifications without page refresh.
+   *
+   * @param studentId the student to notify
+   * @param bookingId the booking ID
+   * @param paymentId the payment ID
+   */
+  public void notifyPaymentApprovedViaWebSocket(Long studentId, Long bookingId, Long paymentId) {
+    messagingTemplate.ifPresentOrElse(
+        template -> {
+          NotificationMessage message =
+              NotificationMessage.paymentApproved(studentId, bookingId, paymentId);
+          template.convertAndSendToUser(
+              studentId.toString(), "/queue/notifications", message);
+          log.info(
+              "[NOTIFICATION-WS] Sent payment-approval to student {} (booking: {}, payment: {})",
+              studentId, bookingId, paymentId);
+        },
+        () ->
+            log.debug(
+                "[NOTIFICATION-WS] WebSocket disabled, skipping real-time notification for student {}",
+                studentId));
+  }
+
+  /**
+   * Sends a real-time WebSocket notification to a student when their booking is approved.
+   *
+   * @param studentId the student to notify
+   * @param bookingId the booking ID
+   */
+  public void notifyBookingApprovedViaWebSocket(Long studentId, Long bookingId) {
+    messagingTemplate.ifPresentOrElse(
+        template -> {
+          NotificationMessage message = NotificationMessage.bookingApproved(studentId, bookingId);
+          template.convertAndSendToUser(
+              studentId.toString(), "/queue/notifications", message);
+          log.info(
+              "[NOTIFICATION-WS] Sent booking-approval to student {} (booking: {})",
+              studentId, bookingId);
+        },
+        () ->
+            log.debug(
+                "[NOTIFICATION-WS] WebSocket disabled, skipping real-time notification for student {}",
+                studentId));
+  }
+
+  /**
+   * Sends a real-time WebSocket notification to a student when their booking is rejected.
+   *
+   * @param studentId the student to notify
+   * @param bookingId the booking ID
+   * @param reason optional rejection reason
+   */
+  public void notifyBookingRejectedViaWebSocket(Long studentId, Long bookingId, String reason) {
+    messagingTemplate.ifPresentOrElse(
+        template -> {
+          NotificationMessage message =
+              NotificationMessage.bookingRejected(studentId, bookingId, reason);
+          template.convertAndSendToUser(
+              studentId.toString(), "/queue/notifications", message);
+          log.info(
+              "[NOTIFICATION-WS] Sent booking-rejection to student {} (booking: {})",
+              studentId, bookingId);
+        },
+        () ->
+            log.debug(
+                "[NOTIFICATION-WS] WebSocket disabled, skipping real-time notification for student {}",
+                studentId));
   }
 
   // ─── private helpers ────────────────────────────────────────────────────

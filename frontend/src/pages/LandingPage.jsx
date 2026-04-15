@@ -132,10 +132,10 @@ export default function LandingPage() {
       <section className="relative flex min-h-[85vh] items-center overflow-hidden sm:min-h-[92vh]">
         <img src={heroImage} alt="Hostel building"
           className="absolute inset-0 h-full w-full object-cover"
-          style={{ filter: 'blur(3px) brightness(0.35) saturate(0.8)', transform: 'scale(1.05)' }}
+          style={{ filter: 'blur(1px) brightness(0.5) saturate(0.9)', transform: 'scale(1.05)' }}
           loading="eager"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0a4a30]/80 via-[#0f6b46]/40 to-[#0a3020]/70" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0a4a30]/40 via-[#0f6b46]/20 to-[#0a3020]/50" />
         <div className="pointer-events-none absolute -right-32 -top-32 h-[500px] w-[500px] rounded-full bg-emerald-500/10 blur-[100px]" />
         <div className="pointer-events-none absolute -bottom-32 -left-32 h-[400px] w-[400px] rounded-full bg-emerald-400/10 blur-[80px]" />
         <div className="pointer-events-none absolute inset-0 opacity-[0.04]"

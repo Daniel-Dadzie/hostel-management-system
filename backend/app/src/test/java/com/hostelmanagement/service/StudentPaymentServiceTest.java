@@ -40,6 +40,7 @@ class StudentPaymentServiceTest {
   @Mock private BookingRepository bookingRepository;
   @Mock private PaymentRepository paymentRepository;
   @Mock private BookingService bookingService;
+  @Mock private PdfAllocationLetterService pdfAllocationLetterService;
 
   private StudentPaymentService service;
   private Payment payment;
@@ -52,6 +53,7 @@ class StudentPaymentServiceTest {
             bookingRepository,
             paymentRepository,
             bookingService,
+            pdfAllocationLetterService,
             new ObjectMapper(),
             "https://api.paystack.co",
             "sk_test_key",

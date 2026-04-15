@@ -18,12 +18,17 @@ public class AdminBookingService {
   private final BookingRepository bookingRepository;
   private final PaymentRepository paymentRepository;
   private final BookingService bookingService;
+  private final NotificationService notificationService;
 
   public AdminBookingService(
-      BookingRepository bookingRepository, PaymentRepository paymentRepository, BookingService bookingService) {
+      BookingRepository bookingRepository,
+      PaymentRepository paymentRepository,
+      BookingService bookingService,
+      NotificationService notificationService) {
     this.bookingRepository = bookingRepository;
     this.paymentRepository = paymentRepository;
     this.bookingService = bookingService;
+    this.notificationService = notificationService;
   }
 
   @Transactional(readOnly = true)
@@ -54,6 +59,23 @@ public class AdminBookingService {
             .orElseThrow(() -> new IllegalArgumentException("Booking not found"));
 
     Payment payment = paymentRepository.findByBookingId(bookingId).orElse(null);
+    
+    // Send real-time WebSocket notifications when booking is approved
+    Student student = booking.getStudent();
+    if (student != null && status == BookingStatus.APPROVED) {
+      // Send instant WebSocket notification to the student
+      if (payment != null && payment.getStatus() == PaymentStatus.COMPLETED) {
+        notificationService.notifyPaymentApprovedViaWebSocket(
+            student.getId(), bookingId, payment.getId());
+      } else {
+        notificationService.notifyBookingApprovedViaWebSocket(student.getId(), bookingId);
+      }
+    } else if (student != null && status == BookingStatus.REJECTED) {
+      // Send rejection notification
+      notificationService.notifyBookingRejectedViaWebSocket(
+          student.getId(), bookingId, "Your booking has been rejected by the administrator.");
+    }
+    
     return toDto(booking, payment);
   }
 

@@ -4,7 +4,9 @@ import {
   getMyBooking,
   initiateGatewayPayment,
   submitPaymentReceipt,
-  verifyGatewayPayment
+  verifyGatewayPayment,
+  downloadAllocationLetter,
+  downloadPaymentReceipt
 } from '../../services/studentService.js';
 
 const PAYMENT_METHOD_OPTIONS = [
@@ -51,6 +53,8 @@ export default function MyPaymentsPage() {
   const [paymentMethod, setPaymentMethod] = useState('MTN_MOMO');
   const [transactionReference, setTransactionReference] = useState('');
   const [receiptFile, setReceiptFile] = useState(null);
+  const [downloadingAllocationLetter, setDownloadingAllocationLetter] = useState(false);
+  const [downloadingReceipt, setDownloadingReceipt] = useState(false);
 
   useEffect(() => {
     loadPaymentContext();
@@ -144,6 +148,34 @@ export default function MyPaymentsPage() {
     }
   }
 
+  async function handleDownloadAllocationLetter() {
+    if (!booking?.id) return;
+    setDownloadingAllocationLetter(true);
+    setError('');
+    try {
+      await downloadAllocationLetter(booking.id);
+      setNotice('Allocation letter downloaded successfully!');
+    } catch (err) {
+      setError(err.message || 'Unable to download allocation letter.');
+    } finally {
+      setDownloadingAllocationLetter(false);
+    }
+  }
+
+  async function handleDownloadReceipt() {
+    if (!booking?.id) return;
+    setDownloadingReceipt(true);
+    setError('');
+    try {
+      await downloadPaymentReceipt(booking.id);
+      setNotice('Payment receipt downloaded successfully!');
+    } catch (err) {
+      setError(err.message || 'Unable to download payment receipt.');
+    } finally {
+      setDownloadingReceipt(false);
+    }
+  }
+
   const paymentSummary = useMemo(() => {
     if (!booking) {
       return {
@@ -219,6 +251,52 @@ export default function MyPaymentsPage() {
           </Link>
         </div>
       </div>
+
+      {booking?.status === 'APPROVED' && (
+        <div className="card">
+          <h2 className="card-header text-neutral-900 dark:text-white">Download Documents</h2>
+          <p className="section-subtitle mt-2 dark:text-neutral-300">
+            Your payment has been successfully processed. Download your official allocation letter and payment receipt below.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <button
+              className="btn-primary flex items-center gap-2"
+              onClick={handleDownloadAllocationLetter}
+              disabled={downloadingAllocationLetter}
+            >
+              {downloadingAllocationLetter ? (
+                <>
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></div>
+                  Downloading...
+                </>
+              ) : (
+                <>
+                  📄 Download Allocation Letter
+                </>
+              )}
+            </button>
+            <button
+              className="btn-secondary flex items-center gap-2"
+              onClick={handleDownloadReceipt}
+              disabled={downloadingReceipt}
+            >
+              {downloadingReceipt ? (
+                <>
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></div>
+                  Downloading...
+                </>
+              ) : (
+                <>
+                  🧾 Download Payment Receipt
+                </>
+              )}
+            </button>
+          </div>
+          <p className="body-text mt-3 text-xs text-neutral-500 dark:text-neutral-400">
+            You can download these documents at any time from your payments page.
+          </p>
+        </div>
+      )}
 
       {booking?.status === 'PENDING_PAYMENT' && (
         <div className="card">

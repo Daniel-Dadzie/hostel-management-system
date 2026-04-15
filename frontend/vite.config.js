@@ -91,6 +91,9 @@ export default defineConfig(() => {
         }
       })
     ],
+    define: {
+      global: 'globalThis',   
+    },
     test: {
       environment: 'jsdom',
       globals: true,

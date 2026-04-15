@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext.jsx';
+import { NotificationProvider } from './context/NotificationContext.jsx';
 import ProtectedRoute, { PublicRoute } from './components/ProtectedRoute.jsx';
 
 // Layouts
@@ -45,8 +46,9 @@ import ViewReportsPage from './pages/admin/ViewReportsPage.jsx';
 
 export default function App() {
   return (
-    <AuthProvider>
-      <Routes>
+    <NotificationProvider>
+      <AuthProvider>
+        <Routes>
         {/* Public Routes */}
         <Route
           path="/login"
@@ -135,5 +137,6 @@ export default function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AuthProvider>
+    </NotificationProvider>
   );
 }

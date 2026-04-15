@@ -12,6 +12,7 @@ import com.hostelmanagement.web.student.dto.PaymentGatewayInitResponse;
 import com.hostelmanagement.web.student.dto.SubmitPaymentResponse;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -32,6 +33,7 @@ import java.util.Objects;
 import java.util.Optional;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -44,6 +46,8 @@ public class StudentPaymentService {
   private static final long MAX_RECEIPT_SIZE_BYTES = 10L * 1024 * 1024;
   private static final String RECEIPTS_DIR = "uploads/payment-receipts";
   private static final HttpClient HTTP_CLIENT = HttpClient.newBuilder().build();
+  
+  // Paystack Keys
   private static final String REF_KEY = "reference";
   private static final String AMOUNT_KEY = "amount";
   private static final String CURRENCY_KEY = "currency";
@@ -55,7 +59,9 @@ public class StudentPaymentService {
   private final BookingRepository bookingRepository;
   private final PaymentRepository paymentRepository;
   private final BookingService bookingService;
+  private final PdfAllocationLetterService pdfAllocationLetterService;
   private final ObjectMapper objectMapper;
+  
   private final String paystackBaseUrl;
   private final String paystackSecretKey;
   private final String paystackWebhookSecret;
@@ -65,14 +71,17 @@ public class StudentPaymentService {
       BookingRepository bookingRepository,
       PaymentRepository paymentRepository,
       BookingService bookingService,
+      PdfAllocationLetterService pdfAllocationLetterService,
       ObjectMapper objectMapper,
       @Value("${app.payments.paystack.base-url:https://api.paystack.co}") String paystackBaseUrl,
       @Value("${app.payments.paystack.secret-key:}") String paystackSecretKey,
       @Value("${app.payments.paystack.webhook-secret:}") String paystackWebhookSecret,
       @Value("${app.payments.paystack.callback-url:http://localhost:3000/student/payments}") String paystackCallbackUrl) {
+    
     this.bookingRepository = bookingRepository;
     this.paymentRepository = paymentRepository;
     this.bookingService = bookingService;
+    this.pdfAllocationLetterService = pdfAllocationLetterService;
     this.objectMapper = objectMapper;
     this.paystackBaseUrl = paystackBaseUrl;
     this.paystackSecretKey = paystackSecretKey;
@@ -87,6 +96,7 @@ public class StudentPaymentService {
       PaymentMethod paymentMethod,
       String transactionReference,
       MultipartFile receipt) {
+      
     Payment payment = validateAndGetStudentPayment(studentId, bookingId);
 
     if (payment.getStatus() == PaymentStatus.COMPLETED) {
@@ -127,6 +137,7 @@ public class StudentPaymentService {
   @Transactional
   public PaymentGatewayInitResponse initiateGatewayPayment(
       Long studentId, Long bookingId, PaymentMethod paymentMethod) {
+      
     Payment payment = validateAndGetStudentPayment(studentId, bookingId);
     Student student = payment.getStudent();
 
@@ -135,25 +146,24 @@ public class StudentPaymentService {
     String reference = "HMS-" + bookingId + "-" + Instant.now().toEpochMilli();
     long amountInPesewas = toMinorUnits(payment.getAmount());
 
-    List<String> channels =
-        switch (paymentMethod) {
-          case MTN_MOMO, TELECEL_CASH -> List.of("mobile_money");
-          case VISA_CARD, BANK_CARD -> List.of("card");
-        };
+    List<String> channels = switch (paymentMethod) {
+      case MTN_MOMO, TELECEL_CASH -> List.of("mobile_money");
+      case VISA_CARD, BANK_CARD -> List.of("card");
+    };
 
-    Map<String, Object> payload =
-        Map.of(
-            "email", student.getEmail(),
+    Map<String, Object> payload = Map.of(
+        "email", student.getEmail(),
         AMOUNT_KEY, amountInPesewas,
         CURRENCY_KEY, "GHS",
         REF_KEY, reference,
-            "callback_url", paystackCallbackUrl,
-            "channels", channels,
-        METADATA_KEY,
-                Map.of(
+        "callback_url", paystackCallbackUrl,
+        "channels", channels,
+        METADATA_KEY, Map.of(
             BOOKING_ID_KEY, bookingId,
             STUDENT_ID_KEY, studentId,
-            PAYMENT_METHOD_KEY, paymentMethod.name()));
+            PAYMENT_METHOD_KEY, paymentMethod.name()
+        )
+    );
 
     JsonNode data = callPaystack("/transaction/initialize", payload);
 
@@ -226,14 +236,118 @@ public class StudentPaymentService {
         payment.getTransactionReference(),
         payment.getReceiptFilename(),
         payment.getPaidAt(),
-          "Payment verified successfully and booking approved.");
+        "Payment verified successfully and booking approved.");
+  }
+
+  /**
+   * Generates a PDF allocation letter for a student's booking. 
+   * Validates that the student owns the booking and payment is completed.
+   */
+  public byte[] generateAllocationLetterPdf(Long studentId, Long bookingId) {
+    try {
+      Booking booking = bookingRepository.findById(bookingId)
+          .orElseThrow(() -> new IllegalArgumentException("Booking not found"));
+
+      if (!booking.getStudent().getId().equals(studentId)) {
+        throw new AccessDeniedException("You can only access your own booking");
+      }
+
+      Payment payment = paymentRepository.findByBookingId(bookingId)
+          .orElseThrow(() -> new IllegalArgumentException("Payment record not found"));
+
+      if (payment.getStatus() != PaymentStatus.COMPLETED) {
+        throw new IllegalArgumentException("Allocation letter is only available after successful payment");
+      }
+
+      return pdfAllocationLetterService.generateAllocationLetterPdf(booking.getStudent(), booking, payment);
+      
+    } catch (Exception ex) { // FIXED: Changed IOException to Exception to fix maven compilation error
+      throw new IllegalArgumentException("Unable to generate allocation letter: " + ex.getMessage());
+    }
+  }
+
+  /**
+   * Generates a payment receipt PDF for a student's payment. 
+   * Validates that the student owns the booking and payment is completed.
+   */
+  public byte[] generatePaymentReceiptPdf(Long studentId, Long bookingId) {
+    try {
+      Booking booking = bookingRepository.findById(bookingId)
+          .orElseThrow(() -> new IllegalArgumentException("Booking not found"));
+
+      if (!booking.getStudent().getId().equals(studentId)) {
+        throw new AccessDeniedException("You can only access your own booking");
+      }
+
+      Payment payment = paymentRepository.findByBookingId(bookingId)
+          .orElseThrow(() -> new IllegalArgumentException("Payment record not found"));
+
+      if (payment.getStatus() != PaymentStatus.COMPLETED && payment.getStatus() != PaymentStatus.PENDING) {
+        throw new IllegalArgumentException("Receipt is only available for pending or completed payments");
+      }
+
+      return pdfAllocationLetterService.generatePaymentReceiptPdf(booking.getStudent(), payment, booking);
+      
+    } catch (Exception ex) { // FIXED: Changed IOException to Exception to fix maven compilation error
+      throw new IllegalArgumentException("Unable to generate receipt: " + ex.getMessage());
+    }
+  }
+
+  // --- Webhook & Helper Methods ---
+
+  @Transactional
+  public void handlePaystackWebhook(String payload, String signature) {
+    requireValidWebhookSignature(payload, signature);
+
+    try {
+      JsonNode root = objectMapper.readTree(payload);
+      String event = root.path("event").asText();
+      JsonNode data = root.path("data");
+
+      switch (event) {
+        case "charge.success" -> handleSuccessfulCharge(data);
+        case "charge.failed", "transaction.failed" -> handleFailedPaymentEvent(data);
+        default -> { /* Ignore other events */ }
+      }
+    } catch (IOException ex) {
+      throw new IllegalArgumentException("Unable to parse webhook payload");
+    }
+  }
+
+  private void handleSuccessfulCharge(JsonNode data) {
+    String reference = getReference(data);
+    if (reference == null) return;
+
+    paymentRepository.findByTransactionReference(reference).ifPresent(payment -> {
+      if (!isEventConsistentWithPayment(data, payment) || !canTransitionToCompleted(payment)) {
+        return;
+      }
+      payment.setStatus(PaymentStatus.COMPLETED);
+      payment.setPaidAt(Instant.now());
+      paymentRepository.save(payment);
+
+      if (payment.getBooking().getStatus() == BookingStatus.PENDING_PAYMENT) {
+        bookingService.updateStatus(payment.getBooking().getId(), BookingStatus.APPROVED);
+      }
+    });
+  }
+
+  private void handleFailedPaymentEvent(JsonNode data) {
+    String reference = getReference(data);
+    if (reference == null) return;
+
+    paymentRepository.findByTransactionReference(reference).ifPresent(payment -> {
+      if (!isEventConsistentWithPayment(data, payment) || !canTransitionToCancelled(payment)) {
+        return;
+      }
+      payment.setStatus(PaymentStatus.CANCELLED);
+      paymentRepository.save(payment);
+    });
   }
 
   private Payment validateAndGetStudentPayment(Long studentId, Long bookingId) {
-    Booking booking =
-        bookingRepository
-            .findById(bookingId)
-            .orElseThrow(() -> new IllegalArgumentException("Booking not found"));
+    Booking booking = bookingRepository.findById(bookingId)
+        .orElseThrow(() -> new IllegalArgumentException("Booking not found"));
 
     if (!booking.getStudent().getId().equals(studentId)) {
       throw new IllegalArgumentException("You can only pay for your own booking");
@@ -243,16 +357,13 @@ public class StudentPaymentService {
       throw new IllegalArgumentException("Payment is only allowed for pending bookings");
     }
 
-    return paymentRepository
-        .findByBookingId(bookingId)
+    return paymentRepository.findByBookingId(bookingId)
         .orElseThrow(() -> new IllegalArgumentException("Payment record not found"));
   }
 
   private Payment validateAndGetStudentPaymentForVerification(Long studentId, Long bookingId) {
-    Booking booking =
-        bookingRepository
-            .findById(bookingId)
-            .orElseThrow(() -> new IllegalArgumentException("Booking not found"));
+    Booking booking = bookingRepository.findById(bookingId)
+        .orElseThrow(() -> new IllegalArgumentException("Booking not found"));
 
     if (!booking.getStudent().getId().equals(studentId)) {
       throw new IllegalArgumentException("You can only verify your own booking payment");
@@ -262,8 +373,7 @@ public class StudentPaymentService {
       throw new IllegalArgumentException("Payment verification is unavailable for this booking status");
     }
 
-    return paymentRepository
-        .findByBookingId(bookingId)
+    return paymentRepository.findByBookingId(bookingId)
         .orElseThrow(() -> new IllegalArgumentException("Payment record not found"));
   }
 
@@ -274,19 +384,16 @@ public class StudentPaymentService {
   }
 
   private long toMinorUnits(BigDecimal amount) {
-    if (amount == null) {
-      return 0L;
-    }
+    if (amount == null) return 0L;
     return amount.multiply(BigDecimal.valueOf(100)).setScale(0, RoundingMode.HALF_UP).longValue();
   }
 
   private JsonNode callPaystack(String path, Map<String, Object> payload) {
     try {
-      HttpRequest.Builder builder =
-          HttpRequest.newBuilder()
-              .uri(URI.create(paystackBaseUrl + path))
-              .header("Authorization", "Bearer " + paystackSecretKey)
-              .header("Content-Type", "application/json");
+      HttpRequest.Builder builder = HttpRequest.newBuilder()
+          .uri(URI.create(paystackBaseUrl + path))
+          .header("Authorization", "Bearer " + paystackSecretKey)
+          .header("Content-Type", "application/json");
 
       if (payload == null) {
         builder.GET();
@@ -321,10 +428,9 @@ public class StudentPaymentService {
 
   private static String storeReceipt(Long studentId, Long bookingId, MultipartFile receipt) {
     String original = receipt.getOriginalFilename();
-    String safeOriginal =
-        (original == null || original.isBlank())
-            ? "receipt.bin"
-            : original.replaceAll("[^a-zA-Z0-9._-]", "_");
+    String safeOriginal = (original == null || original.isBlank()) 
+        ? "receipt.bin" 
+        : original.replaceAll("[^a-zA-Z0-9._-]", "_");
 
     String extension = "";
     int dot = safeOriginal.lastIndexOf('.');
@@ -332,15 +438,11 @@ public class StudentPaymentService {
       extension = safeOriginal.substring(dot).toLowerCase(Locale.ROOT);
     }
 
-    if (!(extension.equals(".jpg")
-        || extension.equals(".jpeg")
-        || extension.equals(".png")
-        || extension.equals(".pdf"))) {
+    if (!(extension.equals(".jpg") || extension.equals(".jpeg") || extension.equals(".png") || extension.equals(".pdf"))) {
       throw new IllegalArgumentException("Receipt must be a JPG, PNG, or PDF file");
     }
 
-    String targetFileName =
-        "receipt_" + studentId + "_" + bookingId + "_" + Instant.now().toEpochMilli() + extension;
+    String targetFileName = "receipt_" + studentId + "_" + bookingId + "_" + Instant.now().toEpochMilli() + extension;
 
     try {
       Path dir = Path.of(RECEIPTS_DIR);
@@ -353,120 +455,28 @@ public class StudentPaymentService {
     }
   }
 
-  /**
-   * Handle Paystack webhook callback. This processes asynchronous payment notifications from
-   * Paystack.
-   *
-   * @param payload The raw JSON payload from Paystack
-   * @param signature The x-paystack-signature header value (can be null for testing)
-   */
-  @Transactional
-  public void handlePaystackWebhook(String payload, String signature) {
-    requireValidWebhookSignature(payload, signature);
-
-    try {
-      JsonNode root = objectMapper.readTree(payload);
-      String event = root.path("event").asText();
-      JsonNode data = root.path("data");
-
-      switch (event) {
-        case "charge.success" -> handleSuccessfulCharge(data);
-        case "charge.failed" -> handleFailedCharge(data);
-        case "transaction.failed" -> handleFailedTransaction(data);
-        default -> {
-          // Ignore other events
-        }
-      }
-    } catch (IOException ex) {
-      throw new IllegalArgumentException("Unable to parse webhook payload");
-    }
-  }
-
-  private void handleSuccessfulCharge(JsonNode data) {
-    String reference = getReference(data);
-    if (reference == null) {
-      return;
-    }
-
-    paymentRepository
-        .findByTransactionReference(reference)
-        .ifPresent(
-            payment -> {
-              if (!isEventConsistentWithPayment(data, payment)) {
-                return;
-              }
-              if (!canTransitionToCompleted(payment)) {
-                return;
-              }
-
-              payment.setStatus(PaymentStatus.COMPLETED);
-              payment.setPaidAt(Instant.now());
-              paymentRepository.save(payment);
-
-              if (payment.getBooking().getStatus() == BookingStatus.PENDING_PAYMENT) {
-                bookingService.updateStatus(payment.getBooking().getId(), BookingStatus.APPROVED);
-              }
-            });
-  }
-
-  private void handleFailedCharge(JsonNode data) {
-    handleFailedPaymentEvent(data);
-  }
-
-  private void handleFailedTransaction(JsonNode data) {
-    handleFailedPaymentEvent(data);
-  }
-
-  private void handleFailedPaymentEvent(JsonNode data) {
-    String reference = getReference(data);
-    if (reference == null) {
-      return;
-    }
-
-    paymentRepository
-        .findByTransactionReference(reference)
-        .ifPresent(
-            payment -> {
-              if (!isEventConsistentWithPayment(data, payment)) {
-                return;
-              }
-              if (!canTransitionToCancelled(payment)) {
-                return;
-              }
-
-              payment.setStatus(PaymentStatus.CANCELLED);
-              paymentRepository.save(payment);
-            });
-  }
-
   private void requireValidWebhookSignature(String payload, String signature) {
     if (signature == null || signature.isBlank()) {
       throw new AccessDeniedException("Missing webhook signature");
     }
-
     String secret = resolveWebhookSecret();
     if (secret == null || secret.isBlank()) {
       throw new IllegalArgumentException("Webhook secret is not configured");
     }
-
     if (!verifyPaystackSignature(payload, signature, secret)) {
       throw new AccessDeniedException("Invalid webhook signature");
     }
   }
 
   private String resolveWebhookSecret() {
-    if (paystackWebhookSecret != null && !paystackWebhookSecret.isBlank()) {
-      return paystackWebhookSecret;
-    }
-    return paystackSecretKey;
+    return (paystackWebhookSecret != null && !paystackWebhookSecret.isBlank()) 
+        ? paystackWebhookSecret 
+        : paystackSecretKey;
   }
 
   private String getReference(JsonNode data) {
     String reference = data.path(REF_KEY).asText(null);
-    if (reference == null || reference.isBlank()) {
-      return null;
-    }
-    return reference;
+    return (reference == null || reference.isBlank()) ? null : reference;
   }
 
   private boolean canTransitionToCompleted(Payment payment) {
@@ -481,19 +491,13 @@ public class StudentPaymentService {
   }
 
   private void validateGatewayPayloadForPayment(JsonNode data, Payment payment) {
-    String reference = data.path(REF_KEY).asText("");
-    if (!Objects.equals(reference, payment.getTransactionReference())) {
+    if (!Objects.equals(data.path(REF_KEY).asText(""), payment.getTransactionReference())) {
       throw new IllegalArgumentException("Gateway payment reference mismatch");
     }
-
-    long gatewayAmount = data.path(AMOUNT_KEY).asLong(-1);
-    long expectedAmount = toMinorUnits(payment.getAmount());
-    if (gatewayAmount != expectedAmount) {
+    if (data.path(AMOUNT_KEY).asLong(-1) != toMinorUnits(payment.getAmount())) {
       throw new IllegalArgumentException("Gateway payment amount mismatch");
     }
-
-    String gatewayCurrency = data.path(CURRENCY_KEY).asText("").toUpperCase(Locale.ROOT);
-    if (!"GHS".equals(gatewayCurrency)) {
+    if (!"GHS".equals(data.path(CURRENCY_KEY).asText("").toUpperCase(Locale.ROOT))) {
       throw new IllegalArgumentException("Gateway payment currency mismatch");
     }
 
@@ -518,35 +522,18 @@ public class StudentPaymentService {
   }
 
   private boolean isEventConsistentWithPayment(JsonNode data, Payment payment) {
-    String reference = data.path(REF_KEY).asText("");
-    if (!Objects.equals(reference, payment.getTransactionReference())) {
-      return false;
-    }
-
-    long amount = data.path(AMOUNT_KEY).asLong(-1);
-    if (amount != toMinorUnits(payment.getAmount())) {
-      return false;
-    }
-
-    String currency = data.path(CURRENCY_KEY).asText("").toUpperCase(Locale.ROOT);
-    if (!"GHS".equals(currency)) {
-      return false;
-    }
+    if (!Objects.equals(data.path(REF_KEY).asText(""), payment.getTransactionReference())) return false;
+    if (data.path(AMOUNT_KEY).asLong(-1) != toMinorUnits(payment.getAmount())) return false;
+    if (!"GHS".equals(data.path(CURRENCY_KEY).asText("").toUpperCase(Locale.ROOT))) return false;
 
     JsonNode metadata = data.path(METADATA_KEY);
-    if (metadata.isMissingNode() || metadata.isNull()) {
-      return true;
-    }
+    if (metadata.isMissingNode() || metadata.isNull()) return true;
 
     Optional<Long> bookingId = parseLongMetadataOptional(metadata, BOOKING_ID_KEY);
-    if (bookingId.isPresent() && !Objects.equals(bookingId.get(), payment.getBooking().getId())) {
-      return false;
-    }
+    if (bookingId.isPresent() && !Objects.equals(bookingId.get(), payment.getBooking().getId())) return false;
 
     Optional<Long> studentId = parseLongMetadataOptional(metadata, STUDENT_ID_KEY);
-    if (studentId.isPresent() && !Objects.equals(studentId.get(), payment.getStudent().getId())) {
-      return false;
-    }
+    if (studentId.isPresent() && !Objects.equals(studentId.get(), payment.getStudent().getId())) return false;
 
     String paymentMethod = metadata.path(PAYMENT_METHOD_KEY).asText("");
     return paymentMethod.isBlank()
@@ -555,22 +542,17 @@ public class StudentPaymentService {
   }
 
   private Long parseLongMetadata(JsonNode metadata, String field) {
-    return parseLongMetadataOptional(metadata, field)
-        .orElse(null);
+    return parseLongMetadataOptional(metadata, field).orElse(null);
   }
 
   private Optional<Long> parseLongMetadataOptional(JsonNode metadata, String field) {
     JsonNode node = metadata.path(field);
-    if (node.isMissingNode() || node.isNull()) {
-      return Optional.empty();
-    }
-    if (node.isNumber()) {
-      return Optional.of(node.asLong());
-    }
+    if (node.isMissingNode() || node.isNull()) return Optional.empty();
+    if (node.isNumber()) return Optional.of(node.asLong());
+    
     String value = node.asText("").trim();
-    if (value.isEmpty()) {
-      return Optional.empty();
-    }
+    if (value.isEmpty()) return Optional.empty();
+    
     try {
       return Optional.of(Long.valueOf(value));
     } catch (NumberFormatException ex) {
@@ -584,14 +566,14 @@ public class StudentPaymentService {
       SecretKeySpec secretKeySpec = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
       mac.init(secretKeySpec);
       byte[] hash = mac.doFinal(payload.getBytes(StandardCharsets.UTF_8));
+
       StringBuilder hexString = new StringBuilder();
       for (byte b : hash) {
         String hex = Integer.toHexString(0xff & b);
-        if (hex.length() == 1) {
-          hexString.append('0');
-        }
+        if (hex.length() == 1) hexString.append('0');
         hexString.append(hex);
       }
+
       return java.security.MessageDigest.isEqual(
           hexString.toString().toLowerCase(Locale.ROOT).getBytes(StandardCharsets.UTF_8),
           signature.toLowerCase(Locale.ROOT).getBytes(StandardCharsets.UTF_8));

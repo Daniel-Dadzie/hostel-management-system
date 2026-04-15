@@ -40,3 +40,5 @@ frontend/.cache/
 # --- Test files with potential secrets ---
 test-*.json
 *.test.json
+
+plans

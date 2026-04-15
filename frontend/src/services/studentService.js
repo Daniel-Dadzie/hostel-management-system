@@ -57,3 +57,71 @@ export function verifyGatewayPayment({ bookingId }) {
     headers: getAuthHeaders()
   });
 }
+
+/**
+ * Downloads the allocation letter PDF for a booking
+ * @param {number} bookingId - The booking ID
+ */
+export async function downloadAllocationLetter(bookingId) {
+  const token = getAuthHeaders()['Authorization'];
+  const response = await fetch(`/api/student/payments/${bookingId}/allocation-letter`, {
+    method: 'GET',
+    headers: {
+      'Authorization': token
+    }
+  });
+
+  if (!response.ok) {
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to download allocation letter');
+    }
+    throw new Error('Failed to download allocation letter');
+  }
+
+  // Get the blob and trigger download
+  const blob = await response.blob();
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `allocation-letter-${bookingId}.pdf`;
+  document.body.appendChild(a);
+  a.click();
+  window.URL.revokeObjectURL(url);
+  document.body.removeChild(a);
+}
+
+/**
+ * Downloads the payment receipt PDF for a booking
+ * @param {number} bookingId - The booking ID
+ */
+export async function downloadPaymentReceipt(bookingId) {
+  const token = getAuthHeaders()['Authorization'];
+  const response = await fetch(`/api/student/payments/${bookingId}/receipt`, {
+    method: 'GET',
+    headers: {
+      'Authorization': token
+    }
+  });
+
+  if (!response.ok) {
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to download payment receipt');
+    }
+    throw new Error('Failed to download payment receipt');
+  }
+
+  // Get the blob and trigger download
+  const blob = await response.blob();
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `payment-receipt-${bookingId}.pdf`;
+  document.body.appendChild(a);
+  a.click();
+  window.URL.revokeObjectURL(url);
+  document.body.removeChild(a);
+}
