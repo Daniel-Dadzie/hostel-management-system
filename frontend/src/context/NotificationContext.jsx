@@ -48,7 +48,7 @@ export const useNotifications = () => {
  */
 export const NotificationProvider = ({ children }) => {
   const getAuthToken = () => {
-    return localStorage.getItem('token');
+    return localStorage.getItem('hms.token');
   };
 
   const { subscribe, disconnect, isConnected } = useWebSocket({

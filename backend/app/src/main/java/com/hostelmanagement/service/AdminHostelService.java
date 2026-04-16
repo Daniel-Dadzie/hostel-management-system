@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,6 +13,7 @@ import com.hostelmanagement.domain.Hostel;
 import com.hostelmanagement.repository.HostelRepository;
 import com.hostelmanagement.web.admin.dto.UpsertHostelRequest;
 import com.hostelmanagement.web.dto.HostelResponse;
+import com.hostelmanagement.web.dto.PageResponse;
 
 @Service
 public class AdminHostelService {
@@ -33,6 +36,21 @@ public class AdminHostelService {
     }
 
     return hostels.stream().map(AdminHostelService::toDto).toList();
+  }
+
+  @Transactional(readOnly = true)
+  public PageResponse<HostelResponse> listPaginated(Boolean active, Pageable pageable) {
+    Page<Hostel> hostelPage;
+    if (active == null) {
+      hostelPage = hostelRepository.findAll(pageable);
+    } else if (active) {
+      hostelPage = hostelRepository.findByActiveTrue(pageable);
+    } else {
+      hostelPage = hostelRepository.findByActiveFalse(pageable);
+    }
+
+    Page<HostelResponse> responsePage = hostelPage.map(AdminHostelService::toDto);
+    return PageResponse.from(responsePage);
   }
 
   @CacheEvict(value = "active-hostels", allEntries = true)

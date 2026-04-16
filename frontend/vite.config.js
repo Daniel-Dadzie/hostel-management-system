@@ -1,9 +1,10 @@
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
-export default defineConfig(() => {
-  const env = process.env;
+export default defineConfig(({ mode }) => {
+  // Use Vite's env loader so frontend/.env values are available in config.
+  const env = loadEnv(mode, process.cwd(), '');
   const hasApiBaseUrl = Boolean(env.VITE_API_BASE_URL);
   const apiProxyTarget = env.VITE_API_PROXY_TARGET || 'http://localhost:8081';
 

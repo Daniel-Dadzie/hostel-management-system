@@ -3,8 +3,12 @@ package com.hostelmanagement.web.admin;
 import com.hostelmanagement.service.AdminRoomService;
 import com.hostelmanagement.web.admin.dto.UpsertRoomRequest;
 import com.hostelmanagement.web.dto.RoomResponse;
+import com.hostelmanagement.web.dto.PageResponse;
 import jakarta.validation.Valid;
 import java.util.List;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +27,13 @@ public class AdminRoomController {
   @GetMapping
   public ResponseEntity<List<RoomResponse>> list(@RequestParam(required = false) Long hostelId) {
     return ResponseEntity.ok(roomService.list(hostelId));
+  }
+
+  @GetMapping("/paginated")
+  public ResponseEntity<PageResponse<RoomResponse>> listPaginated(
+      @RequestParam(required = false) Long hostelId,
+      @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
+    return ResponseEntity.ok(roomService.listPaginated(hostelId, pageable));
   }
 
   @PostMapping

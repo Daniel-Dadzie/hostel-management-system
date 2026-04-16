@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { listAdminBookings, updateAdminBookingStatus } from '../../services/bookingService.js';
+import PaginationControls from '../../components/PaginationControls.jsx';
+import { listAdminBookingsPaginated, updateAdminBookingStatus } from '../../services/bookingService.js';
 
 export default function ManageBookingsPage() {
   const [bookings, setBookings] = useState([]);
@@ -9,15 +10,34 @@ export default function ManageBookingsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [processing, setProcessing] = useState(null);
+  const [pageNumber, setPageNumber] = useState(0);
+  const [pageSize, setPageSize] = useState(20);
+  const [paginationMeta, setPaginationMeta] = useState({
+    totalElements: 0,
+    totalPages: 0,
+    isFirst: true,
+    isLast: true,
+    hasNext: false,
+    hasPrevious: false
+  });
 
   useEffect(() => {
     loadBookings();
-  }, []);
+  }, [pageNumber, pageSize, statusFilter]);
 
   async function loadBookings() {
     try {
-      const data = await listAdminBookings();
-      setBookings(Array.isArray(data) ? data : []);
+      const serverStatus = statusFilter === 'ALL' ? null : statusFilter;
+      const data = await listAdminBookingsPaginated(serverStatus, pageNumber, pageSize);
+      setBookings(Array.isArray(data?.content) ? data.content : []);
+      setPaginationMeta({
+        totalElements: data?.totalElements ?? 0,
+        totalPages: data?.totalPages ?? 0,
+        isFirst: data?.isFirst ?? true,
+        isLast: data?.isLast ?? true,
+        hasNext: data?.hasNext ?? false,
+        hasPrevious: data?.hasPrevious ?? false
+      });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -62,6 +82,30 @@ export default function ManageBookingsPage() {
 
   const hostelOptions = Array.from(new Set(bookings.map((item) => item.hostelName).filter(Boolean)));
 
+  const pagination = {
+    pageNumber,
+    pageSize,
+    totalElements: paginationMeta.totalElements,
+    totalPages: paginationMeta.totalPages,
+    isFirst: paginationMeta.isFirst,
+    isLast: paginationMeta.isLast,
+    hasNext: paginationMeta.hasNext,
+    hasPrevious: paginationMeta.hasPrevious,
+    goToPage: setPageNumber,
+    nextPage: () => setPageNumber((prev) => prev + 1),
+    prevPage: () => setPageNumber((prev) => Math.max(0, prev - 1)),
+    goToFirst: () => setPageNumber(0),
+    goToLast: () => {
+      if (paginationMeta.totalPages > 0) {
+        setPageNumber(paginationMeta.totalPages - 1);
+      }
+    },
+    changePageSize: (newSize) => {
+      setPageSize(newSize);
+      setPageNumber(0);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -88,7 +132,14 @@ export default function ManageBookingsPage() {
       {bookings.length > 0 && (
         <div className="card">
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <select className="input-field" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+            <select
+              className="input-field"
+              value={statusFilter}
+              onChange={(e) => {
+                setStatusFilter(e.target.value);
+                setPageNumber(0);
+              }}
+            >
               <option value="ALL">Status: All</option>
               {Object.keys(statusConfig).map((status) => (
                 <option key={status} value={status}>
@@ -249,6 +300,10 @@ export default function ManageBookingsPage() {
             </tbody>
           </table>
           </div>
+
+          {paginationMeta.totalElements > 0 && (
+            <PaginationControls pagination={pagination} />
+          )}
         </div>
       )}
     </div>

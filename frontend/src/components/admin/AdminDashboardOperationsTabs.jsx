@@ -343,8 +343,8 @@ export function AnnouncementsTab({
                 id="ann-expires"
                 type="date"
                 className="input-field"
-                value={newAnn.expires}
-                onChange={(event) => setNewAnn((prev) => ({ ...prev, expires: event.target.value }))}
+                value={newAnn.expiresAt}
+                onChange={(event) => setNewAnn((prev) => ({ ...prev, expiresAt: event.target.value }))}
               />
             </div>
 
@@ -376,8 +376,8 @@ export function AnnouncementsTab({
                   <div>
                     <p className="font-semibold text-neutral-900 dark:text-[#fffdee]">{announcement.title}</p>
                     <div className="mt-1 flex flex-wrap gap-3 text-xs text-neutral-400 dark:text-[#dcebd0]/42">
-                      <span>Published: {announcement.published}</span>
-                      {announcement.expires ? <span>Expires: {announcement.expires}</span> : null}
+                      <span>Published: {announcement.publishedAt}</span>
+                      {announcement.expiresAt ? <span>Expires: {announcement.expiresAt}</span> : null}
                     </div>
                   </div>
                   <button

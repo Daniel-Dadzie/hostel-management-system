@@ -4,10 +4,14 @@ import com.hostelmanagement.domain.BookingStatus;
 import com.hostelmanagement.service.AdminBookingService;
 import com.hostelmanagement.service.AdminBookingService.ReceiptFile;
 import com.hostelmanagement.web.admin.dto.AdminBookingResponse;
+import com.hostelmanagement.web.dto.PageResponse;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import org.springframework.core.io.PathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -30,6 +34,13 @@ public class AdminBookingController {
   public ResponseEntity<List<AdminBookingResponse>> list(
       @RequestParam(required = false) BookingStatus status) {
     return ResponseEntity.ok(adminBookingService.list(status));
+  }
+
+  @GetMapping("/paginated")
+  public ResponseEntity<PageResponse<AdminBookingResponse>> listPaginated(
+      @RequestParam(required = false) BookingStatus status,
+      @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+    return ResponseEntity.ok(adminBookingService.listPaginated(status, pageable));
   }
 
   public record UpdateStatusRequest(@NotNull BookingStatus status) {}

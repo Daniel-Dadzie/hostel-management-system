@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { FaBed, FaBuilding, FaExclamationTriangle, FaTools, FaUsers } from 'react-icons/fa';
 import { listAdminBookings, updateAdminBookingStatus } from '../../services/bookingService.js';
+import { listAllAnnouncements, publishAnnouncement, deleteAnnouncement as deleteAnnAPI } from '../../services/announcementService.js';
 import LifecycleManagementPanel from '../../components/admin/LifecycleManagementPanel.jsx';
 import AdminDashboardOverviewTab from '../../components/admin/AdminDashboardOverviewTab.jsx';
 import AnalyticsDashboard from '../../components/admin/AnalyticsDashboard.jsx';
@@ -14,11 +15,6 @@ const INITIAL_TICKETS = [
   { id: 'TKT-002', room: '108', hostel: 'Block B', issue: 'Flickering overhead light', category: 'ELECTRICAL', status: 'IN_PROGRESS', priority: 'MEDIUM', date: '25 Feb 2026' },
   { id: 'TKT-003', room: '312', hostel: 'Block A', issue: 'Leaking bathroom pipe', category: 'PLUMBING', status: 'PENDING', priority: 'HIGH', date: '24 Feb 2026' },
   { id: 'TKT-004', room: '407', hostel: 'Block C', issue: 'WiFi not connecting', category: 'INTERNET', status: 'RESOLVED', priority: 'LOW', date: '20 Feb 2026' }
-];
-
-const INITIAL_ANNOUNCEMENTS = [
-  { id: 1, title: 'Scheduled Power Maintenance', body: 'Power will be interrupted on Saturday 7 March from 8 AM - 2 PM for routine grid maintenance.', expires: '7 Mar 2026', published: '1 Mar 2026' },
-  { id: 2, title: 'End-of-Semester Checkout Procedures', body: 'All students must complete the checkout form and return room keys by the last Friday of the semester.', expires: '30 Apr 2026', published: '28 Feb 2026' }
 ];
 
 const STATUS_CHIP = {
@@ -54,21 +50,29 @@ export default function AdminDashboard() {
   const [studentSearch, setStudentSearch] = useState('');
   const [bookingSearch, setBookingSearch] = useState('');
   const [tickets, setTickets] = useState(INITIAL_TICKETS);
-  const [announcements, setAnnouncements] = useState(INITIAL_ANNOUNCEMENTS);
-  const [newAnn, setNewAnn] = useState({ title: '', body: '', expires: '' });
+  const [announcements, setAnnouncements] = useState([]);
+  const [announcementsLoading, setAnnouncementsLoading] = useState(true);
+  const [newAnn, setNewAnn] = useState({ title: '', body: '', expiresAt: '' });
   const [annSaved, setAnnSaved] = useState(false);
 
   useEffect(() => {
     (async () => {
       try {
-        const [b, r, h] = await Promise.all([listAdminBookings(), listRooms(), listHostels()]);
+        const [b, r, h, a] = await Promise.all([
+          listAdminBookings(),
+          listRooms(),
+          listHostels(),
+          listAllAnnouncements()
+        ]);
         setBookings(Array.isArray(b) ? b : []);
         setRooms(Array.isArray(r) ? r : []);
         setHostels(Array.isArray(h) ? h : []);
+        setAnnouncements(Array.isArray(a) ? a : []);
       } catch (err) {
         console.error('Dashboard load error:', err);
       } finally {
         setLoading(false);
+        setAnnouncementsLoading(false);
       }
     })();
   }, []);
@@ -87,18 +91,33 @@ export default function AdminDashboard() {
     setTickets(prev => prev.map(t => t.id === ticketId ? { ...t, status: newStatus } : t));
   }
 
-  function deleteAnnouncement(annId) {
-    setAnnouncements(prev => prev.filter(item => item.id !== annId));
+  async function deleteAnnouncement(annId) {
+    try {
+      await deleteAnnAPI(annId);
+      setAnnouncements(prev => prev.filter(item => item.id !== annId));
+    } catch (err) {
+      console.error('Failed to delete announcement:', err);
+    }
   }
 
-  function handlePublishAnn(event) {
+  async function handlePublishAnn(event) {
     event.preventDefault();
     if (!newAnn.title.trim() || !newAnn.body.trim()) return;
-    const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-    setAnnouncements(prev => [{ id: Date.now(), ...newAnn, published: today }, ...prev]);
-    setNewAnn({ title: '', body: '', expires: '' });
-    setAnnSaved(true);
-    setTimeout(() => setAnnSaved(false), 3500);
+    
+    try {
+      const response = await publishAnnouncement({
+        title: newAnn.title,
+        body: newAnn.body,
+        expiresAt: newAnn.expiresAt || null
+      });
+      
+      setAnnouncements(prev => [response, ...prev]);
+      setNewAnn({ title: '', body: '', expiresAt: '' });
+      setAnnSaved(true);
+      setTimeout(() => setAnnSaved(false), 3500);
+    } catch (err) {
+      console.error('Failed to publish announcement:', err);
+    }
   }
 
   function exportDefaultersCSV() {

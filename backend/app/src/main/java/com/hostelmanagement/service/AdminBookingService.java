@@ -4,11 +4,15 @@ import com.hostelmanagement.domain.*;
 import com.hostelmanagement.repository.BookingRepository;
 import com.hostelmanagement.repository.PaymentRepository;
 import com.hostelmanagement.web.admin.dto.AdminBookingResponse;
+import com.hostelmanagement.web.dto.PageResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,6 +51,30 @@ public class AdminBookingService {
     }
 
     return bookings.stream().map(b -> toDto(b, paymentByBookingId.get(b.getId()))).toList();
+  }
+
+  @Transactional(readOnly = true)
+  public PageResponse<AdminBookingResponse> listPaginated(BookingStatus status, Pageable pageable) {
+    Page<Booking> bookingPage = 
+        status == null ? bookingRepository.findAll(pageable) : bookingRepository.findByStatus(status, pageable);
+
+    if (bookingPage.isEmpty()) {
+      return PageResponse.from(new PageImpl<>(List.of(), pageable, 0));
+    }
+
+    List<Long> bookingIds = bookingPage.getContent().stream().map(Booking::getId).toList();
+    Map<Long, Payment> paymentByBookingId = new HashMap<>();
+    for (Payment p : paymentRepository.findByBookingIdIn(bookingIds)) {
+      paymentByBookingId.put(p.getBooking().getId(), p);
+    }
+
+    List<AdminBookingResponse> content = 
+        bookingPage.getContent().stream().map(b -> toDto(b, paymentByBookingId.get(b.getId()))).toList();
+    
+    Page<AdminBookingResponse> responsePage = 
+        new PageImpl<>(content, pageable, bookingPage.getTotalElements());
+    
+    return PageResponse.from(responsePage);
   }
 
   @Transactional

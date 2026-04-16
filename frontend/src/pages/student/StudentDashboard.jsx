@@ -6,15 +6,10 @@ import {
 } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { getMyBooking } from '../../services/studentService.js';
+import { listAnnouncements } from '../../services/announcementService.js';
 import { toastService } from '../../hooks/useToast.js';
 import PaymentCountdown from '../../components/student/PaymentCountdown.jsx';
 import BookingProgressTimeline from '../../components/student/BookingProgressTimeline.jsx';
-
-const SAMPLE_ANNOUNCEMENTS = [
-  { id: 1, title: 'Scheduled Power Maintenance', date: '5 Mar 2026', preview: 'Power will be interrupted on Saturday 7 March from 8 AM – 2 PM for routine grid maintenance. Plan accordingly.' },
-  { id: 2, title: 'End-of-Semester Checkout Procedures', date: '1 Mar 2026', preview: 'All students must complete the checkout form and return room keys by the last Friday of the semester.' },
-  { id: 3, title: 'Water Supply Notice – Block A & B', date: '28 Feb 2026', preview: 'Water supply will be restricted on Tuesday 3 March from 6 AM – 12 PM while plumbing repairs are underway.' }
-];
 
 function StatusBadge({ booking, loading }) {
   if (loading) return <span className="inline-flex h-6 w-24 animate-pulse rounded-full bg-white/20 sm:h-7 sm:w-28" />;
@@ -71,7 +66,9 @@ function SectionHeader({ icon: Icon, title, action }) {
 export default function StudentDashboard() {
   const { user } = useAuth();
   const [booking, setBooking] = useState(null);
+  const [announcements, setAnnouncements] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [announcementsLoading, setAnnouncementsLoading] = useState(true);
   const [error, setError] = useState('');
   const [expandedAnnouncementId, setExpandedAnnouncementId] = useState(null);
   const firstName = user?.fullName?.trim()?.split(/\s+/)?.[0] ?? 'Student';
@@ -81,6 +78,8 @@ export default function StudentDashboard() {
   useEffect(() => {
     let pollingInterval;
     let previousStatus = null;
+    
+    // Fetch booking data
     (async () => {
       try {
         const data = await getMyBooking();
@@ -92,6 +91,21 @@ export default function StudentDashboard() {
         setLoading(false);
       }
     })();
+    
+    // Fetch announcements
+    (async () => {
+      try {
+        const data = await listAnnouncements();
+        setAnnouncements(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error('Failed to load announcements:', err);
+        setAnnouncements([]);
+      } finally {
+        setAnnouncementsLoading(false);
+      }
+    })();
+    
+    // Poll for booking status changes every 30 seconds
     pollingInterval = setInterval(async () => {
       try {
         const data = await getMyBooking();
@@ -283,23 +297,34 @@ export default function StudentDashboard() {
           <SectionCard>
             <SectionHeader icon={FaBuilding} title="📢 Announcements" />
             <div className="divide-y divide-neutral-100 dark:divide-white/6">
-              {SAMPLE_ANNOUNCEMENTS.map((a) => {
-                const isExpanded = expandedAnnouncementId === a.id;
-                return (
-                  <div key={a.id} className="p-3.5 transition-colors hover:bg-neutral-50 dark:hover:bg-white/3 sm:p-4">
-                    <div className="mb-1.5 flex items-start justify-between gap-2">
-                      <p className="text-sm font-semibold text-neutral-900 dark:text-white">{a.title}</p>
-                      <span className="shrink-0 text-[11px] text-neutral-400 dark:text-neutral-500">{a.date}</span>
+              {announcementsLoading ? (
+                <div className="space-y-3 p-4">
+                  {[1,2,3].map(n => <div key={n} className="h-16 animate-pulse rounded-lg bg-neutral-100 dark:bg-neutral-800" />)}
+                </div>
+              ) : announcements.length === 0 ? (
+                <div className="flex flex-col items-center gap-2 py-8 text-center">
+                  <p className="text-sm font-medium text-neutral-600 dark:text-neutral-400">No announcements yet</p>
+                  <p className="text-xs text-neutral-500 dark:text-neutral-500">Check back soon for updates</p>
+                </div>
+              ) : (
+                announcements.map((a) => {
+                  const isExpanded = expandedAnnouncementId === a.id;
+                  return (
+                    <div key={a.id} className="p-3.5 transition-colors hover:bg-neutral-50 dark:hover:bg-white/3 sm:p-4">
+                      <div className="mb-1.5 flex items-start justify-between gap-2">
+                        <p className="text-sm font-semibold text-neutral-900 dark:text-white">{a.title}</p>
+                        <span className="shrink-0 text-[11px] text-neutral-400 dark:text-neutral-500">{a.publishedAt}</span>
+                      </div>
+                      <p className={`text-xs leading-relaxed text-neutral-500 dark:text-neutral-400 ${isExpanded ? '' : 'line-clamp-2'}`}>{isExpanded ? a.body : a.preview}</p>
+                      <button type="button"
+                        className="mt-2 text-[11px] font-semibold text-[#0f6b46] hover:underline dark:text-emerald-400"
+                        onClick={() => setExpandedAnnouncementId(isExpanded ? null : a.id)}>
+                        {isExpanded ? 'Show less' : 'Read more'}
+                      </button>
                     </div>
-                    <p className={`text-xs leading-relaxed text-neutral-500 dark:text-neutral-400 ${isExpanded ? '' : 'line-clamp-2'}`}>{a.preview}</p>
-                    <button type="button"
-                      className="mt-2 text-[11px] font-semibold text-[#0f6b46] hover:underline dark:text-emerald-400"
-                      onClick={() => setExpandedAnnouncementId(isExpanded ? null : a.id)}>
-                      {isExpanded ? 'Show less' : 'Read more'}
-                    </button>
-                  </div>
-                );
-              })}
+                  );
+                })
+              )}
             </div>
           </SectionCard>
 

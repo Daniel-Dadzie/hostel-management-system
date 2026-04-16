@@ -1,0 +1,12 @@
+CREATE TABLE `announcements` (
+  `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+  `title` VARCHAR(200) NOT NULL,
+  `body` TEXT NOT NULL,
+  `published_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `expires_at` TIMESTAMP NULL,
+  `is_active` BOOLEAN NOT NULL DEFAULT TRUE,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX `idx_published_at` (`published_at` DESC),
+  INDEX `idx_active` (`is_active`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { FaPencilAlt, FaTimes } from 'react-icons/fa';
-import { createHostel, listHostels, updateHostel } from '../../services/hostelService.js';
+import PaginationControls from '../../components/PaginationControls.jsx';
+import { createHostel, listHostelsPaginated, updateHostel } from '../../services/hostelService.js';
 import { uploadImage } from '../../services/uploadService.js';
 import ImageUploadField from '../../components/ImageUploadField.jsx';
 import { resolveAssetUrl } from '../../utils/assetUrl.js';
@@ -30,15 +31,33 @@ export default function ManageHostelsPage() {
   });
   const [saving, setSaving] = useState(false);
   const [updatingImageHostelId, setUpdatingImageHostelId] = useState(null);
+  const [pageNumber, setPageNumber] = useState(0);
+  const [pageSize, setPageSize] = useState(20);
+  const [paginationMeta, setPaginationMeta] = useState({
+    totalElements: 0,
+    totalPages: 0,
+    isFirst: true,
+    isLast: true,
+    hasNext: false,
+    hasPrevious: false
+  });
 
   useEffect(() => {
     loadHostels();
-  }, []);
+  }, [pageNumber, pageSize]);
 
   async function loadHostels() {
     try {
-      const data = await listHostels();
-      setHostels(Array.isArray(data) ? data : []);
+      const data = await listHostelsPaginated(null, pageNumber, pageSize);
+      setHostels(Array.isArray(data?.content) ? data.content : []);
+      setPaginationMeta({
+        totalElements: data?.totalElements ?? 0,
+        totalPages: data?.totalPages ?? 0,
+        isFirst: data?.isFirst ?? true,
+        isLast: data?.isLast ?? true,
+        hasNext: data?.hasNext ?? false,
+        hasPrevious: data?.hasPrevious ?? false
+      });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -236,6 +255,30 @@ export default function ManageHostelsPage() {
       </div>
     );
   }
+
+  const pagination = {
+    pageNumber,
+    pageSize,
+    totalElements: paginationMeta.totalElements,
+    totalPages: paginationMeta.totalPages,
+    isFirst: paginationMeta.isFirst,
+    isLast: paginationMeta.isLast,
+    hasNext: paginationMeta.hasNext,
+    hasPrevious: paginationMeta.hasPrevious,
+    goToPage: setPageNumber,
+    nextPage: () => setPageNumber((prev) => prev + 1),
+    prevPage: () => setPageNumber((prev) => Math.max(0, prev - 1)),
+    goToFirst: () => setPageNumber(0),
+    goToLast: () => {
+      if (paginationMeta.totalPages > 0) {
+        setPageNumber(paginationMeta.totalPages - 1);
+      }
+    },
+    changePageSize: (newSize) => {
+      setPageSize(newSize);
+      setPageNumber(0);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -548,6 +591,10 @@ export default function ManageHostelsPage() {
             </tbody>
           </table>
           </div>
+
+          {paginationMeta.totalElements > 0 && (
+            <PaginationControls pagination={pagination} />
+          )}
         </div>
       )}
     </div>

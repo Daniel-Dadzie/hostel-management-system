@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.Objects;
 
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +17,7 @@ import com.hostelmanagement.repository.HostelRepository;
 import com.hostelmanagement.repository.RoomRepository;
 import com.hostelmanagement.web.admin.dto.UpsertRoomRequest;
 import com.hostelmanagement.web.dto.RoomResponse;
+import com.hostelmanagement.web.dto.PageResponse;
 
 @Service
 public class AdminRoomService {
@@ -31,6 +35,19 @@ public class AdminRoomService {
     List<Room> rooms =
         hostelId == null ? roomRepository.findAllWithHostel() : roomRepository.findByHostelIdWithHostel(hostelId);
     return rooms.stream().map(AdminRoomService::toDto).toList();
+  }
+
+  @Transactional(readOnly = true)
+  public PageResponse<RoomResponse> listPaginated(Long hostelId, Pageable pageable) {
+    Page<Room> roomPage;
+    if (hostelId == null) {
+      roomPage = roomRepository.findAll(pageable);
+    } else {
+      roomPage = roomRepository.findByHostelId(hostelId, pageable);
+    }
+
+    Page<RoomResponse> responsePage = roomPage.map(AdminRoomService::toDto);
+    return PageResponse.from(responsePage);
   }
 
   @CacheEvict(value = "available-rooms", allEntries = true)

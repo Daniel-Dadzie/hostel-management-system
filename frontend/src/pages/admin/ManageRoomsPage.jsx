@@ -1,7 +1,8 @@
 import PropTypes from 'prop-types';
 import { useEffect, useState } from 'react';
+import PaginationControls from '../../components/PaginationControls.jsx';
 import { listHostels } from '../../services/hostelService.js';
-import { createRoom, listRooms, updateRoom } from '../../services/roomService.js';
+import { createRoom, listRoomsPaginated, updateRoom } from '../../services/roomService.js';
 
 function buildInitialForm(nextHostels) {
   return {
@@ -196,7 +197,8 @@ export default function ManageRoomsPage() {
   const [selectedStatus, setSelectedStatus] = useState('ALL');
   const [selectedGender, setSelectedGender] = useState('ALL');
   const [search, setSearch] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [loadingHostels, setLoadingHostels] = useState(true);
+  const [loadingRooms, setLoadingRooms] = useState(true);
   const [error, setError] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingRoom, setEditingRoom] = useState(null);
@@ -212,19 +214,28 @@ export default function ManageRoomsPage() {
     floorNumber: 1
   });
   const [saving, setSaving] = useState(false);
+  const [pageNumber, setPageNumber] = useState(0);
+  const [pageSize, setPageSize] = useState(20);
+  const [paginationMeta, setPaginationMeta] = useState({
+    totalElements: 0,
+    totalPages: 0,
+    isFirst: true,
+    isLast: true,
+    hasNext: false,
+    hasPrevious: false
+  });
 
   useEffect(() => {
-    loadData();
+    loadHostels();
   }, []);
 
-  async function loadData() {
+  useEffect(() => {
+    loadRooms();
+  }, [pageNumber, pageSize, selectedHostel]);
+
+  async function loadHostels() {
     try {
-      const [roomsData, hostelsData] = await Promise.all([
-        listRooms(),
-        listHostels()
-      ]);
-      setRooms(Array.isArray(roomsData) ? roomsData : []);
-      // Show all hostels for room creation (not just active ones)
+      const hostelsData = await listHostels();
       const allHostels = Array.isArray(hostelsData) ? hostelsData : [];
       setHostels(allHostels);
       if (!editingRoom && allHostels.length > 0) {
@@ -233,7 +244,27 @@ export default function ManageRoomsPage() {
     } catch (err) {
       setError(err.message);
     } finally {
-      setLoading(false);
+      setLoadingHostels(false);
+    }
+  }
+
+  async function loadRooms() {
+    try {
+      const hostelId = selectedHostel === 'ALL' ? null : Number(selectedHostel);
+      const data = await listRoomsPaginated(hostelId, pageNumber, pageSize);
+      setRooms(Array.isArray(data?.content) ? data.content : []);
+      setPaginationMeta({
+        totalElements: data?.totalElements ?? 0,
+        totalPages: data?.totalPages ?? 0,
+        isFirst: data?.isFirst ?? true,
+        isLast: data?.isLast ?? true,
+        hasNext: data?.hasNext ?? false,
+        hasPrevious: data?.hasPrevious ?? false
+      });
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoadingRooms(false);
     }
   }
 
@@ -260,7 +291,7 @@ export default function ManageRoomsPage() {
       setShowForm(false);
       setEditingRoom(null);
       setForm(buildInitialForm(hostels));
-      loadData();
+      loadRooms();
     } catch (err) {
       setError(err.message);
     } finally {
@@ -318,6 +349,32 @@ export default function ManageRoomsPage() {
   const toggleFormLabel = getToggleFormLabel(showForm, editingRoom);
 
   const saveButtonLabel = getSaveButtonLabel(saving, editingRoom);
+
+  const loading = loadingHostels || loadingRooms;
+
+  const pagination = {
+    pageNumber,
+    pageSize,
+    totalElements: paginationMeta.totalElements,
+    totalPages: paginationMeta.totalPages,
+    isFirst: paginationMeta.isFirst,
+    isLast: paginationMeta.isLast,
+    hasNext: paginationMeta.hasNext,
+    hasPrevious: paginationMeta.hasPrevious,
+    goToPage: setPageNumber,
+    nextPage: () => setPageNumber((prev) => prev + 1),
+    prevPage: () => setPageNumber((prev) => Math.max(0, prev - 1)),
+    goToFirst: () => setPageNumber(0),
+    goToLast: () => {
+      if (paginationMeta.totalPages > 0) {
+        setPageNumber(paginationMeta.totalPages - 1);
+      }
+    },
+    changePageSize: (newSize) => {
+      setPageSize(newSize);
+      setPageNumber(0);
+    }
+  };
 
   if (loading) {
     return (
@@ -520,13 +577,16 @@ export default function ManageRoomsPage() {
       )}
 
       {/* Rooms Table */}
-      {rooms.length > 0 && (
+      {paginationMeta.totalElements > 0 && (
         <div className="card">
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             <select
               className="input-field"
               value={selectedHostel}
-              onChange={(e) => setSelectedHostel(e.target.value)}
+              onChange={(e) => {
+                setSelectedHostel(e.target.value);
+                setPageNumber(0);
+              }}
             >
               <option value="ALL">Hostel: All</option>
               {hostels.map((hostel) => (
@@ -567,6 +627,10 @@ export default function ManageRoomsPage() {
       )}
 
       <RoomResults filteredRooms={filteredRooms} statusColors={statusColors} onEdit={startEdit} />
+
+      {paginationMeta.totalElements > 0 && (
+        <PaginationControls pagination={pagination} />
+      )}
     </div>
   );
 }

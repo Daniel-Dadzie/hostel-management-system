@@ -6,6 +6,20 @@ export function listHostels() {
   });
 }
 
+export function listHostelsPaginated(active = null, pageNumber = 0, pageSize = 20) {
+  const params = new URLSearchParams();
+  if (active !== null && active !== undefined) {
+    params.append('active', active);
+  }
+  params.append('page', pageNumber);
+  params.append('size', pageSize);
+  
+  const queryString = params.toString();
+  return apiRequest(`/api/admin/hostels/paginated${queryString ? '?' + queryString : ''}`, {
+    headers: getAuthHeaders()
+  });
+}
+
 export function createHostel(payload) {
   return apiRequest('/api/admin/hostels', {
     method: 'POST',

@@ -6,6 +6,20 @@ export function listAdminBookings() {
   });
 }
 
+export function listAdminBookingsPaginated(status = null, pageNumber = 0, pageSize = 20) {
+  const params = new URLSearchParams();
+  if (status) {
+    params.append('status', status);
+  }
+  params.append('page', pageNumber);
+  params.append('size', pageSize);
+  
+  const queryString = params.toString();
+  return apiRequest(`/api/admin/bookings/paginated${queryString ? '?' + queryString : ''}`, {
+    headers: getAuthHeaders()
+  });
+}
+
 export function updateAdminBookingStatus(bookingId, status) {
   return apiRequest(`/api/admin/bookings/${bookingId}/status`, {
     method: 'PATCH',
