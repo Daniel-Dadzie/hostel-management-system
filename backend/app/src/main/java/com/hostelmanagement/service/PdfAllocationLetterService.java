@@ -19,6 +19,7 @@ import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
@@ -136,9 +137,9 @@ public class PdfAllocationLetterService {
     detailsTable.setSpacingAfter(15);
 
     Room room = booking.getRoom();
-    String hostelName = room != null ? room.getHostel().getName() : "Not Yet Assigned";
-    String roomNumber = room != null ? room.getRoomNumber() : "To Be Assigned";
-    String roomType = room != null ? room.getRoomType().toString() : "N/A";
+    String hostelName = room != null && room.getHostel() != null ? room.getHostel().getName() : "Not Yet Assigned";
+    String roomNumber = room != null && room.getRoomNumber() != null ? room.getRoomNumber() : "To Be Assigned";
+    String roomType = room != null && room.getRoomType() != null ? room.getRoomType().toString() : "N/A";
     String floorNumber = room != null ? String.valueOf(room.getFloorNumber()) : "N/A";
 
     addDetailRow(detailsTable, "Student ID:", student.getId().toString());
@@ -162,14 +163,17 @@ public class PdfAllocationLetterService {
     paymentTable.setWidthPercentage(100);
     paymentTable.setSpacingAfter(15);
 
-    addDetailRow(paymentTable, "Amount Paid:", String.format("GHS %.2f", payment.getAmount()));
+    addDetailRow(paymentTable, "Amount Paid:", formatAmount(payment.getAmount()));
     addDetailRow(paymentTable, "Payment Date:",
         payment.getPaidAt() != null
             ? java.time.Instant.ofEpochSecond(payment.getPaidAt().getEpochSecond())
                 .atZone(java.time.ZoneId.systemDefault())
                 .format(DATE_FORMATTER)
             : "Pending");
-    addDetailRow(paymentTable, "Payment Method:", payment.getPaymentMethod().toString());
+    addDetailRow(
+      paymentTable,
+      "Payment Method:",
+      payment.getPaymentMethod() != null ? payment.getPaymentMethod().toString() : "N/A");
     addDetailRow(paymentTable, "Transaction Reference:",
         payment.getTransactionReference() != null ? payment.getTransactionReference() : "N/A");
     document.add(paymentTable);
@@ -247,7 +251,7 @@ public class PdfAllocationLetterService {
     paymentDetailsTable.setSpacingAfter(15);
 
     addDetailRow(paymentDetailsTable, "Booking ID:", booking.getId().toString());
-    addDetailRow(paymentDetailsTable, "Amount Paid:", String.format("GHS %.2f", payment.getAmount()));
+    addDetailRow(paymentDetailsTable, "Amount Paid:", formatAmount(payment.getAmount()));
     addDetailRow(paymentDetailsTable, "Payment Date:",
         payment.getPaidAt() != null
             ? java.time.Instant.ofEpochSecond(payment.getPaidAt().getEpochSecond())
@@ -258,7 +262,8 @@ public class PdfAllocationLetterService {
         payment.getPaymentMethod() != null ? payment.getPaymentMethod().toString() : "N/A");
     addDetailRow(paymentDetailsTable, "Transaction Reference:",
         payment.getTransactionReference() != null ? payment.getTransactionReference() : "N/A");
-    addDetailRow(paymentDetailsTable, "Payment Status:", payment.getStatus().toString());
+    addDetailRow(paymentDetailsTable, "Payment Status:",
+      payment.getStatus() != null ? payment.getStatus().toString() : "N/A");
     document.add(paymentDetailsTable);
 
     Font darkGrayFont = new Font(Font.FontFamily.HELVETICA, 10);
@@ -290,6 +295,10 @@ public class PdfAllocationLetterService {
 
     table.addCell(labelCell);
     table.addCell(valueCell);
+  }
+
+  private String formatAmount(BigDecimal amount) {
+    return String.format("GHS %.2f", amount != null ? amount : BigDecimal.ZERO);
   }
 
   private void addFooter(Document document) throws DocumentException {

@@ -1,20 +1,30 @@
 package com.hostelmanagement.service;
 
-import com.hostelmanagement.domain.*;
-import com.hostelmanagement.repository.BookingRepository;
-import com.hostelmanagement.repository.PaymentRepository;
-import com.hostelmanagement.web.admin.dto.AdminBookingResponse;
-import com.hostelmanagement.web.dto.PageResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.hostelmanagement.domain.Booking;
+import com.hostelmanagement.domain.BookingStatus;
+import com.hostelmanagement.domain.Hostel;
+import com.hostelmanagement.domain.Payment;
+import com.hostelmanagement.domain.PaymentStatus;
+import com.hostelmanagement.domain.Room;
+import com.hostelmanagement.domain.Student;
+import com.hostelmanagement.repository.BookingRepository;
+import com.hostelmanagement.repository.PaymentRepository;
+import com.hostelmanagement.web.admin.dto.AdminBookingResponse;
+import com.hostelmanagement.web.dto.PageResponse;
 
 @Service
 public class AdminBookingService {
@@ -87,6 +97,14 @@ public class AdminBookingService {
             .orElseThrow(() -> new IllegalArgumentException("Booking not found"));
 
     Payment payment = paymentRepository.findByBookingId(bookingId).orElse(null);
+    
+    // AUTO-COMPLETE PAYMENT WHEN BOOKING IS APPROVED (NEW)
+    if (status == BookingStatus.APPROVED && payment != null && payment.getStatus() != PaymentStatus.COMPLETED) {
+      payment.setStatus(PaymentStatus.COMPLETED);
+      payment.setPaidAt(Instant.now());
+      paymentRepository.save(payment);
+      System.out.println("[AdminBookingService] Payment status auto-completed for booking " + bookingId);
+    }
     
     // Send real-time WebSocket notifications when booking is approved
     Student student = booking.getStudent();

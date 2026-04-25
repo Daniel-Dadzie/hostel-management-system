@@ -141,6 +141,8 @@ public class NotificationService {
               NotificationMessage.paymentApproved(studentId, bookingId, paymentId);
           template.convertAndSendToUser(
               studentId.toString(), "/queue/notifications", message);
+        template.convertAndSend(
+          "/topic/students/" + studentId + "/notifications", message);
           log.info(
               "[NOTIFICATION-WS] Sent payment-approval to student {} (booking: {}, payment: {})",
               studentId, bookingId, paymentId);
@@ -163,6 +165,8 @@ public class NotificationService {
           NotificationMessage message = NotificationMessage.bookingApproved(studentId, bookingId);
           template.convertAndSendToUser(
               studentId.toString(), "/queue/notifications", message);
+        template.convertAndSend(
+          "/topic/students/" + studentId + "/notifications", message);
           log.info(
               "[NOTIFICATION-WS] Sent booking-approval to student {} (booking: {})",
               studentId, bookingId);
@@ -187,6 +191,8 @@ public class NotificationService {
               NotificationMessage.bookingRejected(studentId, bookingId, reason);
           template.convertAndSendToUser(
               studentId.toString(), "/queue/notifications", message);
+        template.convertAndSend(
+          "/topic/students/" + studentId + "/notifications", message);
           log.info(
               "[NOTIFICATION-WS] Sent booking-rejection to student {} (booking: {})",
               studentId, bookingId);

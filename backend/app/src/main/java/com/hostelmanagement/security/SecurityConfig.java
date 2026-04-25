@@ -33,6 +33,7 @@ public class SecurityConfig {
         auth ->
             auth.requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/announcements").permitAll()
+          .requestMatchers("/ws-notifications", "/ws-notifications/**").permitAll()
                 .requestMatchers("/api/uploads/**").permitAll()
                 .requestMatchers("/uploads/**").permitAll()
                 .requestMatchers("/api/payments/webhook/paystack").permitAll()

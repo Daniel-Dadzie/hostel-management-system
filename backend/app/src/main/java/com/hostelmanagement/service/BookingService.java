@@ -206,7 +206,10 @@ public class BookingService {
                     BookingStatus.CANCELLED))
             .orElseThrow(() -> new IllegalArgumentException("No booking found"));
 
-    String hostelName = booking.getRoom() == null ? null : booking.getRoom().getHostel().getName();
+    String hostelName =
+      booking.getRoom() == null || booking.getRoom().getHostel() == null
+        ? null
+        : booking.getRoom().getHostel().getName();
     String roomNumber = booking.getRoom() == null ? null : booking.getRoom().getRoomNumber();
 
     Payment payment = paymentRepository.findByBookingId(booking.getId()).orElse(null);

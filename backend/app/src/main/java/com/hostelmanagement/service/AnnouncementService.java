@@ -1,79 +1,90 @@
 package com.hostelmanagement.service;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeParseException;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.data.domain.Sort;
+import org.springframework.lang.NonNull;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.hostelmanagement.domain.Announcement;
 import com.hostelmanagement.repository.AnnouncementRepository;
 import com.hostelmanagement.web.admin.dto.UpsertAnnouncementRequest;
 import com.hostelmanagement.web.dto.AnnouncementResponse;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.List;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Service for managing announcements.
- * Handles creation, retrieval, and deletion of announcements visible to students.
- */
 @Service
 @Transactional
 public class AnnouncementService {
 
-  private final AnnouncementRepository announcementRepository;
+    private final AnnouncementRepository announcementRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
-  public AnnouncementService(AnnouncementRepository announcementRepository) {
-    this.announcementRepository = announcementRepository;
-  }
-
-  /**
-   * Get all active announcements visible to students.
-   */
-  @Transactional(readOnly = true)
-  public List<AnnouncementResponse> listActive() {
-    return announcementRepository.findAllActive().stream()
-        .map(AnnouncementResponse::from)
-        .toList();
-  }
-
-  /**
-   * Create a new announcement.
-   *
-   * @param request Announcement details
-   * @return Created announcement
-   */
-  public AnnouncementResponse create(UpsertAnnouncementRequest request) {
-    Instant expiresAt = null;
-    if (request.expiresAt() != null && !request.expiresAt().isBlank()) {
-      try {
-        LocalDate expiryDate = LocalDate.parse(request.expiresAt());
-        expiresAt = expiryDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
-      } catch (Exception e) {
-        // Invalid date format - treat as no expiry
-      }
+    public AnnouncementService(AnnouncementRepository announcementRepository, 
+                               SimpMessagingTemplate messagingTemplate) {
+        this.announcementRepository = announcementRepository;
+        this.messagingTemplate = messagingTemplate;
     }
 
-    Announcement announcement = new Announcement(request.title(), request.body(), expiresAt);
-    Announcement saved = announcementRepository.save(announcement);
-    return AnnouncementResponse.from(saved);
-  }
+    public AnnouncementResponse create(UpsertAnnouncementRequest request) {
+        Instant expiresAt = parseDate(request.expiresAt());
 
-  /**
-   * Delete an announcement by ID.
-   *
-   * @param id Announcement ID
-   */
-  public void delete(Long id) {
-    announcementRepository.deleteById(id);
-  }
+        Announcement announcement = new Announcement(request.title(), request.body(), expiresAt);
+        Announcement saved = announcementRepository.save(announcement);
+        
+        // Use your static factory method
+        AnnouncementResponse response = AnnouncementResponse.from(saved);
 
-  /**
-   * Get all announcements (including inactive) for admin view.
-   */
-  @Transactional(readOnly = true)
-  public List<AnnouncementResponse> listAll() {
-    return announcementRepository.findAll().stream()
-        .sorted((a, b) -> b.getPublishedAt().compareTo(a.getPublishedAt()))
-        .map(AnnouncementResponse::from)
-        .toList();
-  }
+        // Broadcast a structured payload so student dashboard can render immediately.
+        Map<String, Object> broadcast = new LinkedHashMap<>();
+        broadcast.put("type", "ANNOUNCEMENT");
+        broadcast.put("severity", "info");
+        broadcast.put("id", response.id());
+        broadcast.put("title", response.title());
+        broadcast.put("body", response.body());
+        broadcast.put("preview", response.preview());
+        broadcast.put("publishedAt", response.publishedAt());
+        broadcast.put("expiresAt", response.expiresAt());
+        broadcast.put("message", "Important: " + response.preview());
+
+        messagingTemplate.convertAndSend("/topic/announcements", broadcast);
+
+        return response;
+    }
+
+    @Transactional(readOnly = true)
+    public List<AnnouncementResponse> listActive() {
+        return announcementRepository.findAllActive().stream()
+                .map(AnnouncementResponse::from)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<AnnouncementResponse> listAll() {
+        return announcementRepository.findAll(Sort.by(Sort.Direction.DESC, "publishedAt")).stream()
+                .map(AnnouncementResponse::from)
+                .toList();
+    }
+
+    public void delete(@NonNull Long id) {
+        announcementRepository.deleteById(id);
+    }
+
+    // Helper to keep the create method clean
+    private Instant parseDate(String dateStr) {
+        if (dateStr == null || dateStr.isBlank()) return null;
+        try {
+            return LocalDate.parse(dateStr)
+                    .atStartOfDay(ZoneId.systemDefault())
+                    .toInstant();
+        } catch (DateTimeParseException e) {
+            return null;
+        }
+    }
 }
