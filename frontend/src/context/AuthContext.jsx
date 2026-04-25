@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import * as defaultAuthService from '../services/authService.js';
 import * as defaultProfileService from '../services/profileService.js';
+import { ApiError }  from '../api/client.js';
 
 const AuthContext = createContext(null);
 
@@ -30,21 +31,22 @@ export function AuthProvider({
     localStorage.removeItem(ROLE_KEY);
   }, []);
 
-  const loadProfile = useCallback(async () => {
-    try {
-      const data = await profileService.getMyProfile();
-      setUser(data);
-    } catch (error) {
-      if (error?.response?.status === 401 || error?.response?.status === 403) {
-        logout();
-      } else {
-        console.error('Failed to load profile:', error);
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, [profileService, logout]);
+ 
 
+  const loadProfile = useCallback(async () => {
+  try {
+    const data = await profileService.getMyProfile();
+    setUser(data);
+  } catch (error) {
+    if (error instanceof ApiError && (error.status === 401 || error.status === 403)) {
+      logout();
+    } else {
+      console.error('Failed to load profile:', error);
+    }
+  } finally {
+    setLoading(false);
+  }
+}, [profileService, logout]);
   useEffect(() => {
     if (!token) {
       setLoading(false);

@@ -122,6 +122,33 @@ export default function StudentDashboard() {
     return () => clearInterval(pollingInterval);
   }, []);
 
+    // Listen for real-time announcements via WebSocket (NEW)
+  useEffect(() => {
+    const handleAnnouncementEvent = (event) => {
+      const newAnnouncement = event.detail;
+      console.log('[StudentDashboard] New announcement received:', newAnnouncement);
+
+      // Check for duplicates (avoid showing same announcement twice)
+      setAnnouncements((prev) => {
+        const isDuplicate = prev.some((a) => a.id === newAnnouncement.id);
+        if (isDuplicate) {
+          console.log('[StudentDashboard] Announcement already in list, skipping duplicate');
+          return prev;
+        }
+        // Prepend new announcement (most recent first)
+        return [newAnnouncement, ...prev];
+      });
+
+      // Show additional feedback
+      toastService.success('📢 New announcement posted by admin');
+    };
+
+    window.addEventListener('announcement-received', handleAnnouncementEvent);
+    return () => {
+      window.removeEventListener('announcement-received', handleAnnouncementEvent);
+    };
+  }, []);
+
   return (
     <div className="animate-fade-in space-y-4 sm:space-y-6">
 
@@ -310,12 +337,12 @@ export default function StudentDashboard() {
                 announcements.map((a) => {
                   const isExpanded = expandedAnnouncementId === a.id;
                   return (
-                    <div key={a.id} className="p-3.5 transition-colors hover:bg-neutral-50 dark:hover:bg-white/3 sm:p-4">
+                    <div key={a.id} className="overflow-hidden p-3.5 transition-colors hover:bg-neutral-50 dark:hover:bg-white/3 sm:p-4">
                       <div className="mb-1.5 flex items-start justify-between gap-2">
-                        <p className="text-sm font-semibold text-neutral-900 dark:text-white">{a.title}</p>
+                        <p className="min-w-0 break-words text-sm font-semibold text-neutral-900 dark:text-white">{a.title}</p>
                         <span className="shrink-0 text-[11px] text-neutral-400 dark:text-neutral-500">{a.publishedAt}</span>
                       </div>
-                      <p className={`text-xs leading-relaxed text-neutral-500 dark:text-neutral-400 ${isExpanded ? '' : 'line-clamp-2'}`}>{isExpanded ? a.body : a.preview}</p>
+                      <p className={`max-w-full break-words whitespace-pre-wrap text-xs leading-relaxed text-neutral-500 dark:text-neutral-400 ${isExpanded ? '' : 'line-clamp-2'}`}>{isExpanded ? a.body : a.preview}</p>
                       <button type="button"
                         className="mt-2 text-[11px] font-semibold text-[#0f6b46] hover:underline dark:text-emerald-400"
                         onClick={() => setExpandedAnnouncementId(isExpanded ? null : a.id)}>

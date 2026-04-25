@@ -1,18 +1,5 @@
 package com.hostelmanagement.service;
 
-import com.hostelmanagement.domain.Booking;
-import com.hostelmanagement.domain.BookingStatus;
-import com.hostelmanagement.domain.Payment;
-import com.hostelmanagement.domain.PaymentMethod;
-import com.hostelmanagement.domain.PaymentStatus;
-import com.hostelmanagement.domain.Student;
-import com.hostelmanagement.repository.BookingRepository;
-import com.hostelmanagement.repository.PaymentRepository;
-import com.hostelmanagement.web.student.dto.PaymentGatewayInitResponse;
-import com.hostelmanagement.web.student.dto.SubmitPaymentResponse;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -31,6 +18,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -39,6 +27,19 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hostelmanagement.domain.Booking;
+import com.hostelmanagement.domain.BookingStatus;
+import com.hostelmanagement.domain.Payment;
+import com.hostelmanagement.domain.PaymentMethod;
+import com.hostelmanagement.domain.PaymentStatus;
+import com.hostelmanagement.domain.Student;
+import com.hostelmanagement.repository.BookingRepository;
+import com.hostelmanagement.repository.PaymentRepository;
+import com.hostelmanagement.web.student.dto.PaymentGatewayInitResponse;
+import com.hostelmanagement.web.student.dto.SubmitPaymentResponse;
 
 @Service
 public class StudentPaymentService {
@@ -241,7 +242,7 @@ public class StudentPaymentService {
 
   /**
    * Generates a PDF allocation letter for a student's booking. 
-   * Validates that the student owns the booking and payment is completed.
+   * Validates that the student owns the booking and payment/admin approval is confirmed.
    */
   public byte[] generateAllocationLetterPdf(Long studentId, Long bookingId) {
     try {
@@ -252,23 +253,27 @@ public class StudentPaymentService {
         throw new AccessDeniedException("You can only access your own booking");
       }
 
-      Payment payment = paymentRepository.findByBookingId(bookingId)
-          .orElseThrow(() -> new IllegalArgumentException("Payment record not found"));
+      Payment payment = resolvePaymentForDownload(booking);
 
-      if (payment.getStatus() != PaymentStatus.COMPLETED) {
-        throw new IllegalArgumentException("Allocation letter is only available after successful payment");
+      boolean isPaymentCompleted = payment.getStatus() == PaymentStatus.COMPLETED;
+      boolean isBookingApproved = booking.getStatus() == BookingStatus.APPROVED;
+
+      if (!isPaymentCompleted && !isBookingApproved) {
+        throw new IllegalArgumentException(
+            "Allocation letter is only available after successful payment or admin approval");
       }
 
       return pdfAllocationLetterService.generateAllocationLetterPdf(booking.getStudent(), booking, payment);
-      
-    } catch (Exception ex) { // FIXED: Changed IOException to Exception to fix maven compilation error
+    } catch (IllegalArgumentException ex) {
+      throw ex;
+    } catch (Exception ex) {
       throw new IllegalArgumentException("Unable to generate allocation letter: " + ex.getMessage());
     }
   }
 
   /**
    * Generates a payment receipt PDF for a student's payment. 
-   * Validates that the student owns the booking and payment is completed.
+   * Validates that the student owns the booking and payment/admin approval allows receipt access.
    */
   public byte[] generatePaymentReceiptPdf(Long studentId, Long bookingId) {
     try {
@@ -279,18 +284,50 @@ public class StudentPaymentService {
         throw new AccessDeniedException("You can only access your own booking");
       }
 
-      Payment payment = paymentRepository.findByBookingId(bookingId)
-          .orElseThrow(() -> new IllegalArgumentException("Payment record not found"));
+      Payment payment = resolvePaymentForDownload(booking);
 
-      if (payment.getStatus() != PaymentStatus.COMPLETED && payment.getStatus() != PaymentStatus.PENDING) {
-        throw new IllegalArgumentException("Receipt is only available for pending or completed payments");
+      boolean canDownloadReceipt = payment.getStatus() == PaymentStatus.COMPLETED
+          || payment.getStatus() == PaymentStatus.PENDING
+          || booking.getStatus() == BookingStatus.APPROVED;
+
+      if (!canDownloadReceipt) {
+        throw new IllegalArgumentException("Receipt is only available for pending, completed, or approved bookings");
       }
 
       return pdfAllocationLetterService.generatePaymentReceiptPdf(booking.getStudent(), payment, booking);
-      
-    } catch (Exception ex) { // FIXED: Changed IOException to Exception to fix maven compilation error
+    } catch (IllegalArgumentException ex) {
+      throw ex;
+    } catch (Exception ex) {
       throw new IllegalArgumentException("Unable to generate receipt: " + ex.getMessage());
     }
+  }
+
+  /**
+   * For approved bookings, we may not always have a fully populated payment record
+   * (legacy/manual admin approvals). Build a safe in-memory fallback so document
+   * downloads still work for students.
+   */
+  private Payment resolvePaymentForDownload(Booking booking) {
+    return paymentRepository.findByBookingId(booking.getId())
+        .orElseGet(() -> buildFallbackPaymentForApprovedBooking(booking));
+  }
+
+  private Payment buildFallbackPaymentForApprovedBooking(Booking booking) {
+    if (booking.getStatus() != BookingStatus.APPROVED) {
+      throw new IllegalArgumentException("Payment record not found");
+    }
+
+    Payment fallback = new Payment();
+    fallback.setStudent(booking.getStudent());
+    fallback.setBooking(booking);
+    fallback.setAmount(
+        booking.getRoom() != null && booking.getRoom().getPrice() != null
+            ? booking.getRoom().getPrice()
+            : BigDecimal.ZERO);
+    fallback.setStatus(PaymentStatus.COMPLETED);
+    fallback.setPaidAt(booking.getCreatedAt() != null ? booking.getCreatedAt() : Instant.now());
+    fallback.setTransactionReference("ADMIN-APPROVED-" + booking.getId());
+    return fallback;
   }
 
   // --- Webhook & Helper Methods ---

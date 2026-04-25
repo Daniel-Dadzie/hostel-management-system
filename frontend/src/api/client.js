@@ -1,3 +1,10 @@
+// at the top of client.js
+export class ApiError extends Error {
+  constructor(message, status) {
+    super(message);
+    this.status = status;
+  }
+}
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
 const REFRESH_TOKEN_KEY = 'hms.refreshToken';
 const ROLE_KEY = 'hms.role';
@@ -30,7 +37,7 @@ async function refreshAccessToken() {
 
   if (!response.ok) {
     clearAuth();
-    throw new Error('Token refresh failed');
+    throw new ApiError('Token refresh failed', response.status);
   }
 
   const data = await response.json();
@@ -91,18 +98,18 @@ export async function apiRequest(path, { method = 'GET', body, headers } = {}) {
         finalResponse = await refreshTokenAndRetry(() => doRequest(getAccessToken()));
       } catch {
         clearAuth();
-        throw new Error('Session expired. Please log in again.');
+        throw new ApiError('Session expired. Please log in again.', 401);
       }
     } else {
       clearAuth();
-      throw new Error('Session expired. Please log in again.');
+      throw new ApiError('Session expired. Please log in again.', 401);
     }
   }
 
   const payload = await finalResponse.json().catch(() => null);
   if (!finalResponse.ok) {
     const detail = payload?.message || payload?.error || `HTTP ${finalResponse.status}`;
-    throw new Error(detail);
+    throw new ApiError(detail, finalResponse.status);
   }
 
   return payload;

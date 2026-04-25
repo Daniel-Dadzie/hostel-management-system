@@ -1,5 +1,31 @@
 import { apiRequest, getAuthHeaders } from './api.js';
 
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
+
+function apiPath(path) {
+  return API_BASE_URL ? `${API_BASE_URL}${path}` : path;
+}
+
+async function readDownloadError(response, fallback) {
+  const contentType = response.headers.get('content-type') || '';
+
+  if (contentType.includes('application/json')) {
+    try {
+      const error = await response.json();
+      return error?.message || error?.error || fallback;
+    } catch {
+      return fallback;
+    }
+  }
+
+  try {
+    const text = await response.text();
+    return text?.trim() || fallback;
+  } catch {
+    return fallback;
+  }
+}
+
 export function getStudentProfile() {
   return apiRequest('/api/student/profile', {
     headers: getAuthHeaders()
@@ -63,8 +89,12 @@ export function verifyGatewayPayment({ bookingId }) {
  * @param {number} bookingId - The booking ID
  */
 export async function downloadAllocationLetter(bookingId) {
-  const token = getAuthHeaders()['Authorization'];
-  const response = await fetch(`/api/student/payments/${bookingId}/allocation-letter`, {
+  const token = getAuthHeaders().Authorization;
+  if (!token) {
+    throw new Error('Session expired. Please log in again.');
+  }
+
+  const response = await fetch(apiPath(`/api/student/payments/${bookingId}/allocation-letter`), {
     method: 'GET',
     headers: {
       'Authorization': token
@@ -72,12 +102,7 @@ export async function downloadAllocationLetter(bookingId) {
   });
 
   if (!response.ok) {
-    const contentType = response.headers.get('content-type');
-    if (contentType && contentType.includes('application/json')) {
-      const error = await response.json();
-      throw new Error(error.message || 'Failed to download allocation letter');
-    }
-    throw new Error('Failed to download allocation letter');
+    throw new Error(await readDownloadError(response, 'Failed to download allocation letter'));
   }
 
   // Get the blob and trigger download
@@ -97,8 +122,12 @@ export async function downloadAllocationLetter(bookingId) {
  * @param {number} bookingId - The booking ID
  */
 export async function downloadPaymentReceipt(bookingId) {
-  const token = getAuthHeaders()['Authorization'];
-  const response = await fetch(`/api/student/payments/${bookingId}/receipt`, {
+  const token = getAuthHeaders().Authorization;
+  if (!token) {
+    throw new Error('Session expired. Please log in again.');
+  }
+
+  const response = await fetch(apiPath(`/api/student/payments/${bookingId}/receipt`), {
     method: 'GET',
     headers: {
       'Authorization': token
@@ -106,12 +135,7 @@ export async function downloadPaymentReceipt(bookingId) {
   });
 
   if (!response.ok) {
-    const contentType = response.headers.get('content-type');
-    if (contentType && contentType.includes('application/json')) {
-      const error = await response.json();
-      throw new Error(error.message || 'Failed to download payment receipt');
-    }
-    throw new Error('Failed to download payment receipt');
+    throw new Error(await readDownloadError(response, 'Failed to download payment receipt'));
   }
 
   // Get the blob and trigger download

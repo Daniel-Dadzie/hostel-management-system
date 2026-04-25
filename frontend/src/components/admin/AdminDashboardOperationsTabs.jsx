@@ -1,10 +1,8 @@
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import {
-  FaCheckCircle,
   FaFileExport,
-  FaSearch,
-  FaTimesCircle
+  FaSearch
 } from 'react-icons/fa';
 import { DashboardPanel } from './AdminDashboardShared.jsx';
 
@@ -453,7 +451,7 @@ AnnouncementsTab.propTypes = {
   newAnn: PropTypes.shape({
     title: PropTypes.string.isRequired,
     body: PropTypes.string.isRequired,
-    expires: PropTypes.string.isRequired
+    expiresAt: PropTypes.string
   }).isRequired,
   setNewAnn: PropTypes.func.isRequired,
   handlePublishAnn: PropTypes.func.isRequired,
@@ -462,8 +460,9 @@ AnnouncementsTab.propTypes = {
       id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
       title: PropTypes.string,
       body: PropTypes.string,
-      expires: PropTypes.string,
-      published: PropTypes.string
+      expiresAt: PropTypes.string,
+      publishedAt: PropTypes.string,
+      preview: PropTypes.string
     })
   ).isRequired,
   deleteAnnouncement: PropTypes.func.isRequired

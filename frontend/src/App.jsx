@@ -1,7 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext.jsx';
-import { NotificationProvider } from './context/NotificationContext.jsx';
+import  NotificationProvider  from './context/NotificationProvider.jsx';
 import ProtectedRoute, { PublicRoute } from './components/ProtectedRoute.jsx';
 
 // Layouts

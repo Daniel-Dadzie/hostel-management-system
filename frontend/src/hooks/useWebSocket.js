@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react';
 import SockJS from 'sockjs-client';
-import { Stomp } from 'stompjs';
+import * as StompModule from 'stompjs';
 
 /**
  * Custom React hook for managing WebSocket connections with STOMP protocol.
@@ -11,14 +11,14 @@ import { Stomp } from 'stompjs';
  * - Subscription management
  * - Message handling callbacks
  *
- * @param {Object} config - Configuration object
- * @param {string} config.url - WebSocket server URL (e.g., 'http://localhost:8080/ws-notifications')
- * @param {Function} config.onMessage - Callback when message is received: (message) => void
- * @param {Function} config.onError - Callback on connection error: (error) => void
- * @param {Function} config.onConnect - Callback on successful connection: () => void
- * @param {boolean} config.autoConnect - Whether to auto-connect on mount (default: true)
- * @param {string} config.authToken - Optional JWT token for authentication
- * @returns {Object} WebSocket state and methods
+ * @param {Object}   config
+ * @param {string}   config.url          - WebSocket server URL
+ * @param {Function} config.onMessage    - Called when a message arrives: (message) => void
+ * @param {Function} config.onError      - Called on connection error:    (error)   => void
+ * @param {Function} config.onConnect    - Called on successful connect:  ()        => void
+ * @param {boolean}  config.autoConnect  - Auto-connect on mount (default: true)
+ * @param {string}   config.authToken    - Optional JWT for auth headers
+ * @returns {Object} { subscribe, send, connect, disconnect, isConnected }
  */
 export const useWebSocket = ({
   url,
@@ -28,212 +28,191 @@ export const useWebSocket = ({
   autoConnect = true,
   authToken,
 }) => {
-  const clientRef = useRef(null);
-  const stompClientRef = useRef(null);
+  // ─── Refs ──────────────────────────────────────────────────────────────────
+
+  const sockJsRef            = useRef(null);
+  const stompRef             = useRef(null);
+  const subscriptionsRef     = useRef(new Map());
+  const isManuallyClosedRef  = useRef(false);
+  const isMountedRef         = useRef(false);
   const reconnectAttemptsRef = useRef(0);
-  const maxReconnectAttemptsRef = useRef(5);
-  const reconnectDelayRef = useRef(1000); // Start with 1 second
-  const subscriptionsRef = useRef(new Map());
-  const isManuallyClosedRef = useRef(false);
+  const connectRef           = useRef(null);
 
-  /**
-   * Connects to the WebSocket server with STOMP protocol.
-   */
+  const MAX_ATTEMPTS  = 5;
+  const BASE_DELAY_MS = 1000;
+  const MAX_DELAY_MS  = 30_000;
+
+  // ─── STOMP factory ─────────────────────────────────────────────────────────
+
+  const resolveStompClient = useCallback((sockJsClient) => {
+    const factory = StompModule?.default ?? StompModule?.Stomp ?? StompModule;
+    if (typeof factory?.over === 'function')          return factory.over(sockJsClient);
+    if (typeof factory?.overWebSocket === 'function') return factory.overWebSocket(sockJsClient);
+    throw new Error('STOMP library unavailable — cannot resolve client factory.');
+  }, []);
+
+  // ─── Reconnect ─────────────────────────────────────────────────────────────
+
+  const scheduleReconnect = useCallback(() => {
+    if (isManuallyClosedRef.current || !isMountedRef.current) {
+      console.log('[WebSocket] Skipping reconnect — closed or unmounted.');
+      return;
+    }
+
+    if (reconnectAttemptsRef.current >= MAX_ATTEMPTS) {
+      console.warn('[WebSocket] Max reconnection attempts reached. Giving up.');
+      return;
+    }
+
+    const attempt = ++reconnectAttemptsRef.current;
+    const delay   = Math.min(BASE_DELAY_MS * Math.pow(2, attempt - 1), MAX_DELAY_MS);
+
+    console.log(`[WebSocket] Reconnecting in ${delay}ms (attempt ${attempt}/${MAX_ATTEMPTS})`);
+
+    setTimeout(() => {
+      if (!isManuallyClosedRef.current && isMountedRef.current) {
+        connectRef.current?.();
+      }
+    }, delay);
+  }, []);
+
+  // ─── Connect ───────────────────────────────────────────────────────────────
+
   const connect = useCallback(() => {
+    isManuallyClosedRef.current = false;
+
+    // Closure-scoped flag — immune to remount resetting isManuallyClosedRef.
+    // Each connect() call gets its own boolean that disconnect() can flip
+    // before the async SockJS error callback fires.
+    let intentionallyClosed = false;
+
     try {
-      // Create SockJS connection
-      clientRef.current = new SockJS(url);
-      stompClientRef.current = Stomp.over(clientRef.current);
+      sockJsRef.current       = new SockJS(url);
+      stompRef.current        = resolveStompClient(sockJsRef.current);
+      stompRef.current.debug  = null;
 
-      // Disable console logging from Stomp library
-      stompClientRef.current.debug = null;
+      // Expose setter so disconnect() can signal this specific connection.
+      sockJsRef.current._intentionalClose = () => { intentionallyClosed = true; };
 
-      // Connection headers - include JWT token if provided
       const headers = authToken ? { Authorization: `Bearer ${authToken}` } : {};
 
-      stompClientRef.current.connect(
+      stompRef.current.connect(
         headers,
         () => {
-          // Connection successful
-          console.log('[WebSocket] Connected to STOMP server');
+          console.log('[WebSocket] Connected to STOMP server.');
           reconnectAttemptsRef.current = 0;
-          reconnectDelayRef.current = 1000;
-          isManuallyClosedRef.current = false;
-
-          if (onConnect) {
-            onConnect();
-          }
+          onConnect?.();
         },
         (error) => {
-          // Connection error
+          // Guard with the closure flag — not the shared ref — so a future
+          // remount resetting isManuallyClosedRef can't reopen this path.
+          if (intentionallyClosed) return;
           console.error('[WebSocket] Connection error:', error);
-          if (onError) {
-            onError(error);
-          }
+          onError?.(error);
           scheduleReconnect();
         }
       );
     } catch (error) {
+      if (intentionallyClosed) return;
       console.error('[WebSocket] Failed to create connection:', error);
-      if (onError) {
-        onError(error);
-      }
+      onError?.(error);
       scheduleReconnect();
     }
-  }, [url, authToken, onConnect, onError]);
+  }, [url, authToken, onConnect, onError, resolveStompClient, scheduleReconnect]);
 
-  /**
-   * Schedules a reconnection attempt with exponential backoff.
-   */
-  const scheduleReconnect = useCallback(() => {
-    if (isManuallyClosedRef.current) {
-      console.log('[WebSocket] Manual close - skipping reconnect');
-      return;
+  connectRef.current = connect;
+
+  // ─── Disconnect ────────────────────────────────────────────────────────────
+
+  const disconnect = useCallback(() => {
+    isManuallyClosedRef.current = true;
+    // Flip the closure flag on the current SockJS instance before closing
+    // so its async error callback is silenced when it fires.
+    sockJsRef.current?._intentionalClose?.();
+
+    subscriptionsRef.current.forEach((sub) => sub.unsubscribe());
+    subscriptionsRef.current.clear();
+
+    if (stompRef.current?.connected) {
+      stompRef.current.disconnect(() => {
+        console.log('[WebSocket] Disconnected from STOMP server.');
+      });
     }
 
-    if (reconnectAttemptsRef.current >= maxReconnectAttemptsRef.current) {
-      console.warn(
-        '[WebSocket] Max reconnection attempts reached. Giving up.'
-      );
-      return;
+    sockJsRef.current?.close();
+  }, []);
+
+  // ─── Subscribe ─────────────────────────────────────────────────────────────
+
+  const subscribe = useCallback((destination, callback) => {
+    if (!stompRef.current?.connected) {
+      console.warn('[WebSocket] Cannot subscribe — not connected.');
+      return () => {};
     }
 
-    reconnectAttemptsRef.current++;
-    const delay = Math.min(
-      reconnectDelayRef.current * Math.pow(2, reconnectAttemptsRef.current - 1),
-      30000
-    ); // Max 30 seconds
+    try {
+      const subscription = stompRef.current.subscribe(destination, (message) => {
+        try {
+          callback(JSON.parse(message.body));
+        } catch {
+          callback(message.body);
+        }
+      });
 
-    console.log(
-      `[WebSocket] Reconnecting in ${delay}ms (attempt ${reconnectAttemptsRef.current}/${maxReconnectAttemptsRef.current})`
-    );
+      subscriptionsRef.current.set(destination, subscription);
+      console.log(`[WebSocket] Subscribed to ${destination}`);
 
-    setTimeout(() => {
-      if (!isManuallyClosedRef.current) {
-        connect();
-      }
-    }, delay);
-  }, [connect]);
+      return () => {
+        if (subscriptionsRef.current.has(destination)) {
+          subscription.unsubscribe();
+          subscriptionsRef.current.delete(destination);
+          console.log(`[WebSocket] Unsubscribed from ${destination}`);
+        }
+      };
+    } catch (error) {
+      console.error('[WebSocket] Subscription error:', error);
+      return () => {};
+    }
+  }, []);
 
-  /**
-   * Subscribes to a message topic/queue.
-   *
-   * @param {string} destination - STOMP destination (e.g., '/user/queue/notifications')
-   * @param {Function} callback - Called when message received: (message) => void
-   * @returns {Function} Unsubscribe function
-   */
-  const subscribe = useCallback(
-    (destination, callback) => {
-      if (
-        !stompClientRef.current ||
-        !stompClientRef.current.connected
-      ) {
-        console.warn(
-          '[WebSocket] Cannot subscribe - not connected to server'
-        );
-        return () => {};
-      }
+  // ─── Send ──────────────────────────────────────────────────────────────────
 
-      try {
-        const subscription = stompClientRef.current.subscribe(
-          destination,
-          (message) => {
-            try {
-              const body = JSON.parse(message.body);
-              callback(body);
-            } catch (error) {
-              console.error('[WebSocket] Error parsing message:', error);
-              callback(message.body);
-            }
-          }
-        );
-
-        subscriptionsRef.current.set(destination, subscription);
-        console.log(`[WebSocket] Subscribed to ${destination}`);
-
-        // Return unsubscribe function
-        return () => {
-          if (subscriptionsRef.current.has(destination)) {
-            subscription.unsubscribe();
-            subscriptionsRef.current.delete(destination);
-            console.log(`[WebSocket] Unsubscribed from ${destination}`);
-          }
-        };
-      } catch (error) {
-        console.error('[WebSocket] Subscription error:', error);
-        return () => {};
-      }
-    },
-    []
-  );
-
-  /**
-   * Sends a message to a STOMP destination.
-   *
-   * @param {string} destination - Destination path (e.g., '/app/chat')
-   * @param {Object} body - Message body as object (will be JSON stringified)
-   */
   const send = useCallback((destination, body) => {
-    if (
-      !stompClientRef.current ||
-      !stompClientRef.current.connected
-    ) {
-      console.warn('[WebSocket] Cannot send - not connected to server');
+    if (!stompRef.current?.connected) {
+      console.warn('[WebSocket] Cannot send — not connected.');
       return;
     }
 
     try {
-      stompClientRef.current.send(
-        destination,
-        {},
-        JSON.stringify(body)
-      );
+      stompRef.current.send(destination, {}, JSON.stringify(body));
       console.log('[WebSocket] Message sent to', destination);
     } catch (error) {
-      console.error('[WebSocket] Error sending message:', error);
+      console.error('[WebSocket] Send error:', error);
     }
   }, []);
 
-  /**
-   * Disconnects from WebSocket server.
-   */
-  const disconnect = useCallback(() => {
-    isManuallyClosedRef.current = true;
+  // ─── Lifecycle ─────────────────────────────────────────────────────────────
 
-    // Unsubscribe from all subscriptions
-    subscriptionsRef.current.forEach((subscription) => {
-      subscription.unsubscribe();
-    });
-    subscriptionsRef.current.clear();
-
-    if (stompClientRef.current && stompClientRef.current.connected) {
-      stompClientRef.current.disconnect(() => {
-        console.log('[WebSocket] Disconnected from STOMP server');
-      });
-    }
-
-    if (clientRef.current) {
-      clientRef.current.close();
-    }
-  }, []);
-
-  // Auto-connect on mount and cleanup on unmount
   useEffect(() => {
-    if (autoConnect) {
-      connect();
-    }
+    isMountedRef.current = true;
+
+    if (autoConnect) connect();
 
     return () => {
+      isMountedRef.current = false; // must come before disconnect
       disconnect();
     };
-  }, [autoConnect, connect, disconnect]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoConnect]);
+
+  // ─── Public API ────────────────────────────────────────────────────────────
 
   return {
     subscribe,
     send,
-    disconnect,
     connect,
-    isConnected: stompClientRef.current?.connected || false,
+    disconnect,
+    isConnected: stompRef.current?.connected ?? false,
   };
 };
 
