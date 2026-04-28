@@ -11,12 +11,6 @@ const CATEGORIES = [
   { value: 'CLEANING', label: 'Cleaning', icon: FaBug }
 ];
 
-const PRIORITY_OPTIONS = [
-  { value: 'LOW', label: 'Low', desc: 'Not urgent, can wait', color: 'text-neutral-500' },
-  { value: 'MEDIUM', label: 'Medium', desc: 'Needs attention soon', color: 'text-yellow-600 dark:text-yellow-400' },
-  { value: 'HIGH', label: 'High', desc: 'Urgent — disrupting daily life', color: 'text-red-600 dark:text-red-400' }
-];
-
 const STATUS_STYLES = {
   OPEN: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
   IN_PROGRESS: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
@@ -286,88 +280,3 @@ export default function ComplaintsPage() {
     </div>
   );
 }
-
-  return (
-    <div className="animate-fade-in space-y-6">
-      {/* Header */}
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="page-title text-neutral-900 dark:text-white">Maintenance &amp; Complaints</h1>
-          <p className="section-subtitle mt-1">
-            Report issues and track the status of your maintenance requests.
-          </p>
-        </div>
-        {!showForm && (
-          <button type="button" onClick={() => setShowForm(true)} className="btn-primary shrink-0">
-            + Report New Issue
-          </button>
-        )}
-      </div>
-
-      {/* Success banner */}
-      {submitted && (
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700 dark:border-emerald-800/30 dark:bg-emerald-900/15 dark:text-emerald-400">
-          ✅ Your ticket has been submitted. The maintenance team will review it shortly.
-        </div>
-      )}
-
-      {/* Report form */}
-      {showForm && (
-        <div className="card animate-fade-in space-y-5">
-          <div className="flex items-center justify-between gap-3">
-            <h2 className="text-base font-bold text-neutral-900 dark:text-white">New Maintenance Request</h2>
-            <button
-              type="button"
-              onClick={() => { setShowForm(false); setForm(BLANK_FORM); }}
-              className="text-sm text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200"
-            >
-              ✕ Cancel
-            </button>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Title */}
-            <div>
-              <label className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                Issue Title <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                className="input-field"
-                placeholder="e.g. Broken window latch in room 204"
-                value={form.title}
-                onChange={(e) => handleChange('title', e.target.value)}
-                required
-              />
-            </div>
-
-            {/* Category */}
-            <div>
-              <label className="mb-2 block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                Category <span className="text-red-500">*</span>
-              </label>
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                {CATEGORIES.map((cat) => {
-                  const Icon = cat.icon;
-                  const selected = form.category === cat.value;
-                  return (
-                    <button
-                      key={cat.value}
-                      type="button"
-                      onClick={() => handleChange('category', cat.value)}
-                      className={`flex items-center gap-2 rounded-xl border p-3 text-sm font-medium transition-all ${
-                        selected
-                          ? 'border-primary-500 bg-primary-50 text-primary-700 ring-1 ring-primary-400 dark:border-primary-400 dark:bg-primary-900/20 dark:text-primary-300 dark:ring-primary-700'
-                          : 'border-neutral-200 text-neutral-600 hover:border-primary-300 hover:bg-primary-50/40 dark:border-neutral-700 dark:text-neutral-400 dark:hover:border-primary-600'
-                      }`}
-                    >
-                      <Icon className="shrink-0 text-sm" />
-                      {cat.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Priority + Location row */}
-            <div className="grid gap-4 sm:grid-cols-2">
