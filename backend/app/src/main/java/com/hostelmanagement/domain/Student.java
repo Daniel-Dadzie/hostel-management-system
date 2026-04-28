@@ -167,6 +167,10 @@ public class Student {
   }
 
   public void setCurrentLevel(int currentLevel) {
+    if (currentLevel != 100 && currentLevel != 200 && currentLevel != 300 && currentLevel != 400) {
+      throw new IllegalArgumentException(
+          "Invalid student level: " + currentLevel + ". Level must be 100, 200, 300, or 400.");
+    }
     this.currentLevel = currentLevel;
   }
 

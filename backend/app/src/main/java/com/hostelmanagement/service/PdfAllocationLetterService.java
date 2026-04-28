@@ -29,7 +29,7 @@ public class PdfAllocationLetterService {
 
   private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd MMM yyyy");
   private static final float MARGIN = 36;
-  private static final String UNIVERSITY_NAME = "University of Ghana";
+  private static final String UNIVERSITY_NAME = "University Of Mines And Technology";
   private static final String UNIVERSITY_CONTACT = "Admissions & Student Affairs | Tel: +233 XXX XXX XXX";
 
   private static final Font TITLE_FONT = new Font(Font.FontFamily.HELVETICA, 16, Font.BOLD);
