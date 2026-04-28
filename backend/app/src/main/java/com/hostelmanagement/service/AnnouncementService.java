@@ -34,6 +34,11 @@ public class AnnouncementService {
 
     public AnnouncementResponse create(UpsertAnnouncementRequest request) {
         Instant expiresAt = parseDate(request.expiresAt());
+        
+        // If no expiration date provided, set default to 90 days from now
+        if (expiresAt == null) {
+            expiresAt = Instant.now().plus(java.time.Duration.ofDays(90));
+        }
 
         Announcement announcement = new Announcement(request.title(), request.body(), expiresAt);
         Announcement saved = announcementRepository.save(announcement);

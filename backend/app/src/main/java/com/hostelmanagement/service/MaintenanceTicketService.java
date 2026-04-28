@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
+@Transactional
 public class MaintenanceTicketService {
 
   private final MaintenanceTicketRepository ticketRepository;

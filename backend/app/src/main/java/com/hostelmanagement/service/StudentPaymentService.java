@@ -244,6 +244,7 @@ public class StudentPaymentService {
    * Generates a PDF allocation letter for a student's booking. 
    * Validates that the student owns the booking and payment/admin approval is confirmed.
    */
+  @Transactional
   public byte[] generateAllocationLetterPdf(Long studentId, Long bookingId) {
     try {
       Booking booking = bookingRepository.findById(bookingId)
@@ -275,6 +276,7 @@ public class StudentPaymentService {
    * Generates a payment receipt PDF for a student's payment. 
    * Validates that the student owns the booking and payment/admin approval allows receipt access.
    */
+  @Transactional
   public byte[] generatePaymentReceiptPdf(Long studentId, Long bookingId) {
     try {
       Booking booking = bookingRepository.findById(bookingId)
