@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { FaBug, FaFire, FaLightbulb, FaTools, FaWater, FaWifi } from 'react-icons/fa';
-import { useApi } from '../../hooks/useApi';
+import { apiRequest } from '../../api/client';
 
 const CATEGORIES = [
   { value: 'ELECTRICAL', label: 'Electrical', icon: FaLightbulb },
@@ -33,7 +33,7 @@ export default function ComplaintsPage() {
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const api = useApi();
+ 
 
   // Fetch tickets on component mount
   useEffect(() => {
@@ -43,7 +43,7 @@ export default function ComplaintsPage() {
   async function fetchTickets() {
     try {
       setLoading(true);
-      const response = await api.get('/api/student/maintenance-tickets');
+      const response = await apiRequest('GET', '/api/student/maintenance-tickets');
       setTickets(response || []);
       setError(null);
     } catch (err) {
@@ -64,7 +64,7 @@ export default function ComplaintsPage() {
     
     setSubmitting(true);
     try {
-      const newTicket = await api.post('/api/student/maintenance-tickets', {
+      const newTicket = await apiRequest('POST', '/api/student/maintenance-tickets', {
         category: form.category,
         title: form.title,
         description: form.description,

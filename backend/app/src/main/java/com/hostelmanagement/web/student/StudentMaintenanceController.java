@@ -1,8 +1,8 @@
 package com.hostelmanagement.web.student;
 
 import com.hostelmanagement.domain.MaintenanceTicket.TicketCategory;
+import com.hostelmanagement.security.JwtUser;
 import com.hostelmanagement.service.MaintenanceTicketService;
-import com.hostelmanagement.web.auth.AuthUser;
 import com.hostelmanagement.web.student.dto.CreateMaintenanceTicketRequest;
 import com.hostelmanagement.web.student.dto.MaintenanceTicketResponse;
 import jakarta.validation.Valid;
@@ -30,7 +30,7 @@ public class StudentMaintenanceController {
    */
   @PostMapping
   public ResponseEntity<MaintenanceTicketResponse> createTicket(
-      @AuthenticationPrincipal AuthUser user,
+      @AuthenticationPrincipal JwtUser user,
       @Valid @RequestBody CreateMaintenanceTicketRequest request) {
     var ticket = maintenanceTicketService.createTicket(
         user.userId(),
@@ -47,7 +47,7 @@ public class StudentMaintenanceController {
    */
   @GetMapping
   public ResponseEntity<List<MaintenanceTicketResponse>> getMyTickets(
-      @AuthenticationPrincipal AuthUser user) {
+      @AuthenticationPrincipal JwtUser user) {
     var tickets = maintenanceTicketService.getTicketsForStudent(user.userId());
     var response = tickets.stream()
         .map(MaintenanceTicketResponse::from)
@@ -60,7 +60,7 @@ public class StudentMaintenanceController {
    */
   @GetMapping("/{id}")
   public ResponseEntity<MaintenanceTicketResponse> getTicket(
-      @AuthenticationPrincipal AuthUser user,
+      @AuthenticationPrincipal JwtUser user,
       @PathVariable Long id) {
     var ticket = maintenanceTicketService.getTicketById(id);
     
