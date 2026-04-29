@@ -1,5 +1,6 @@
 package com.hostelmanagement.web.student;
 
+import com.hostelmanagement.domain.Payment;
 import com.hostelmanagement.domain.PaymentMethod;
 import com.hostelmanagement.security.JwtUser;
 import com.hostelmanagement.service.StudentPaymentService;
@@ -7,6 +8,7 @@ import com.hostelmanagement.web.student.dto.PaymentGatewayInitResponse;
 import com.hostelmanagement.web.student.dto.SubmitPaymentResponse;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import java.util.List;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -120,8 +122,17 @@ public class StudentPaymentController {
         .header(
             HttpHeaders.CONTENT_DISPOSITION,
             "attachment; filename=\"allocation-letter-" + bookingId + ".pdf\"")
-        .contentType(MediaType.APPLICATION_PDF)
+        .contentType(MediaType.valueOf("application/pdf"))
         .body(pdfContent);
+  }
+
+  @GetMapping("/history")
+  public ResponseEntity<List<Payment>> getPaymentHistory(
+    @AuthenticationPrincipal JwtUser user
+  ) {
+    return ResponseEntity.ok(
+        studentPaymentService.getPaymentHistoryForStudent(user.userId())
+    );
   }
 
   /**
@@ -140,7 +151,7 @@ public class StudentPaymentController {
         .header(
             HttpHeaders.CONTENT_DISPOSITION,
             "attachment; filename=\"payment-receipt-" + bookingId + ".pdf\"")
-        .contentType(MediaType.APPLICATION_PDF)
+        .contentType(MediaType.valueOf("application/pdf"))
         .body(pdfContent);
   }
 }

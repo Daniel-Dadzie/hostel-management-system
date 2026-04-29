@@ -1,6 +1,8 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { Card } from "@/Components/ui/card";
+import { Text } from "@/Components/ui/text";
 import { getStudentPaymentHistory } from '../../services/paymentService.js';
 import { FaDownload, FaCheckCircle, FaClock, FaTimesCircle, FaArrowLeft } from 'react-icons/fa';
 

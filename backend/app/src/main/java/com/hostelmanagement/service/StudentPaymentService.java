@@ -332,6 +332,17 @@ public class StudentPaymentService {
     return fallback;
   }
 
+  /**
+   * Retrieves the payment history for a student.
+   *
+   * @param studentId the student ID
+   * @return list of payments for the student
+   */
+  @Transactional(readOnly = true)
+  public List<Payment> getPaymentHistoryForStudent(Long studentId) {
+    return paymentRepository.findPaymentsByStudentId(studentId);
+  }
+
   // --- Webhook & Helper Methods ---
 
   @Transactional
