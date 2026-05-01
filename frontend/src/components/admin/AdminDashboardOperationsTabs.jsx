@@ -212,10 +212,12 @@ export function MaintenanceTab({
   openTickets,
   updateTicketStatus,
   TICKET_CHIP,
+  PRIORITY_CHIP,
   formatStatusLabel,
   ticketsLoading,
   ticketsError
 }) {
+  const [expandedTicketId, setExpandedTicketId] = useState(null);
   const [editingNotes, setEditingNotes] = useState({});
 
   function formatDate(isoString) {
@@ -230,7 +232,16 @@ export function MaintenanceTab({
     AC: 'AC/Ventilation',
     INTERNET: 'Internet/WiFi',
     FURNITURE: 'Furniture',
-    CLEANING: 'Cleaning'
+    CLEANING: 'Cleaning',
+    SECURITY: 'Security',
+    OTHER: 'Other'
+  };
+
+  const statusColors = {
+    OPEN: { bg: 'bg-yellow-50 dark:bg-yellow-900/20', text: 'text-yellow-700 dark:text-yellow-300', badge: 'bg-yellow-100 dark:bg-yellow-900/40' },
+    IN_PROGRESS: { bg: 'bg-blue-50 dark:bg-blue-900/20', text: 'text-blue-700 dark:text-blue-300', badge: 'bg-blue-100 dark:bg-blue-900/40' },
+    RESOLVED: { bg: 'bg-emerald-50 dark:bg-emerald-900/20', text: 'text-emerald-700 dark:text-emerald-300', badge: 'bg-emerald-100 dark:bg-emerald-900/40' },
+    CLOSED: { bg: 'bg-neutral-50 dark:bg-neutral-900/20', text: 'text-neutral-700 dark:text-neutral-300', badge: 'bg-neutral-100 dark:bg-neutral-900/40' }
   };
 
   if (ticketsLoading) {
@@ -290,57 +301,131 @@ export function MaintenanceTab({
         </span>
       }
     >
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[760px] text-sm">
-          <thead>
-            <tr className="border-b border-neutral-200 dark:border-[rgba(226,251,206,0.08)]">
-              <th className="pb-3 pr-4 text-left">Ticket ID</th>
-              <th className="pb-3 pr-4 text-left">Title</th>
-              <th className="pb-3 pr-4 text-left">Student</th>
-              <th className="pb-3 pr-4 text-left">Category</th>
-              <th className="pb-3 pr-4 text-left">Status</th>
-              <th className="pb-3 text-left">Action</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-neutral-100 dark:divide-[rgba(226,251,206,0.08)]">
-            {tickets.map((ticket) => (
-              <tr key={ticket.id}>
-                <td className="py-4 pr-4">
-                  <p className="text-xs font-bold text-neutral-700 dark:text-[#fffdee]/76">TKT-{String(ticket.id).padStart(4, '0')}</p>
-                  <p className="mt-1 text-xs text-neutral-400">{formatDate(ticket.createdAt)}</p>
-                </td>
-                <td className="py-4 pr-4 font-semibold text-neutral-900 dark:text-[#fffdee]">{ticket.title}</td>
-                <td className="py-4 pr-4 text-neutral-600 dark:text-[#dcebd0]/68">
-                  {ticket.studentName || 'Unknown'}
-                </td>
-                <td className="py-4 pr-4">
-                  <span className="rounded-full bg-neutral-100 px-3 py-1 text-xs font-bold text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300">
-                    {categoryLabels[ticket.category] || ticket.category}
-                  </span>
-                </td>
-                <td className="py-4 pr-4">
-                  <span
-                    className={`rounded-full px-3 py-1 text-xs font-bold ${TICKET_CHIP[ticket.status] ?? TICKET_CHIP.OPEN}`}
-                  >
-                    {formatStatusLabel(ticket.status)}
-                  </span>
-                </td>
-                <td className="py-4">
-                  <select
-                    value={ticket.status}
-                    onChange={(event) => updateTicketStatus(ticket.id, event.target.value, editingNotes[ticket.id] || '')}
-                    className="input-field px-3 py-2 text-xs"
-                  >
-                    <option value="OPEN">Open</option>
-                    <option value="IN_PROGRESS">In Progress</option>
-                    <option value="RESOLVED">Resolved</option>
-                    <option value="CLOSED">Closed</option>
-                  </select>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="space-y-2">
+        {tickets.map((ticket) => {
+          const isExpanded = expandedTicketId === ticket.id;
+          const colors = statusColors[ticket.status] || statusColors.OPEN;
+
+          return (
+            <div
+              key={ticket.id}
+              className={`rounded-2xl border transition-all duration-200 ${
+                isExpanded
+                  ? `${colors.bg} border-blue-200 dark:border-blue-500/30`
+                  : 'border-neutral-200 dark:border-white/10 hover:border-neutral-300 dark:hover:border-white/20'
+              }`}
+            >
+              {/* Ticket Header */}
+              <button
+                type="button"
+                onClick={() => setExpandedTicketId(isExpanded ? null : ticket.id)}
+                className="w-full px-5 py-4 text-left transition-colors hover:bg-black/2 dark:hover:bg-white/2"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <p className="font-bold text-neutral-900 dark:text-white">
+                        TKT-{String(ticket.id).padStart(4, '0')}
+                      </p>
+                      <p className="font-semibold text-neutral-900 dark:text-neutral-100 truncate">
+                        {ticket.title}
+                      </p>
+                      <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${colors.badge} ${colors.text}`}>
+                        {categoryLabels[ticket.category] || ticket.category}
+                      </span>
+                      <span className={`px-3 py-1 rounded-full text-xs font-bold ${TICKET_CHIP[ticket.status]}`}>
+                        {formatStatusLabel(ticket.status)}
+                      </span>
+                    </div>
+                    <div className="mt-2 flex flex-wrap gap-3 text-xs text-neutral-500 dark:text-neutral-400">
+                      <span>📅 {formatDate(ticket.createdAt)}</span>
+                      <span>👤 {ticket.studentName || 'Unknown'}</span>
+                    </div>
+                  </div>
+                  <div className="text-xl text-neutral-400 dark:text-white/50 transition-transform">
+                    {isExpanded ? '▼' : '▶'}
+                  </div>
+                </div>
+              </button>
+
+              {/* Expanded Details */}
+              {isExpanded && (
+                <div className={`border-t ${colors.bg} px-5 py-4 space-y-4`}>
+                  {/* Description */}
+                  <div>
+                    <p className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide mb-2">
+                      Description
+                    </p>
+                    <p className="text-sm text-neutral-700 dark:text-neutral-200 bg-white/50 dark:bg-black/20 rounded-lg p-3 leading-relaxed">
+                      {ticket.description}
+                    </p>
+                  </div>
+
+                  {/* Admin Notes */}
+                  <div>
+                    <p className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide mb-2">
+                      Admin Notes
+                    </p>
+                    <textarea
+                      value={editingNotes[ticket.id] || ticket.adminNotes || ''}
+                      onChange={(e) => setEditingNotes({ ...editingNotes, [ticket.id]: e.target.value })}
+                      placeholder="Add your notes and observations here..."
+                      className="input-field w-full h-20 text-xs resize-none"
+                    />
+                  </div>
+
+                  {/* Status Update */}
+                  <div>
+                    <p className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide mb-2">
+                      Update Status
+                    </p>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                      {['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'].map((status) => (
+                        <button
+                          key={status}
+                          type="button"
+                          onClick={() => updateTicketStatus(ticket.id, status, editingNotes[ticket.id] || '')}
+                          className={`px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
+                            ticket.status === status
+                              ? `${TICKET_CHIP[status]} ring-2 ring-offset-2 ring-offset-white dark:ring-offset-[#1a1d22] ring-blue-400`
+                              : `${TICKET_CHIP[status]} opacity-70 hover:opacity-100`
+                          }`}
+                        >
+                          {formatStatusLabel(status)}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Quick Actions */}
+                  <div className="flex gap-2 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => updateTicketStatus(ticket.id, 'IN_PROGRESS', editingNotes[ticket.id] || '')}
+                      className="flex-1 rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-700 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 dark:text-blue-300 px-3 py-2 text-xs font-semibold transition-all"
+                    >
+                      Start Work
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => updateTicketStatus(ticket.id, 'RESOLVED', editingNotes[ticket.id] || '')}
+                      className="flex-1 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-700 dark:bg-emerald-900/30 dark:hover:bg-emerald-900/50 dark:text-emerald-300 px-3 py-2 text-xs font-semibold transition-all"
+                    >
+                      Mark Resolved
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => updateTicketStatus(ticket.id, 'CLOSED', editingNotes[ticket.id] || '')}
+                      className="flex-1 rounded-lg bg-neutral-100 hover:bg-neutral-200 text-neutral-700 dark:bg-neutral-800/50 dark:hover:bg-neutral-800 dark:text-neutral-300 px-3 py-2 text-xs font-semibold transition-all"
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </DashboardPanel>
   );

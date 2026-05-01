@@ -70,12 +70,12 @@ export default function AdminLayout() {
                           className={({ isActive }) =>
                             `group flex items-center gap-2.5 rounded-[18px] px-3.5 py-2 text-sm font-semibold transition-all duration-200 w-full ${
                               isActive
-                                ? 'bg-white text-[#0f6b46] shadow-[0_16px_34px_rgba(15,23,42,0.08)] ring-1 ring-[#d8e6dc] dark:bg-[linear-gradient(135deg,rgba(66,139,255,0.22),rgba(27,178,170,0.12))] dark:text-white dark:ring-white/10 dark:shadow-[0_18px_38px_rgba(0,0,0,0.42)]'
+                                ? 'bg-white text-[#0f6b46] shadow-[0_16px_34px_rgba(15,23,42,0.08)] ring-1 ring-[#d8e6dc] dark:bg-gradient-to-br dark:from-emerald-500/20 dark:to-emerald-600/20 dark:text-emerald-100 dark:ring-emerald-500/40 dark:shadow-[0_18px_38px_rgba(16,185,129,0.25)]'
                                 : 'text-neutral-500 hover:bg-white/80 hover:text-neutral-900 dark:text-white/64 dark:hover:bg-[rgba(66,139,255,0.16)] dark:hover:text-white'
                             }`
                           }
                         >
-                          <span className="flex h-9 w-9 items-center justify-center rounded-[12px] bg-[#eef3ee] text-[#5c6d60] transition-all duration-200 group-hover:bg-[#e1efe5] group-hover:text-[#0f6b46] dark:border dark:border-white/8 dark:bg-[#202227] dark:text-white/68 dark:group-hover:border-[#428bff]/20 dark:group-hover:bg-[rgba(66,139,255,0.12)] dark:group-hover:text-[#9fc3ff]">
+                          <span className="flex h-9 w-9 items-center justify-center rounded-[12px] bg-[#eef3ee] text-[#5c6d60] transition-all duration-200 group-hover:bg-[#e1efe5] group-hover:text-[#0f6b46] dark:border dark:border-white/10 dark:bg-[#1a2023] dark:text-white/72 dark:group-hover:border-emerald-400/40 dark:group-hover:bg-emerald-500/20 dark:group-hover:text-emerald-300">
                             <Icon className="text-sm" aria-hidden="true" />
                           </span>
                           <span className="whitespace-nowrap">{item.label}</span>
