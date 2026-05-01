@@ -45,7 +45,7 @@ function SidebarNav({ onNavClick }) {
             className={({ isActive }) =>
               `group flex items-center gap-3 rounded-[14px] px-3.5 py-2.5 text-sm font-medium transition-all duration-200 ${
                 isActive
-                  ? 'bg-[#0f6b46] text-white shadow-[0_8px_20px_rgba(15,107,70,0.28)]'
+                  ? 'bg-[#0f6b46] text-white shadow-[0_8px_20px_rgba(15,107,70,0.28)] hover:bg-[#0d5a3a] hover:shadow-[0_12px_24px_rgba(15,107,70,0.35)]'
                   : 'text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900 dark:text-white/50 dark:hover:bg-white/6 dark:hover:text-white'
               }`
             }
