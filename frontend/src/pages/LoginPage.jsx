@@ -12,23 +12,45 @@ export default function LoginPage() {
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [loadingStep, setLoadingStep] = useState(0);
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const justRegistered = Boolean(location.state?.justRegistered);
   const from = location.state?.from?.pathname || null;
 
+  const LOGIN_STEPS = ['Verifying credentials', 'Loading profile', 'Preparing dashboard'];
+
   async function handleSubmit(e) {
     e.preventDefault();
     setError('');
     setLoading(true);
+    setLoadingStep(0);
+    
     try {
+      // Step 0: Verify credentials
+      await new Promise(resolve => {
+        setTimeout(resolve, 600);
+      });
+      setLoadingStep(1);
+
       const data = await login(email, password);
+      
+      // Step 1: Loading profile
+      await new Promise(resolve => {
+        setTimeout(resolve, 600);
+      });
+      setLoadingStep(2);
+
+      // Step 2: Preparing dashboard
+      await new Promise(resolve => {
+        setTimeout(resolve, 600);
+      });
+
       const redirectPath = data.role === 'ADMIN' ? '/admin' : '/student/hostels';
       navigate(from || redirectPath, { replace: true });
     } catch (err) {
       setError(err.message || 'Login failed. Please check your credentials.');
-    } finally {
       setLoading(false);
     }
   }
@@ -244,8 +266,10 @@ export default function LoginPage() {
       <LoadingOverlay
         open={loading}
         title="Signing you in"
-        message="Please wait while we verify your account."
+        message="Setting up your secure session..."
         blockNavigation
+        steps={LOGIN_STEPS}
+        currentStep={loadingStep}
       />
     </PublicLayout>
   );

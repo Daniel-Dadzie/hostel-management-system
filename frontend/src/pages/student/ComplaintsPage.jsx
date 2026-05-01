@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { FaBug, FaFire, FaLightbulb, FaTools, FaWater, FaWifi } from 'react-icons/fa';
-import { apiRequest } from '../../api/client';
+import { apiRequest, getAuthHeaders } from '../../services/api';
 
 const CATEGORIES = [
   { value: 'ELECTRICAL', label: 'Electrical', icon: FaLightbulb },
@@ -43,7 +43,10 @@ export default function ComplaintsPage() {
   async function fetchTickets() {
     try {
       setLoading(true);
-      const response = await apiRequest('GET', '/api/student/maintenance-tickets');
+      const response = await apiRequest('/api/student/maintenance-tickets', {
+        method: 'GET',
+        headers: getAuthHeaders()
+      });
       setTickets(response || []);
       setError(null);
     } catch (err) {
@@ -63,12 +66,17 @@ export default function ComplaintsPage() {
     if (!form.category || !form.title.trim() || !form.description.trim()) return;
     
     setSubmitting(true);
+    setError(null);
     try {
-      const newTicket = await apiRequest('POST', '/api/student/maintenance-tickets', {
-        category: form.category,
-        title: form.title,
-        description: form.description,
-        roomId: form.roomId
+      const newTicket = await apiRequest('/api/student/maintenance-tickets', {
+        method: 'POST',
+        body: {
+          category: form.category,
+          title: form.title,
+          description: form.description,
+          roomId: form.roomId
+        },
+        headers: getAuthHeaders()
       });
       
       setTickets((prev) => [newTicket, ...prev]);

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import {
@@ -210,10 +211,75 @@ export function MaintenanceTab({
   tickets,
   openTickets,
   updateTicketStatus,
-  PRIORITY_CHIP,
   TICKET_CHIP,
-  formatStatusLabel
+  formatStatusLabel,
+  ticketsLoading,
+  ticketsError
 }) {
+  const [editingNotes, setEditingNotes] = useState({});
+
+  function formatDate(isoString) {
+    if (!isoString) return '';
+    const date = new Date(isoString);
+    return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  const categoryLabels = {
+    ELECTRICAL: 'Electrical',
+    PLUMBING: 'Plumbing',
+    AC: 'AC/Ventilation',
+    INTERNET: 'Internet/WiFi',
+    FURNITURE: 'Furniture',
+    CLEANING: 'Cleaning'
+  };
+
+  if (ticketsLoading) {
+    return (
+      <DashboardPanel
+        title="Maintenance Tickets"
+        subtitle="Track open room and facility issues without leaving the admin dashboard."
+      >
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-primary-600 border-t-transparent" />
+            <p className="text-neutral-600 dark:text-neutral-400">Loading tickets...</p>
+          </div>
+        </div>
+      </DashboardPanel>
+    );
+  }
+
+  if (ticketsError) {
+    return (
+      <DashboardPanel
+        title="Maintenance Tickets"
+        subtitle="Track open room and facility issues without leaving the admin dashboard."
+      >
+        <div className="rounded-lg bg-red-50 p-4 text-sm text-red-700 dark:bg-red-900/20 dark:text-red-400">
+          ⚠️ {ticketsError}
+        </div>
+      </DashboardPanel>
+    );
+  }
+
+  if (tickets.length === 0) {
+    return (
+      <DashboardPanel
+        title="Maintenance Tickets"
+        subtitle="Track open room and facility issues without leaving the admin dashboard."
+        action={
+          <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700 dark:bg-[rgba(7,102,83,0.32)] dark:text-[#e2fbce]">
+            All clear
+          </span>
+        }
+      >
+        <div className="flex flex-col items-center justify-center py-12 text-center">
+          <p className="text-neutral-600 dark:text-neutral-400">No maintenance tickets at this time.</p>
+        </div>
+      </DashboardPanel>
+    );
+  }
+
   return (
     <DashboardPanel
       title="Maintenance Tickets"
@@ -228,35 +294,33 @@ export function MaintenanceTab({
         <table className="w-full min-w-[760px] text-sm">
           <thead>
             <tr className="border-b border-neutral-200 dark:border-[rgba(226,251,206,0.08)]">
-              <th className="pb-3 pr-4 text-left">Ticket</th>
-              <th className="pb-3 pr-4 text-left">Issue</th>
-              <th className="pb-3 pr-4 text-left">Location</th>
-              <th className="pb-3 pr-4 text-left">Priority</th>
+              <th className="pb-3 pr-4 text-left">Ticket ID</th>
+              <th className="pb-3 pr-4 text-left">Title</th>
+              <th className="pb-3 pr-4 text-left">Student</th>
+              <th className="pb-3 pr-4 text-left">Category</th>
               <th className="pb-3 pr-4 text-left">Status</th>
-              <th className="pb-3 text-left">Update</th>
+              <th className="pb-3 text-left">Action</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-neutral-100 dark:divide-[rgba(226,251,206,0.08)]">
             {tickets.map((ticket) => (
               <tr key={ticket.id}>
                 <td className="py-4 pr-4">
-                  <p className="text-xs font-bold text-neutral-700 dark:text-[#fffdee]/76">{ticket.id}</p>
-                  <p className="mt-1 text-xs text-neutral-400">{ticket.date}</p>
+                  <p className="text-xs font-bold text-neutral-700 dark:text-[#fffdee]/76">TKT-{String(ticket.id).padStart(4, '0')}</p>
+                  <p className="mt-1 text-xs text-neutral-400">{formatDate(ticket.createdAt)}</p>
                 </td>
-                <td className="py-4 pr-4 font-semibold text-neutral-900 dark:text-[#fffdee]">{ticket.issue}</td>
+                <td className="py-4 pr-4 font-semibold text-neutral-900 dark:text-[#fffdee]">{ticket.title}</td>
                 <td className="py-4 pr-4 text-neutral-600 dark:text-[#dcebd0]/68">
-                  {ticket.hostel} / Room {ticket.room}
+                  {ticket.studentName || 'Unknown'}
                 </td>
                 <td className="py-4 pr-4">
-                  <span
-                    className={`rounded-full px-3 py-1 text-xs font-bold ${PRIORITY_CHIP[ticket.priority] ?? PRIORITY_CHIP.LOW}`}
-                  >
-                    {ticket.priority}
+                  <span className="rounded-full bg-neutral-100 px-3 py-1 text-xs font-bold text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300">
+                    {categoryLabels[ticket.category] || ticket.category}
                   </span>
                 </td>
                 <td className="py-4 pr-4">
                   <span
-                    className={`rounded-full px-3 py-1 text-xs font-bold ${TICKET_CHIP[ticket.status] ?? TICKET_CHIP.PENDING}`}
+                    className={`rounded-full px-3 py-1 text-xs font-bold ${TICKET_CHIP[ticket.status] ?? TICKET_CHIP.OPEN}`}
                   >
                     {formatStatusLabel(ticket.status)}
                   </span>
@@ -264,12 +328,13 @@ export function MaintenanceTab({
                 <td className="py-4">
                   <select
                     value={ticket.status}
-                    onChange={(event) => updateTicketStatus(ticket.id, event.target.value)}
+                    onChange={(event) => updateTicketStatus(ticket.id, event.target.value, editingNotes[ticket.id] || '')}
                     className="input-field px-3 py-2 text-xs"
                   >
-                    <option value="PENDING">Pending</option>
+                    <option value="OPEN">Open</option>
                     <option value="IN_PROGRESS">In Progress</option>
                     <option value="RESOLVED">Resolved</option>
+                    <option value="CLOSED">Closed</option>
                   </select>
                 </td>
               </tr>

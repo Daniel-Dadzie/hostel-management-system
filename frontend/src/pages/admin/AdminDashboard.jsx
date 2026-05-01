@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { FaBed, FaBuilding, FaExclamationTriangle, FaTools, FaUsers } from 'react-icons/fa';
 import { listAdminBookings, updateAdminBookingStatus } from '../../services/bookingService.js';
 import { listAllAnnouncements, publishAnnouncement, deleteAnnouncement as deleteAnnAPI } from '../../services/announcementService.js';
+import { listAdminMaintenanceTickets, updateAdminMaintenanceTicket } from '../../services/maintenanceService.js';
 import LifecycleManagementPanel from '../../components/admin/LifecycleManagementPanel.jsx';
 import AdminDashboardOverviewTab from '../../components/admin/AdminDashboardOverviewTab.jsx';
 import AnalyticsDashboard from '../../components/admin/AnalyticsDashboard.jsx';
@@ -9,13 +10,6 @@ import { AnnouncementsTab, BookingsPaymentsTab, MaintenanceTab, StudentsTab } fr
 import { MetricCard, formatStatusLabel } from '../../components/admin/AdminDashboardShared.jsx';
 import { listHostels } from '../../services/hostelService.js';
 import { listRooms } from '../../services/roomService.js';
-
-const INITIAL_TICKETS = [
-  { id: 'TKT-001', room: '204', hostel: 'Block A', issue: 'Broken AC unit', category: 'HVAC', status: 'PENDING', priority: 'HIGH', date: '28 Feb 2026' },
-  { id: 'TKT-002', room: '108', hostel: 'Block B', issue: 'Flickering overhead light', category: 'ELECTRICAL', status: 'IN_PROGRESS', priority: 'MEDIUM', date: '25 Feb 2026' },
-  { id: 'TKT-003', room: '312', hostel: 'Block A', issue: 'Leaking bathroom pipe', category: 'PLUMBING', status: 'PENDING', priority: 'HIGH', date: '24 Feb 2026' },
-  { id: 'TKT-004', room: '407', hostel: 'Block C', issue: 'WiFi not connecting', category: 'INTERNET', status: 'RESOLVED', priority: 'LOW', date: '20 Feb 2026' }
-];
 
 const STATUS_CHIP = {
   APPROVED: 'bg-emerald-100 text-emerald-700 dark:bg-[rgba(7,102,83,0.32)] dark:text-[#e2fbce]',
@@ -27,15 +21,16 @@ const STATUS_CHIP = {
 };
 
 const TICKET_CHIP = {
-  PENDING: 'bg-yellow-100 text-yellow-700 dark:bg-[rgba(227,239,38,0.18)] dark:text-[#f3f8b7]',
-  IN_PROGRESS: 'bg-lime-100 text-lime-800 dark:bg-[rgba(10,120,95,0.28)] dark:text-[#dcebd0]',
-  RESOLVED: 'bg-emerald-100 text-emerald-700 dark:bg-[rgba(7,102,83,0.32)] dark:text-[#e2fbce]'
+  OPEN: 'bg-yellow-100 text-yellow-700 dark:bg-[rgba(227,239,38,0.18)] dark:text-[#f3f8b7]',
+  IN_PROGRESS: 'bg-blue-100 text-blue-700 dark:bg-[rgba(59,130,246,0.18)] dark:text-[#93c5fd]',
+  RESOLVED: 'bg-emerald-100 text-emerald-700 dark:bg-[rgba(7,102,83,0.32)] dark:text-[#e2fbce]',
+  CLOSED: 'bg-neutral-100 text-neutral-600 dark:bg-[rgba(12,52,44,0.7)] dark:text-[#dcebd0]/70'
 };
 
 const PRIORITY_CHIP = {
-  HIGH: 'bg-red-100 text-red-700 dark:bg-[rgba(133,67,50,0.34)] dark:text-[#fac2be]',
+  HIGH: 'bg-red-100 text-red-700 dark:bg-[rgba(220,38,38,0.18)] dark:text-[#fca5a5]',
   MEDIUM: 'bg-yellow-100 text-yellow-700 dark:bg-[rgba(227,239,38,0.18)] dark:text-[#f3f8b7]',
-  LOW: 'bg-neutral-100 text-neutral-600 dark:bg-[rgba(12,52,44,0.7)] dark:text-[#dcebd0]/70'
+  LOW: 'bg-emerald-100 text-emerald-700 dark:bg-[rgba(7,102,83,0.32)] dark:text-[#e2fbce]'
 };
 
 const TABS = ['Overview', 'Analytics', 'Bookings & Payments', 'Students', 'Lifecycle Management', 'Maintenance', 'Announcements'];
@@ -46,10 +41,12 @@ export default function AdminDashboard() {
   const [rooms, setRooms] = useState([]);
   const [hostels, setHostels] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [ticketsLoading, setTicketsLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(null);
   const [studentSearch, setStudentSearch] = useState('');
   const [bookingSearch, setBookingSearch] = useState('');
-  const [tickets, setTickets] = useState(INITIAL_TICKETS);
+  const [tickets, setTickets] = useState([]);
+  const [ticketsError, setTicketsError] = useState(null);
   const [announcements, setAnnouncements] = useState([]);
   const [announcementsLoading, setAnnouncementsLoading] = useState(true);
   const [newAnn, setNewAnn] = useState({ title: '', body: '', expiresAt: '' });
@@ -58,21 +55,26 @@ export default function AdminDashboard() {
   useEffect(() => {
     (async () => {
       try {
-        const [b, r, h, a] = await Promise.all([
+        const [b, r, h, a, t] = await Promise.all([
           listAdminBookings(),
           listRooms(),
           listHostels(),
-          listAllAnnouncements()
+          listAllAnnouncements(),
+          listAdminMaintenanceTickets()
         ]);
         setBookings(Array.isArray(b) ? b : []);
         setRooms(Array.isArray(r) ? r : []);
         setHostels(Array.isArray(h) ? h : []);
         setAnnouncements(Array.isArray(a) ? a : []);
+        setTickets(Array.isArray(t) ? t : []);
+        setTicketsError(null);
       } catch (err) {
         console.error('Dashboard load error:', err);
+        setTicketsError('Failed to load maintenance tickets');
       } finally {
         setLoading(false);
         setAnnouncementsLoading(false);
+        setTicketsLoading(false);
       }
     })();
   }, []);
@@ -87,8 +89,18 @@ export default function AdminDashboard() {
     finally { setActionLoading(null); }
   }
 
-  function updateTicketStatus(ticketId, newStatus) {
-    setTickets(prev => prev.map(t => t.id === ticketId ? { ...t, status: newStatus } : t));
+  async function updateTicketStatus(ticketId, newStatus, adminNotes = '') {
+    const key = `ticket-${ticketId}-${newStatus}`;
+    setActionLoading(key);
+    try {
+      const updatedTicket = await updateAdminMaintenanceTicket(ticketId, newStatus, adminNotes);
+      setTickets(prev => prev.map(t => t.id === ticketId ? updatedTicket : t));
+    } catch (err) {
+      console.error('Failed to update ticket:', err);
+      alert('Failed to update maintenance ticket. Please try again.');
+    } finally {
+      setActionLoading(null);
+    }
   }
 
   async function deleteAnnouncement(annId) {
@@ -137,13 +149,27 @@ export default function AdminDashboard() {
     } catch (err) { console.error(err); }
   }
 
+  async function refreshTickets() {
+    try {
+      setTicketsLoading(true);
+      const latest = await listAdminMaintenanceTickets();
+      setTickets(Array.isArray(latest) ? latest : []);
+      setTicketsError(null);
+    } catch (err) {
+      console.error(err);
+      setTicketsError('Failed to refresh maintenance tickets');
+    } finally {
+      setTicketsLoading(false);
+    }
+  }
+
   const totalCapacity = rooms.reduce((s, r) => s + (r.capacity ?? 0), 0);
   const totalOccupied = rooms.reduce((s, r) => s + (r.currentOccupancy ?? 0), 0);
   const occupancyPct = totalCapacity > 0 ? Math.round((totalOccupied / totalCapacity) * 100) : 0;
   const pendingPayments = bookings.filter(b => b.status === 'PENDING_PAYMENT');
   const approvedBookings = bookings.filter(b => b.status === 'APPROVED');
-  const openTickets = tickets.filter(t => t.status !== 'RESOLVED');
-  const highPriorityOpen = tickets.filter(t => t.priority === 'HIGH' && t.status !== 'RESOLVED');
+  const openTickets = tickets.filter(t => t.status === 'OPEN' || t.status === 'IN_PROGRESS');
+  const highPriorityOpen = tickets.filter(t => (t.status === 'OPEN' || t.status === 'IN_PROGRESS'));
 
   const occupancyByHostel = rooms.reduce((acc, room) => {
     const key = room.hostelName ?? 'Unknown';
@@ -266,7 +292,7 @@ export default function AdminDashboard() {
         {activeTab === 2 && <BookingsPaymentsTab pendingPayments={pendingPayments} filteredBookings={filteredBookings} bookingSearch={bookingSearch} setBookingSearch={setBookingSearch} STATUS_CHIP={STATUS_CHIP} formatStatusLabel={formatStatusLabel} renderBookingActions={renderBookingActions} />}
         {activeTab === 3 && <StudentsTab filteredStudents={filteredStudents} studentSearch={studentSearch} setStudentSearch={setStudentSearch} exportDefaultersCSV={exportDefaultersCSV} STATUS_CHIP={STATUS_CHIP} formatStatusLabel={formatStatusLabel} />}
         {activeTab === 4 && <LifecycleManagementPanel onLifecycleChanged={refreshBookings} />}
-        {activeTab === 5 && <MaintenanceTab tickets={tickets} openTickets={openTickets} updateTicketStatus={updateTicketStatus} PRIORITY_CHIP={PRIORITY_CHIP} TICKET_CHIP={TICKET_CHIP} formatStatusLabel={formatStatusLabel} />}
+        {activeTab === 5 && <MaintenanceTab tickets={tickets} openTickets={openTickets} updateTicketStatus={updateTicketStatus} PRIORITY_CHIP={PRIORITY_CHIP} TICKET_CHIP={TICKET_CHIP} formatStatusLabel={formatStatusLabel} ticketsLoading={ticketsLoading} ticketsError={ticketsError} />}
         {activeTab === 6 && <AnnouncementsTab annSaved={annSaved} newAnn={newAnn} setNewAnn={setNewAnn} handlePublishAnn={handlePublishAnn} announcements={announcements} deleteAnnouncement={deleteAnnouncement} />}
       </div>
     </div>

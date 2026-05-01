@@ -23,8 +23,11 @@ export default function RegisterPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [loadingStep, setLoadingStep] = useState(0);
   const { register } = useAuth();
   const navigate = useNavigate();
+
+  const REGISTER_STEPS = ['Validating information', 'Creating account', 'Redirecting to login'];
 
   function handleChange(field, value) {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -44,11 +47,20 @@ export default function RegisterPage() {
     }
 
     setLoading(true);
+    setLoadingStep(0);
+    
     try {
+      // Step 0: Validate information
+      await new Promise(resolve => {
+        setTimeout(resolve, 600);
+      });
+      setLoadingStep(1);
+
       let profileImagePath = form.profileImagePath || null;
       if (form.profileImageFile) {
         profileImagePath = await uploadImage(form.profileImageFile);
       }
+
       await register({
         fullName: form.fullName,
         email: form.email,
@@ -57,10 +69,21 @@ export default function RegisterPage() {
         profileImagePath,
         password: form.password
       });
+
+      // Step 1: Creating account (already done above, so step to 2)
+      await new Promise(resolve => {
+        setTimeout(resolve, 600);
+      });
+      setLoadingStep(2);
+
+      // Step 2: Redirecting
+      await new Promise(resolve => {
+        setTimeout(resolve, 600);
+      });
+
       navigate('/login', { replace: true, state: { justRegistered: true } });
     } catch (err) {
       setError(err.message || 'Registration failed. Please try again.');
-    } finally {
       setLoading(false);
     }
   }
@@ -315,8 +338,10 @@ export default function RegisterPage() {
       <LoadingOverlay
         open={loading}
         title="Creating your account"
-        message="Please wait while we set things up for you."
+        message="This may take a moment, please don't refresh..."
         blockNavigation
+        steps={REGISTER_STEPS}
+        currentStep={loadingStep}
       />
     </PublicLayout>
   );

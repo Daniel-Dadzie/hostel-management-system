@@ -71,7 +71,7 @@ export default function AdminLayout() {
                             `group flex items-center gap-2.5 rounded-[18px] px-3.5 py-2 text-sm font-semibold transition-all duration-200 w-full ${
                               isActive
                                 ? 'bg-white text-[#0f6b46] shadow-[0_16px_34px_rgba(15,23,42,0.08)] ring-1 ring-[#d8e6dc] dark:bg-[linear-gradient(135deg,rgba(66,139,255,0.22),rgba(27,178,170,0.12))] dark:text-white dark:ring-white/10 dark:shadow-[0_18px_38px_rgba(0,0,0,0.42)]'
-                                : 'text-neutral-500 hover:bg-white/80 hover:text-neutral-900 dark:text-white/64 dark:hover:bg-white/[0.04] dark:hover:text-white'
+                                : 'text-neutral-500 hover:bg-white/80 hover:text-neutral-900 dark:text-white/64 dark:hover:bg-[rgba(66,139,255,0.16)] dark:hover:text-white'
                             }`
                           }
                         >

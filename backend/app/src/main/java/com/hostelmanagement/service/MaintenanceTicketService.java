@@ -1,18 +1,18 @@
 package com.hostelmanagement.service;
 
+import java.time.Instant;
+import java.util.List;
+
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.hostelmanagement.domain.MaintenanceTicket;
 import com.hostelmanagement.domain.MaintenanceTicket.TicketCategory;
 import com.hostelmanagement.domain.MaintenanceTicket.TicketStatus;
 import com.hostelmanagement.domain.Student;
 import com.hostelmanagement.repository.MaintenanceTicketRepository;
 import com.hostelmanagement.repository.StudentRepository;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Instant;
-import java.util.List;
-import java.util.Objects;
 
 @Service
 @Transactional
@@ -51,12 +51,12 @@ public class MaintenanceTicketService {
 
   @Transactional(readOnly = true)
   public List<MaintenanceTicket> getAllTickets() {
-    return ticketRepository.findAll();
+    return ticketRepository.findAllWithStudentAndRoom();
   }
 
   @Transactional(readOnly = true)
   public List<MaintenanceTicket> getTicketsByStatus(TicketStatus status) {
-    return ticketRepository.findByStatus(status);
+    return ticketRepository.findByStatusWithStudentAndRoom(status);
   }
 
   @CacheEvict(value = "maintenance-tickets", allEntries = true)
