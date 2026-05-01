@@ -580,13 +580,17 @@ StudentsTab.propTypes = {
 MaintenanceTab.propTypes = {
   tickets: PropTypes.arrayOf(
     PropTypes.shape({
-      id: PropTypes.string.isRequired,
-      date: PropTypes.string,
-      issue: PropTypes.string,
-      hostel: PropTypes.string,
-      room: PropTypes.string,
-      priority: PropTypes.string,
-      status: PropTypes.string
+      id: PropTypes.number.isRequired,
+      title: PropTypes.string.isRequired,
+      description: PropTypes.string,
+      category: PropTypes.string.isRequired,
+      status: PropTypes.string.isRequired,
+      adminNotes: PropTypes.string,
+      createdAt: PropTypes.string,
+      resolvedAt: PropTypes.string,
+      studentId: PropTypes.number,
+      studentName: PropTypes.string,
+      roomId: PropTypes.number
     })
   ).isRequired,
   openTickets: PropTypes.array.isRequired,

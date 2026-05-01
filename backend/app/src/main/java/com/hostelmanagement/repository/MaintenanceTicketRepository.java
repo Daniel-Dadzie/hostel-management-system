@@ -25,4 +25,7 @@ public interface MaintenanceTicketRepository extends JpaRepository<MaintenanceTi
   
   @Query("SELECT DISTINCT t FROM MaintenanceTicket t LEFT JOIN FETCH t.student LEFT JOIN FETCH t.room WHERE t.status = :status")
   List<MaintenanceTicket> findByStatusWithStudentAndRoom(@Param("status") TicketStatus status);
+  
+  @Query("SELECT DISTINCT t FROM MaintenanceTicket t LEFT JOIN FETCH t.student LEFT JOIN FETCH t.room WHERE t.id = :id")
+  java.util.Optional<MaintenanceTicket> findByIdWithStudentAndRoom(@Param("id") Long id);
 }

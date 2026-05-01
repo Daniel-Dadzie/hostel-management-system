@@ -64,14 +64,14 @@ public class MaintenanceTicketService {
   
   @Transactional(readOnly = true)
   public MaintenanceTicket getTicketById(Long ticketId) {
-    return ticketRepository.findById(ticketId)
+    return ticketRepository.findByIdWithStudentAndRoom(ticketId)
         .orElseThrow(() -> new IllegalArgumentException("Ticket not found with id: " + ticketId));
   }
 
   @CacheEvict(value = "maintenance-tickets", allEntries = true)
   @Transactional
   public MaintenanceTicket updateTicketStatus(Long ticketId, TicketStatus status, String adminNotes) {
-    MaintenanceTicket ticket = ticketRepository.findById(ticketId)
+    MaintenanceTicket ticket = ticketRepository.findByIdWithStudentAndRoom(ticketId)
         .orElseThrow(() -> new IllegalArgumentException("Ticket not found"));
 
     ticket.setStatus(status);
