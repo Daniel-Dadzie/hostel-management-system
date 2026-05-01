@@ -12,11 +12,13 @@ import com.hostelmanagement.domain.MaintenanceTicket.TicketStatus;
 
 @Repository
 public interface MaintenanceTicketRepository extends JpaRepository<MaintenanceTicket, Long> {
-  List<MaintenanceTicket> findByStudentId(Long studentId);
+  @Query("SELECT DISTINCT t FROM MaintenanceTicket t LEFT JOIN FETCH t.student LEFT JOIN FETCH t.room WHERE t.student.id = :studentId")
+  List<MaintenanceTicket> findByStudentId(@Param("studentId") Long studentId);
   
   List<MaintenanceTicket> findByStatus(TicketStatus status);
   
-  List<MaintenanceTicket> findByStudentIdAndStatus(Long studentId, TicketStatus status);
+  @Query("SELECT DISTINCT t FROM MaintenanceTicket t LEFT JOIN FETCH t.student LEFT JOIN FETCH t.room WHERE t.student.id = :studentId AND t.status = :status")
+  List<MaintenanceTicket> findByStudentIdAndStatus(@Param("studentId") Long studentId, @Param("status") TicketStatus status);
   
   @Query("SELECT DISTINCT t FROM MaintenanceTicket t LEFT JOIN FETCH t.student LEFT JOIN FETCH t.room")
   List<MaintenanceTicket> findAllWithStudentAndRoom();

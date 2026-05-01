@@ -46,17 +46,26 @@ public class MaintenanceTicketService {
 
   @Transactional(readOnly = true)
   public List<MaintenanceTicket> getTicketsForStudent(Long studentId) {
-    return ticketRepository.findByStudentId(studentId);
+    List<MaintenanceTicket> tickets = ticketRepository.findByStudentId(studentId);
+    return tickets != null ? tickets : List.of();
   }
 
   @Transactional(readOnly = true)
   public List<MaintenanceTicket> getAllTickets() {
-    return ticketRepository.findAllWithStudentAndRoom();
+    List<MaintenanceTicket> tickets = ticketRepository.findAllWithStudentAndRoom();
+    return tickets != null ? tickets : List.of();
   }
 
   @Transactional(readOnly = true)
   public List<MaintenanceTicket> getTicketsByStatus(TicketStatus status) {
-    return ticketRepository.findByStatusWithStudentAndRoom(status);
+    List<MaintenanceTicket> tickets = ticketRepository.findByStatusWithStudentAndRoom(status);
+    return tickets != null ? tickets : List.of();
+  }
+  
+  @Transactional(readOnly = true)
+  public MaintenanceTicket getTicketById(Long ticketId) {
+    return ticketRepository.findById(ticketId)
+        .orElseThrow(() -> new IllegalArgumentException("Ticket not found with id: " + ticketId));
   }
 
   @CacheEvict(value = "maintenance-tickets", allEntries = true)
@@ -75,11 +84,5 @@ public class MaintenanceTicketService {
     }
 
     return ticketRepository.save(ticket);
-  }
-
-  @Transactional(readOnly = true)
-  public MaintenanceTicket getTicketById(Long ticketId) {
-    return ticketRepository.findById(ticketId)
-        .orElseThrow(() -> new IllegalArgumentException("Ticket not found"));
   }
 }
