@@ -70,7 +70,8 @@ export function BookingsPaymentsTab({
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[760px] text-sm">
+          <div className="overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-700">
+            <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-neutral-200 dark:border-[rgba(226,251,206,0.08)]">
                 <th className="pb-3 pr-4 text-left">Booking</th>
@@ -113,6 +114,7 @@ export function BookingsPaymentsTab({
               )}
             </tbody>
           </table>
+            </div>
         </div>
       </DashboardPanel>
     </div>
@@ -155,8 +157,8 @@ export function StudentsTab({
         </div>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[760px] text-sm">
+      <div className="overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-700">
+        <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-neutral-200 dark:border-[rgba(226,251,206,0.08)]">
               <th className="pb-3 pr-4 text-left">Student ID</th>

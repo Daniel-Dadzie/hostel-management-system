@@ -514,7 +514,7 @@ export default function ManageHostelsPage() {
           </div>
 
           <div className="card hidden overflow-x-auto md:block">
-          <table className="w-full min-w-[860px] text-sm">
+          <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-neutral-200 dark:border-neutral-700">
                 <th className="px-3 py-2 text-left font-semibold text-neutral-800 dark:text-neutral-100">Photo</th>

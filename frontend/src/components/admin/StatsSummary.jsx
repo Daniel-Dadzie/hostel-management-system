@@ -1,7 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Card } from '../../ui/Card';
-import { Text } from '../../ui/Text';
 
 /**
  * Quick stats summary row - useful for showing key metrics
@@ -10,22 +8,22 @@ export function StatsSummary({ stats }) {
   if (!stats || stats.length === 0) return null;
 
   return (
-    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, borderRadius: 12, border: '1px solid #e5e7eb', padding: 16 }}>
+    <div className="flex flex-wrap gap-3 rounded-lg border border-gray-200 p-4 dark:border-neutral-700">
       {stats.map((stat, idx) => (
-        <Card key={idx} style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1, minWidth: 200, boxShadow: 'none', border: 'none', padding: 0, background: 'none' }}>
+        <div key={idx} className="flex flex-1 min-w-full sm:min-w-48 items-center gap-3 rounded-lg border border-gray-100 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-900">
           {stat.icon && (
-            <div style={{ display: 'flex', height: 40, width: 40, alignItems: 'center', justifyContent: 'center', borderRadius: 8, background: stat.iconBg || '#dbeafe', color: stat.iconColor || '#2563eb' }}>
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg" style={{ background: stat.iconBg || '#dbeafe', color: stat.iconColor || '#2563eb' }}>
               <stat.icon style={{ fontSize: 20 }} />
             </div>
           )}
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <Text size="sm" style={{ color: '#64748b', fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{stat.label}</Text>
-            <Text size="xl" weight="bold" style={{ color: '#1e293b' }}>{stat.value}</Text>
+          <div className="flex-1 min-w-0">
+            <p className="truncate text-sm text-gray-600 font-medium dark:text-gray-400" title={stat.label}>{stat.label}</p>
+            <p className="text-lg font-bold text-gray-900 dark:text-white">{stat.value}</p>
             {stat.subtitle && (
-              <Text size="xs" style={{ color: '#94a3b8', marginTop: 4 }}>{stat.subtitle}</Text>
+              <p className="truncate text-xs text-gray-500 dark:text-gray-400 mt-0.5" title={stat.subtitle}>{stat.subtitle}</p>
             )}
           </div>
-        </Card>
+        </div>
       ))}
     </div>
   );
@@ -49,20 +47,22 @@ StatsSummary.propTypes = {
  */
 export function MetricCard({ label, value, comparison, trend, variant = 'default' }) {
   const variantStyles = {
-    default: { border: '1px solid #e5e7eb', background: '#fff' },
-    success: { border: '1px solid #bbf7d0', background: '#f0fdf4' },
-    warning: { border: '1px solid #fde68a', background: '#fefce8' },
-    danger: { border: '1px solid #fecaca', background: '#fef2f2' },
-    info: { border: '1px solid #bfdbfe', background: '#eff6ff' }
+    default: 'border border-gray-200 bg-white dark:border-neutral-700 dark:bg-neutral-900',
+    success: 'border border-green-300 bg-green-50 dark:border-green-900/30 dark:bg-green-900/20',
+    warning: 'border border-yellow-300 bg-yellow-50 dark:border-yellow-900/30 dark:bg-yellow-900/20',
+    danger: 'border border-red-300 bg-red-50 dark:border-red-900/30 dark:bg-red-900/20',
+    info: 'border border-blue-300 bg-blue-50 dark:border-blue-900/30 dark:bg-blue-900/20'
   };
-  const style = variantStyles[variant] || variantStyles.default;
+  const styleClass = variantStyles[variant] || variantStyles.default;
+  const trendColor = trend && trend > 0 ? 'text-green-600' : trend && trend < 0 ? 'text-red-600' : 'text-gray-600';
+  
   return (
-    <Card style={{ borderRadius: 12, padding: 16, ...style }}>
-      <Text size="xs" weight="bold" style={{ textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748b' }}>{label}</Text>
-      <div style={{ marginTop: 8, display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
-        <Text size="xxl" weight="bold" style={{ color: '#1e293b' }}>{value}</Text>
+    <div className={`rounded-lg p-4 ${styleClass}`}>
+      <p className="text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400">{label}</p>
+      <div className="mt-2 flex items-baseline justify-between">
+        <p className="text-2xl font-bold text-gray-900 dark:text-white">{value}</p>
         {(comparison || trend) && (
-          <Text size="xs" weight="medium" style={{ color: trend && trend > 0 ? '#059669' : trend && trend < 0 ? '#dc2626' : '#64748b' }}>
+          <p className={`text-xs font-medium ${trendColor}`}>
             {trend ? (
               <>
                 {trend > 0 ? '↑' : '↓'} {Math.abs(trend)}%
@@ -70,10 +70,10 @@ export function MetricCard({ label, value, comparison, trend, variant = 'default
             ) : (
               comparison
             )}
-          </Text>
+          </p>
         )}
       </div>
-    </Card>
+    </div>
   );
 }
 

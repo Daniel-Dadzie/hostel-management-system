@@ -39,7 +39,7 @@ export default function AdvancedFilter({ filters = [], values = {}, onChange, on
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full z-40 mt-2 w-72 rounded-lg border border-neutral-200 bg-white shadow-lg dark:border-neutral-800 dark:bg-surface-dark">
+        <div className="absolute left-0 right-0 top-full z-40 mt-2 w-full sm:left-auto sm:w-72 rounded-lg border border-neutral-200 bg-white shadow-lg dark:border-neutral-800 dark:bg-surface-dark">
           <div className="space-y-3 p-4">
             {filters.map((filter) => (
               <div key={filter.key}>

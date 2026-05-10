@@ -316,7 +316,7 @@ export default function RoomDetailPage() {
         <div className="px-6 py-4 space-y-4">
           <OccupancyBar occupied={occupied} capacity={capacity} />
 
-          <div className="grid grid-cols-3 gap-3 text-center">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center">
             {[
               { label: 'Total Slots', value: capacity, color: 'neutral' },
               { label: 'Occupied', value: occupied, color: 'neutral' },

@@ -204,16 +204,16 @@ export default function PaymentTransactionHistoryPage() {
             <p className="body-text text-neutral-500 dark:text-neutral-400">No transactions found.</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-700">
             <table className="w-full text-sm">
               <thead className="border-b border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800">
                 <tr>
                   <th className="px-4 py-3 text-left font-semibold text-neutral-900 dark:text-white">Booking ID</th>
                   <th className="px-4 py-3 text-left font-semibold text-neutral-900 dark:text-white">Amount</th>
                   <th className="px-4 py-3 text-left font-semibold text-neutral-900 dark:text-white">Status</th>
-                  <th className="px-4 py-3 text-left font-semibold text-neutral-900 dark:text-white">Due Date</th>
-                  <th className="px-4 py-3 text-left font-semibold text-neutral-900 dark:text-white">Paid Date</th>
-                  <th className="px-4 py-3 text-left font-semibold text-neutral-900 dark:text-white">Reference</th>
+                  <th className="hidden px-4 py-3 text-left font-semibold text-neutral-900 dark:text-white md:table-cell">Due Date</th>
+                  <th className="hidden px-4 py-3 text-left font-semibold text-neutral-900 dark:text-white lg:table-cell">Paid Date</th>
+                  <th className="hidden px-4 py-3 text-left font-semibold text-neutral-900 dark:text-white lg:table-cell">Reference</th>
                   <th className="px-4 py-3 text-center font-semibold text-neutral-900 dark:text-white">Receipt</th>
                 </tr>
               </thead>
@@ -225,20 +225,20 @@ export default function PaymentTransactionHistoryPage() {
                       {formatAmount(transaction.amount)}
                     </td>
                     <td className="px-4 py-3">{getStatusBadge(transaction.paymentStatus)}</td>
-                    <td className="px-4 py-3 text-neutral-600 dark:text-neutral-300">{formatDate(transaction.dueAt)}</td>
-                    <td className="px-4 py-3 text-neutral-600 dark:text-neutral-300">{formatDate(transaction.paidAt)}</td>
-                    <td className="px-4 py-3 text-neutral-600 dark:text-neutral-300 text-xs">
+                    <td className="hidden px-4 py-3 text-neutral-600 dark:text-neutral-300 md:table-cell">{formatDate(transaction.dueAt)}</td>
+                    <td className="hidden px-4 py-3 text-neutral-600 dark:text-neutral-300 lg:table-cell">{formatDate(transaction.paidAt)}</td>
+                    <td className="hidden px-4 py-3 text-neutral-600 dark:text-neutral-300 text-xs lg:table-cell">
                       {transaction.transactionRef || '-'}
                     </td>
                     <td className="px-4 py-3 text-center">
                       {transaction.paymentStatus?.toLowerCase() === 'completed' && (transaction.receiptPath || transaction.receiptUrl) ? (
                         <button
                           onClick={() => handleDownloadReceipt(transaction)}
-                          className="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-200 hover:bg-primary-200 dark:hover:bg-primary-800 transition"
+                          className="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-200 hover:bg-primary-200 dark:hover:bg-primary-800 transition text-xs font-medium"
                           title="Download Receipt"
                         >
                           <FaDownload className="h-4 w-4" />
-                          <span className="text-xs font-medium">Download</span>
+                          <span className="hidden sm:inline">Download</span>
                         </button>
                       ) : (
                         <span className="text-xs text-neutral-500 dark:text-neutral-400">-</span>

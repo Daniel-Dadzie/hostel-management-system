@@ -132,7 +132,7 @@ export default function ManageFloorsPage() {
         </div>
       ) : (
         <div className="card overflow-x-auto">
-          <table className="w-full min-w-[760px] text-left text-sm">
+          <table className="w-full text-left text-sm">
             <thead className="border-b border-neutral-200 dark:border-neutral-700">
               <tr>
                 <th className="px-4 py-3 font-medium text-neutral-900 dark:text-white">Hostel</th>

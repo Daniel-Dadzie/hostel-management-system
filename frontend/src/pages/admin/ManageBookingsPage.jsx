@@ -227,7 +227,7 @@ export default function ManageBookingsPage() {
           </div>
 
           <div className="card hidden overflow-x-auto md:block">
-          <table className="w-full min-w-[920px] text-left text-sm">
+          <table className="w-full text-left text-sm">
             <thead className="border-b border-neutral-200 dark:border-neutral-700">
               <tr>
                 <th className="px-4 py-3 font-medium text-neutral-900 dark:text-white">ID</th>
