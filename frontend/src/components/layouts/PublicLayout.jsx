@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
+import Logo from '../Logo.jsx';
 import ThemeToggle from '../ThemeToggle.jsx';
 
 export default function PublicLayout({ children, title }) {
@@ -10,9 +11,7 @@ export default function PublicLayout({ children, title }) {
       <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0a4a30]/90 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6">
           <Link to="/" className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/15 text-sm font-black text-white ring-1 ring-white/20">
-              H
-            </div>
+            <Logo size="sm" />
             <div>
               <p className="text-base font-bold tracking-tight text-white">Hostel Management</p>
               <p className="hidden text-[10px] font-semibold uppercase tracking-[0.18em] text-white/50 sm:block">University System</p>

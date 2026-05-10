@@ -58,7 +58,7 @@ export default function LoginPage() {
   return (
     <PublicLayout>
       {/* ── Full-page green background ── */}
-      <div className="relative min-h-screen overflow-hidden bg-[#0a4a30]">
+      <div className="relative min-h-screen overflow-hidden rounded-3xl bg-[#0a4a30] mx-4 my-4 lg:mx-6 lg:my-0 lg:rounded-r-3xl lg:rounded-l-none">
 
         {/* ── Decorative green background layers ── */}
         <div className="pointer-events-none absolute inset-0">

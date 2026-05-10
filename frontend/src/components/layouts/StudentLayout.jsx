@@ -15,6 +15,7 @@ import {
 import { useAuth } from '../../context/AuthContext.jsx';
 import ThemeToggle from '../ThemeToggle.jsx';
 import UserAvatar from '../UserAvatar.jsx';
+import Logo from '../Logo.jsx';
 import { uploadImage } from '../../services/uploadService.js';
 import { updateMyProfile } from '../../services/profileService.js';
 
@@ -117,7 +118,7 @@ export default function StudentLayout() {
       }`}>
         <div className="flex items-center justify-between border-b border-neutral-100 px-5 py-4 dark:border-white/8">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#0f6b46] text-sm font-black text-white">H</div>
+            <Logo size="sm" />
             <span className="font-bold text-neutral-900 dark:text-white">Student Portal</span>
           </div>
           <button

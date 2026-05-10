@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
+import Logo from '../components/Logo.jsx';
 import heroImage from '../assets/hostel-building-2.jpg';
 
 const features = [
@@ -60,7 +61,7 @@ export default function LandingPage() {
 
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/15 text-sm font-black text-white ring-1 ring-white/20 sm:h-9 sm:w-9">H</div>
+            <Logo size="sm" />
             <span className="text-base font-bold tracking-tight text-white sm:text-[17px]">UniHostel</span>
           </Link>
 
@@ -297,7 +298,7 @@ export default function LandingPage() {
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
           <div className="flex flex-col items-center gap-6 md:flex-row md:justify-between">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#0f6b46] text-sm font-black text-white">H</div>
+              <Logo size="sm" />
               <div>
                 <p className="font-bold text-neutral-900 dark:text-white">UniHostel</p>
                 <p className="text-xs text-neutral-400">University Hostel Management</p>

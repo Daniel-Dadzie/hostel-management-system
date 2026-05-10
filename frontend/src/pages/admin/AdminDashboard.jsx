@@ -12,25 +12,25 @@ import { listHostels } from '../../services/hostelService.js';
 import { listRooms } from '../../services/roomService.js';
 
 const STATUS_CHIP = {
-  APPROVED: 'bg-emerald-100 text-emerald-700 dark:bg-[rgba(7,102,83,0.32)] dark:text-[#e2fbce]',
-  PENDING_PAYMENT: 'bg-yellow-100 text-yellow-700 dark:bg-[rgba(227,239,38,0.18)] dark:text-[#f3f8b7]',
-  CHECKED_OUT: 'bg-lime-100 text-lime-800 dark:bg-[rgba(10,120,95,0.28)] dark:text-[#dcebd0]',
-  REJECTED: 'bg-red-100 text-red-700 dark:bg-[rgba(133,67,50,0.34)] dark:text-[#fac2be]',
-  EXPIRED: 'bg-neutral-100 text-neutral-600 dark:bg-[rgba(12,52,44,0.7)] dark:text-[#dcebd0]/70',
-  CANCELLED: 'bg-neutral-100 text-neutral-600 dark:bg-[rgba(12,52,44,0.7)] dark:text-[#dcebd0]/70'
+  APPROVED: 'bg-emerald-600 text-white dark:bg-emerald-700 dark:text-emerald-50',
+  PENDING_PAYMENT: 'bg-amber-600 text-white dark:bg-amber-700 dark:text-amber-50',
+  CHECKED_OUT: 'bg-lime-600 text-white dark:bg-lime-700 dark:text-lime-50',
+  REJECTED: 'bg-red-600 text-white dark:bg-red-700 dark:text-red-50',
+  EXPIRED: 'bg-neutral-600 text-white dark:bg-neutral-700 dark:text-neutral-50',
+  CANCELLED: 'bg-neutral-600 text-white dark:bg-neutral-700 dark:text-neutral-50'
 };
 
 const TICKET_CHIP = {
-  OPEN: 'bg-yellow-100 text-yellow-700 dark:bg-[rgba(227,239,38,0.18)] dark:text-[#f3f8b7]',
-  IN_PROGRESS: 'bg-blue-100 text-blue-700 dark:bg-[rgba(59,130,246,0.18)] dark:text-[#93c5fd]',
-  RESOLVED: 'bg-emerald-100 text-emerald-700 dark:bg-[rgba(7,102,83,0.32)] dark:text-[#e2fbce]',
-  CLOSED: 'bg-neutral-100 text-neutral-600 dark:bg-[rgba(12,52,44,0.7)] dark:text-[#dcebd0]/70'
+  OPEN: 'bg-amber-600 text-white dark:bg-amber-700 dark:text-amber-50',
+  IN_PROGRESS: 'bg-blue-600 text-white dark:bg-blue-700 dark:text-blue-50',
+  RESOLVED: 'bg-emerald-600 text-white dark:bg-emerald-700 dark:text-emerald-50',
+  CLOSED: 'bg-neutral-600 text-white dark:bg-neutral-700 dark:text-neutral-50'
 };
 
 const PRIORITY_CHIP = {
-  HIGH: 'bg-red-100 text-red-700 dark:bg-[rgba(220,38,38,0.18)] dark:text-[#fca5a5]',
-  MEDIUM: 'bg-yellow-100 text-yellow-700 dark:bg-[rgba(227,239,38,0.18)] dark:text-[#f3f8b7]',
-  LOW: 'bg-emerald-100 text-emerald-700 dark:bg-[rgba(7,102,83,0.32)] dark:text-[#e2fbce]'
+  HIGH: 'bg-red-600 text-white dark:bg-red-700 dark:text-red-50',
+  MEDIUM: 'bg-amber-600 text-white dark:bg-amber-700 dark:text-amber-50',
+  LOW: 'bg-emerald-600 text-white dark:bg-emerald-700 dark:text-emerald-50'
 };
 
 const TABS = ['Overview', 'Analytics', 'Bookings & Payments', 'Students', 'Lifecycle Management', 'Maintenance', 'Announcements'];
@@ -203,12 +203,12 @@ export default function AdminDashboard() {
         <div className="flex flex-wrap gap-2">
           <button type="button" disabled={actionLoading === String(booking.id) + 'APPROVED'}
             onClick={() => handleBookingAction(booking.id, 'APPROVED')}
-            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-bold ${compact ? 'bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-[linear-gradient(135deg,#fffdee_0%,#e3ef26_100%)] dark:text-[#0c342c]' : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200 dark:bg-[rgba(7,102,83,0.32)] dark:text-[#e2fbce]'} disabled:opacity-50`}>
+            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-bold ${compact ? 'bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-500 dark:text-white' : 'bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-500'} disabled:opacity-50`}>
             {actionLoading === String(booking.id) + 'APPROVED' ? 'Working...' : 'Approve'}
           </button>
           <button type="button" disabled={actionLoading === String(booking.id) + 'REJECTED'}
             onClick={() => handleBookingAction(booking.id, 'REJECTED')}
-            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-bold ${compact ? 'bg-red-600 text-white hover:bg-red-700 dark:bg-[linear-gradient(135deg,#854332_0%,#a2403a_100%)] dark:text-white' : 'bg-red-100 text-red-700 hover:bg-red-200 dark:bg-[rgba(133,67,50,0.34)] dark:text-[#fac2be]'} disabled:opacity-50`}>
+            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-bold ${compact ? 'bg-red-600 text-white hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-500 dark:text-white' : 'bg-red-600 text-white hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-500'} disabled:opacity-50`}>
             {actionLoading === String(booking.id) + 'REJECTED' ? 'Working...' : 'Reject'}
           </button>
         </div>
@@ -272,11 +272,11 @@ export default function AdminDashboard() {
               className={`inline-flex flex-shrink-0 items-center gap-1.5 rounded-full px-3 py-2 text-xs font-semibold transition-all duration-200 sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm ${
                 isActive
                   ? 'bg-[linear-gradient(135deg,#fffdee_0%,#e2fbce_30%,#e3ef26_100%)] text-[#0c342c] shadow-[0_12px_24px_rgba(6,35,29,0.16)] dark:bg-[linear-gradient(135deg,#fffdee_0%,#e3ef26_100%)] dark:text-[#0c342c]'
-                  : 'text-[#466257] hover:bg-[#f0f6cf] hover:text-[#0c342c] dark:text-[#dcebd0]/68 dark:hover:bg-white/10 dark:hover:text-[#fffdee]'
+                  : 'text-neutral-600 hover:bg-emerald-50 hover:text-emerald-700 dark:text-neutral-400 dark:hover:bg-white/10 dark:hover:text-emerald-300'
               }`}>
               <span className="whitespace-nowrap">{tab}</span>
               {badgeValue > 0 && (
-                <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-extrabold ${isActive ? 'bg-[#0c342c]/12 text-[#0c342c]' : 'bg-[#edf8d6] text-[#0f6b46] dark:bg-[rgba(227,239,38,0.12)] dark:text-[#e2fbce]'}`}>
+                <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-extrabold ${isActive ? 'bg-[#0c342c]/12 text-[#0c342c]' : 'bg-emerald-600 text-white dark:bg-emerald-600 dark:text-white'}`}>
                   {badgeValue}
                 </span>
               )}

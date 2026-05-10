@@ -15,6 +15,7 @@ import {
 import { useAuth } from '../../context/AuthContext.jsx';
 import ThemeToggle from '../ThemeToggle.jsx';
 import UserAvatar from '../UserAvatar.jsx';
+import Logo from '../Logo.jsx';
 
 const navSections = [
   {
@@ -45,9 +46,7 @@ export default function AdminLayout() {
         <aside className="hidden lg:block w-[292px] border-r border-black/5 bg-[#f8f7f2] dark:border-white/8 dark:bg-[linear-gradient(180deg,#1b1d22_0%,#16181d_100%)] h-full sticky top-0 z-20">
           <div className="flex h-full flex-col px-4 py-4 sm:px-4 sm:py-4 lg:px-5 lg:py-5">
             <Link to="/admin" className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-[18px] bg-[#0f6b46] text-base font-black text-white shadow-[0_16px_32px_rgba(15,107,70,0.32)] dark:border dark:border-[#5d88d6]/30 dark:bg-[linear-gradient(135deg,#428bff_0%,#2b5db7_100%)] dark:shadow-[0_20px_38px_rgba(7,14,29,0.54)]">
-                H
-              </div>
+              <Logo size="md" />
               <div className="min-w-0">
                 <p className="truncate text-lg font-extrabold tracking-tight text-neutral-900 dark:text-white">
                   Hostel Admin
@@ -75,7 +74,7 @@ export default function AdminLayout() {
                             `group flex items-center gap-2.5 rounded-[18px] px-3.5 py-2 text-sm font-semibold transition-all duration-200 w-full ${
                               isActive
                                 ? 'bg-white text-[#0f6b46] shadow-[0_16px_34px_rgba(15,23,42,0.08)] ring-1 ring-[#d8e6dc] hover:bg-white hover:shadow-[0_24px_48px_rgba(15,107,70,0.15)] dark:bg-gradient-to-br dark:from-emerald-500/25 dark:to-emerald-600/25 dark:text-emerald-50 dark:ring-emerald-500/50 dark:shadow-[0_18px_38px_rgba(16,185,129,0.25)] dark:hover:from-emerald-500/35 dark:hover:to-emerald-600/35 dark:hover:text-emerald-100 dark:hover:shadow-[0_24px_48px_rgba(16,185,129,0.35)]'
-                                : 'text-neutral-500 hover:bg-white/80 hover:text-neutral-900 dark:text-white/64 dark:hover:bg-[rgba(66,139,255,0.16)] dark:hover:text-white'
+                                : 'text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-300 dark:hover:bg-white/10 dark:hover:text-white'
                             }`
                           }
                         >
@@ -105,9 +104,7 @@ export default function AdminLayout() {
               <div className="flex h-full flex-col px-4 py-4">
                 <div className="flex items-center justify-between mb-2">
                   <Link to="/admin" className="flex items-center gap-3" onClick={() => setMobileSidebarOpen(false)}>
-                    <div className="flex h-10 w-10 items-center justify-center rounded-[14px] bg-[#0f6b46] text-sm font-black text-white">
-                      H
-                    </div>
+                    <Logo size="sm" />
                     <div>
                       <p className="truncate text-sm font-extrabold text-neutral-900 dark:text-white">
                         Hostel Admin
