@@ -23,23 +23,23 @@ export function BookingsPaymentsTab({
           title="Payment Verification Queue"
           subtitle="These bookings are waiting for admin review before rooms are confirmed."
           action={
-            <span className="rounded-full bg-yellow-100 px-3 py-1 text-xs font-bold text-yellow-700 dark:bg-[rgba(227,239,38,0.18)] dark:text-[#f3f8b7]">
+            <span className="rounded-full bg-yellow-100 px-3 py-1 text-xs font-bold text-yellow-700 dark:bg-neutral-800 dark:text-amber-400">
               {pendingPayments.length} pending
             </span>
           }
-          className="border-yellow-200/70 dark:border-[rgba(227,239,38,0.14)]"
+          className="border-yellow-200/70 dark:border-neutral-800 dark:bg-neutral-850"
         >
           <div className="space-y-3">
             {pendingPayments.map((booking) => (
               <div
                 key={booking.id}
-                className="flex flex-wrap items-center justify-between gap-4 rounded-[24px] border border-yellow-200/60 bg-yellow-50/60 px-4 py-4 dark:border-[rgba(227,239,38,0.12)] dark:bg-[rgba(227,239,38,0.08)]"
+                className="flex flex-wrap items-center justify-between gap-4 rounded-[24px] border border-yellow-200/60 bg-yellow-50/60 px-4 py-4 dark:border-neutral-700 dark:bg-neutral-800/50"
               >
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold text-neutral-900 dark:text-[#fffdee]">
+                  <p className="truncate text-sm font-semibold text-neutral-900 dark:text-neutral-100">
                     {booking.studentName}
                   </p>
-                  <p className="mt-1 truncate text-xs text-neutral-500 dark:text-[#dcebd0]/58">
+                  <p className="mt-1 truncate text-xs text-neutral-500 dark:text-neutral-400">
                     {booking.hostelName ?? 'Unassigned'} / Room {booking.roomNumber ?? '-'} / #{booking.id}
                     {booking.studentEmail ? ` / ${booking.studentEmail}` : ''}
                   </p>
@@ -73,32 +73,32 @@ export function BookingsPaymentsTab({
           <div className="overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-700">
             <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-neutral-200 dark:border-[rgba(226,251,206,0.08)]">
-                <th className="pb-3 pr-4 text-left">Booking</th>
-                <th className="pb-3 pr-4 text-left">Student</th>
-                <th className="pb-3 pr-4 text-left">Room</th>
-                <th className="pb-3 pr-4 text-left">Status</th>
-                <th className="pb-3 text-left">Actions</th>
+              <tr className="border-b border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800">
+                <th className="pb-3 pr-4 text-left font-semibold text-neutral-700 dark:text-neutral-300">Booking</th>
+                <th className="pb-3 pr-4 text-left font-semibold text-neutral-700 dark:text-neutral-300">Student</th>
+                <th className="pb-3 pr-4 text-left font-semibold text-neutral-700 dark:text-neutral-300">Room</th>
+                <th className="pb-3 pr-4 text-left font-semibold text-neutral-700 dark:text-neutral-300">Status</th>
+                <th className="pb-3 text-left font-semibold text-neutral-700 dark:text-neutral-300">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-neutral-100 dark:divide-[rgba(226,251,206,0.08)]">
+            <tbody className="divide-y divide-neutral-100 dark:divide-neutral-700">
               {filteredBookings.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="py-6 text-center text-sm text-neutral-500">
+                  <td colSpan={5} className="py-6 text-center text-sm text-neutral-500 dark:text-neutral-400">
                     No results found.
                   </td>
                 </tr>
               ) : (
                 filteredBookings.map((booking) => (
                   <tr key={booking.id}>
-                    <td className="py-4 pr-4 text-sm font-semibold text-neutral-700 dark:text-[#fffdee]/82">
+                    <td className="py-4 pr-4 text-sm font-semibold text-neutral-700 dark:text-neutral-100">
                       #{booking.id}
                     </td>
                     <td className="py-4 pr-4">
-                      <p className="font-semibold text-neutral-900 dark:text-[#fffdee]">{booking.studentName}</p>
-                      <p className="mt-1 text-xs text-neutral-500 dark:text-[#dcebd0]/58">{booking.studentEmail || 'No email'}</p>
+                      <p className="font-semibold text-neutral-900 dark:text-neutral-100">{booking.studentName}</p>
+                      <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{booking.studentEmail || 'No email'}</p>
                     </td>
-                    <td className="py-4 pr-4 text-neutral-600 dark:text-[#dcebd0]/68">
+                    <td className="py-4 pr-4 text-neutral-600 dark:text-neutral-300">
                       {booking.hostelName ?? 'Unassigned'} / {booking.roomNumber ?? '-'}
                     </td>
                     <td className="py-4 pr-4">
@@ -178,16 +178,16 @@ export function StudentsTab({
             ) : (
               filteredStudents.map((booking) => (
                 <tr key={booking.id}>
-                  <td className="py-4 pr-4 text-xs font-semibold text-neutral-500 dark:text-[#dcebd0]/58">
+                  <td className="py-4 pr-4 text-xs font-semibold text-neutral-500 dark:text-neutral-400">
                     {booking.studentId ?? booking.id}
                   </td>
-                  <td className="py-4 pr-4 font-semibold text-neutral-900 dark:text-[#fffdee]">
+                  <td className="py-4 pr-4 font-semibold text-neutral-900 dark:text-neutral-100">
                     {booking.studentName}
                   </td>
-                  <td className="py-4 pr-4 text-xs text-neutral-500 dark:text-[#dcebd0]/58">
+                  <td className="py-4 pr-4 text-xs text-neutral-500 dark:text-neutral-400">
                     {booking.studentEmail ?? '-'}
                   </td>
-                  <td className="py-4 pr-4 text-neutral-600 dark:text-[#dcebd0]/68">
+                  <td className="py-4 pr-4 text-neutral-600 dark:text-neutral-300">
                     {booking.status === 'APPROVED'
                       ? `${booking.hostelName ?? '-'} / ${booking.roomNumber ?? '-'}`
                       : '-'}
@@ -520,12 +520,12 @@ export function AnnouncementsTab({
             {announcements.map((announcement) => (
               <div
                 key={announcement.id}
-                className="rounded-[24px] border border-[#d6e2be] bg-[linear-gradient(180deg,#fffdee_0%,#f7fbdc_100%)] p-4 dark:border-[rgba(226,251,206,0.12)] dark:bg-[linear-gradient(180deg,#12473d_0%,#08271f_100%)]"
+                className="rounded-[24px] border border-[#d6e2be] bg-[linear-gradient(180deg,#fffdee_0%,#f7fbdc_100%)] p-4 dark:border-neutral-700 dark:bg-neutral-800"
               >
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
-                    <p className="font-semibold text-neutral-900 dark:text-[#fffdee]">{announcement.title}</p>
-                    <div className="mt-1 flex flex-wrap gap-3 text-xs text-neutral-400 dark:text-[#dcebd0]/42">
+                    <p className="font-semibold text-neutral-900 dark:text-neutral-100">{announcement.title}</p>
+                    <div className="mt-1 flex flex-wrap gap-3 text-xs text-neutral-400 dark:text-neutral-400">
                       <span>Published: {announcement.publishedAt}</span>
                       {announcement.expiresAt ? <span>Expires: {announcement.expiresAt}</span> : null}
                     </div>
@@ -533,12 +533,12 @@ export function AnnouncementsTab({
                   <button
                     type="button"
                     onClick={() => deleteAnnouncement(announcement.id)}
-                    className="rounded-full bg-red-50 px-3 py-2 text-xs font-bold text-red-600 hover:bg-red-100 dark:bg-[rgba(133,67,50,0.34)] dark:text-[#fac2be] dark:hover:bg-[rgba(133,67,50,0.46)]"
+                    className="rounded-full bg-red-50 px-3 py-2 text-xs font-bold text-red-600 hover:bg-red-100 dark:bg-red-600/20 dark:text-red-400 dark:hover:bg-red-600/30"
                   >
                     Delete
                   </button>
                 </div>
-                <p className="mt-3 text-sm leading-6 text-neutral-600 dark:text-[#dcebd0]/64">
+                <p className="mt-3 text-sm leading-6 text-neutral-600 dark:text-neutral-400">
                   {announcement.body}
                 </p>
               </div>

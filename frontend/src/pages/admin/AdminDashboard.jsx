@@ -263,7 +263,7 @@ export default function AdminDashboard() {
       </section>
 
       {/* ── Tabs ── */}
-      <div className="flex overflow-x-auto rounded-2xl border border-[#cadca5] bg-[rgba(255,253,238,0.82)] p-1 shadow-[0_12px_26px_rgba(6,35,29,0.08)] scrollbar-none dark:border-[rgba(226,251,206,0.12)] dark:bg-[rgba(12,52,44,0.86)] dark:shadow-[0_18px_36px_rgba(0,0,0,0.24)] sm:rounded-full sm:p-1.5">
+      <div className="flex overflow-x-auto rounded-2xl border border-[#cadca5] bg-[rgba(255,253,238,0.82)] p-1 shadow-[0_12px_26px_rgba(6,35,29,0.08)] scrollbar-none dark:border-neutral-800 dark:bg-neutral-900 dark:shadow-[0_12px_20px_rgba(0,0,0,0.3)] sm:rounded-full sm:p-1.5">
         {TABS.map((tab, index) => {
           const isActive = activeTab === index;
           const badgeValue = tab === 'Bookings & Payments' ? pendingPayments.length : tab === 'Maintenance' ? openTickets.length : null;
@@ -271,12 +271,12 @@ export default function AdminDashboard() {
             <button key={tab} type="button" onClick={() => setActiveTab(index)}
               className={`inline-flex flex-shrink-0 items-center gap-1.5 rounded-full px-3 py-2 text-xs font-semibold transition-all duration-200 sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm ${
                 isActive
-                  ? 'bg-[linear-gradient(135deg,#fffdee_0%,#e2fbce_30%,#e3ef26_100%)] text-[#0c342c] shadow-[0_12px_24px_rgba(6,35,29,0.16)] dark:bg-[linear-gradient(135deg,#fffdee_0%,#e3ef26_100%)] dark:text-[#0c342c]'
-                  : 'text-neutral-600 hover:bg-emerald-50 hover:text-emerald-700 dark:text-neutral-400 dark:hover:bg-white/10 dark:hover:text-emerald-300'
+                  ? 'bg-[linear-gradient(135deg,#fffdee_0%,#e2fbce_30%,#e3ef26_100%)] text-[#0c342c] shadow-[0_12px_24px_rgba(6,35,29,0.16)] dark:bg-neutral-800 dark:text-emerald-400 dark:shadow-[0_8px_16px_rgba(0,0,0,0.3)]'
+                  : 'text-neutral-600 hover:bg-emerald-50 hover:text-emerald-700 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-200'
               }`}>
               <span className="whitespace-nowrap">{tab}</span>
               {badgeValue > 0 && (
-                <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-extrabold ${isActive ? 'bg-[#0c342c]/12 text-[#0c342c]' : 'bg-emerald-600 text-white dark:bg-emerald-600 dark:text-white'}`}>
+                <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-extrabold ${isActive ? 'bg-emerald-600 text-white dark:bg-emerald-600 dark:text-white' : 'bg-emerald-600 text-white dark:bg-emerald-600 dark:text-white'}`}>
                   {badgeValue}
                 </span>
               )}
