@@ -41,7 +41,7 @@ export default function AdminLayout() {
 
   return (
     <div className="admin-theme min-h-screen bg-[#e4e0d9] px-2 py-2 text-neutral-900 dark:bg-neutral-950 sm:px-4 sm:py-4">
-      <div className="mx-auto flex max-w-[1760px] h-[calc(100vh-1rem)] rounded-[34px] border border-white/80 bg-[#f7f5ef] shadow-[0_28px_80px_rgba(15,23,42,0.12)] ring-1 ring-black/5 dark:border-neutral-800 dark:bg-neutral-900 dark:shadow-[0_32px_86px_rgba(0,0,0,0.45)] sm:h-[calc(100vh-2rem)]"
+      <div className="mx-auto flex max-w-[1760px] h-[calc(100vh-1rem)] rounded-[34px] border border-white/80 bg-[#f7f5ef] shadow-[0_28px_80px_rgba(15,23,42,0.12)] ring-1 ring-black/5 dark:border-neutral-800 dark:bg-neutral-900 dark:shadow-[0_32px_86px_rgba(0,0,0,0.45)] sm:h-[calc(100vh-2rem)]">
         {/* Sidebar: static, never scrolls */}
         <aside className="hidden lg:block w-[292px] border-r border-black/5 bg-[#f8f7f2] dark:border-neutral-800 dark:bg-neutral-900 h-full sticky top-0 z-20">
           <div className="flex h-full flex-col px-4 py-4 sm:px-4 sm:py-4 lg:px-5 lg:py-5">

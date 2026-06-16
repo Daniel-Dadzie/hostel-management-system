@@ -9,18 +9,26 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    
+    # The database container
     services:
       mysql:
         image: mysql:8.0
         env:
           MYSQL_ROOT_PASSWORD: root
+          # Docker automatically creates this database and user for you
           MYSQL_DATABASE: hostel_db
           MYSQL_USER: hostel_user
           MYSQL_PASSWORD: hostel_password
         ports:
           - 3306:3306
+        # GitHub Actions automatically waits for this health check to pass
         options: >-
-          --health-cmd="mysqladmin ping --silent" --health-interval=10s --health-timeout=5s --health-retries=5
+          --health-cmd="mysqladmin ping --silent" 
+          --health-interval=10s 
+          --health-timeout=5s 
+          --health-retries=5
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -37,24 +45,12 @@ jobs:
           java-version: '21'
           cache: 'maven'
 
-      - name: Wait for MySQL to be ready
-        run: |
-          for i in {1..30}; do
-            if mysqladmin ping -h 127.0.0.1 -uroot -proot --silent; then
-              echo "MySQL is up!"; break;
-            fi
-            echo "Waiting for MySQL..."; sleep 2;
-          done
-
-      - name: Initialize database
-        run: |
-          mysql -h 127.0.0.1 -uroot -proot -e "CREATE DATABASE IF NOT EXISTS hostel_db; GRANT ALL PRIVILEGES ON hostel_db.* TO 'hostel_user'@'%' IDENTIFIED BY 'hostel_password'; FLUSH PRIVILEGES;"
-
       - name: Make mvnw executable
         run: chmod +x backend/app/mvnw
 
       - name: Install backend dependencies and build
         working-directory: ./backend/app
+        # Note: If you want to actually run your Spring Boot tests against the DB, remove -DskipTests
         run: ./mvnw clean package -DskipTests
         env:
           SPRING_DATASOURCE_URL: jdbc:mysql://127.0.0.1:3306/hostel_db
