@@ -117,3 +117,8 @@ app:
       secret-key: ${PAYSTACK_SECRET_KEY:}
       callback-url: ${PAYSTACK_CALLBACK_URL:http://localhost:3000}
       webhook-secret: ${PAYSTACK_WEBHOOK_SECRET:}
+  
+  cloudinary:
+  cloud-name: ${CLOUDINARY_CLOUD_NAME}
+  api-key: ${CLOUDINARY_API_KEY}
+  api-secret: ${CLOUDINARY_API_SECRET}
