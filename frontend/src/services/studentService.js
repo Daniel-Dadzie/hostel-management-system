@@ -1,5 +1,14 @@
 import { apiRequest, getAuthHeaders } from './api.js';
 
+// import { apiRequest, getAuthHeaders } from './api.js';
+
+export async function deleteStudent(studentId) {
+    return await apiRequest(`/api/admin/students/${studentId}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+    });
+}
+
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
 
 function apiPath(path) {
