@@ -146,11 +146,11 @@ export default function AdminLayout() {
                               end={item.to === '/admin'}
                               onClick={() => setMobileSidebarOpen(false)}
                               className={({ isActive }) =>
-                                `group flex items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-bold transition-all duration-200 w-full ${
-                                  isActive
+                                 `group flex items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-bold transition-all duration-200 w-full ${
+                                   isActive
                                     ? 'bg-white text-[#0f6b46] shadow-sm ring-1 ring-black/5 dark:bg-emerald-900/30 dark:text-emerald-400 dark:ring-emerald-500/20'
-                                    : 'text-neutral-600 hover:bg-white hover:text-[#0f6b46] dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-white'
-                                }`
+                                    : 'text-neutral-700 hover:bg-[#0f6b46] hover:text-white dark:text-neutral-300 dark:hover:bg-emerald-500 dark:hover:text-white'
+                                  }`
                               }
                             >
                               {({ isActive }) => (
