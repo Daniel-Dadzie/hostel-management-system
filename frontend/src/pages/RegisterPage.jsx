@@ -27,7 +27,7 @@ export default function RegisterPage() {
   const { register } = useAuth();
   const navigate = useNavigate();
 
-  const REGISTER_STEPS = ['Validating information', 'Creating account', 'Redirecting to login'];
+  const REGISTER_STEPS = ['Validating information', 'Creating account', 'Finalizing setup'];
 
   function handleChange(field, value) {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -51,9 +51,7 @@ export default function RegisterPage() {
     
     try {
       // Step 0: Validate information
-      await new Promise(resolve => {
-        setTimeout(resolve, 600);
-      });
+      await new Promise(resolve => setTimeout(resolve, 600));
       setLoadingStep(1);
 
       let profileImagePath = form.profileImagePath || null;
@@ -70,16 +68,12 @@ export default function RegisterPage() {
         password: form.password
       });
 
-      // Step 1: Creating account (already done above, so step to 2)
-      await new Promise(resolve => {
-        setTimeout(resolve, 600);
-      });
+      // Step 1: Creating account
+      await new Promise(resolve => setTimeout(resolve, 600));
       setLoadingStep(2);
 
-      // Step 2: Redirecting
-      await new Promise(resolve => {
-        setTimeout(resolve, 600);
-      });
+      // Step 2: Finalizing setup
+      await new Promise(resolve => setTimeout(resolve, 600));
 
       navigate('/login', { replace: true, state: { justRegistered: true } });
     } catch (err) {
@@ -106,9 +100,7 @@ export default function RegisterPage() {
           <div className="absolute right-10 bottom-1/4 h-80 w-80 rounded-full border border-white/5" />
           <div
             className="absolute inset-0 opacity-[0.03]"
-            style={{
-              backgroundImage: 'repeating-linear-gradient(45deg, #fff 0px, #fff 1px, transparent 1px, transparent 12px)'
-            }}
+            style={{ backgroundImage: 'repeating-linear-gradient(45deg, #fff 0px, #fff 1px, transparent 1px, transparent 12px)' }}
           />
         </div>
 
@@ -148,11 +140,7 @@ export default function RegisterPage() {
               <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-400 via-[#0f6b46] to-emerald-500" />
 
               <div className="px-8 pb-8 pt-9">
-                {/* Logo */}
                 <div className="mb-7 flex items-center gap-4">
-                  {/* <div className="flex h-13 w-13 flex-shrink-0 items-center justify-center rounded-[16px] bg-[#0f6b46] text-lg font-black text-white shadow-[0_8px_24px_rgba(15,107,70,0.40)]">
-                    H
-                  </div> */}
                   <div>
                     <p className="text-base font-extrabold tracking-tight text-neutral-900 dark:text-white">
                       Hostel Management
@@ -178,8 +166,6 @@ export default function RegisterPage() {
                 )}
 
                 <form onSubmit={handleSubmit} className="space-y-4">
-
-                  {/* Row: Full Name + Phone */}
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
                       <label htmlFor="register-fullname" className={labelClass}>Full Name</label>
@@ -207,7 +193,6 @@ export default function RegisterPage() {
                     </div>
                   </div>
 
-                  {/* Row: Email + Gender */}
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
                       <label htmlFor="register-email" className={labelClass}>Email</label>
@@ -235,7 +220,6 @@ export default function RegisterPage() {
                     </div>
                   </div>
 
-                  {/* Row: Password + Confirm Password */}
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
                       <label htmlFor="register-password" className={labelClass}>Password</label>
@@ -283,7 +267,6 @@ export default function RegisterPage() {
                     </div>
                   </div>
 
-                  {/* Profile photo */}
                   <div>
                     <ImageUploadField
                       id="register-profile-image"
@@ -309,13 +292,23 @@ export default function RegisterPage() {
                     />
                   </div>
 
-                  {/* Submit */}
+                  {/* Submit Button with Spinner */}
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full rounded-xl bg-[#0f6b46] px-4 py-3.5 text-sm font-bold text-white shadow-[0_8px_24px_rgba(15,107,70,0.35)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#0c5a3b] hover:shadow-[0_12px_32px_rgba(15,107,70,0.45)] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
+                    className="flex w-full items-center justify-center rounded-xl bg-[#0f6b46] px-4 py-3.5 text-sm font-bold text-white shadow-[0_8px_24px_rgba(15,107,70,0.35)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#0c5a3b] hover:shadow-[0_12px_32px_rgba(15,107,70,0.45)] disabled:cursor-not-allowed disabled:opacity-80 disabled:hover:translate-y-0"
                   >
-                    {loading ? 'Creating account...' : 'Create Account'}
+                    {loading ? (
+                      <div className="flex items-center gap-2.5">
+                        <svg className="h-4 w-4 animate-spin text-white/90" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-100" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>Creating account...</span>
+                      </div>
+                    ) : (
+                      'Create Account'
+                    )}
                   </button>
                 </form>
 
@@ -327,10 +320,6 @@ export default function RegisterPage() {
                 </p>
               </div>
             </div>
-
-            {/* <p className="mt-6 text-center text-xs text-white/40">
-              © {new Date().getFullYear()} University Hostel Management System
-            </p> */}
           </div>
         </div>
       </div>
@@ -338,7 +327,7 @@ export default function RegisterPage() {
       <LoadingOverlay
         open={loading}
         title="Creating your account"
-        message="This may take a moment, please don't refresh..."
+        message="Provisioning student profile..."
         blockNavigation
         steps={REGISTER_STEPS}
         currentStep={loadingStep}

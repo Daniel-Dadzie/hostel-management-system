@@ -171,7 +171,7 @@ export function StudentsTab({
           <tbody className="divide-y divide-neutral-100 dark:divide-[rgba(226,251,206,0.08)]">
             {filteredStudents.length === 0 ? (
               <tr>
-                <td colSpan={5} className="py-6 text-center text-sm text-neutral-500">
+                <td colSpan={5} className="py-6 text-center text-sm text-neutral-500 dark:text-neutral-400">
                   No students found.
                 </td>
               </tr>
@@ -514,7 +514,7 @@ export function AnnouncementsTab({
         subtitle="Review currently published student-facing messages."
       >
         {announcements.length === 0 ? (
-          <p className="py-4 text-sm text-neutral-500">No announcements published yet.</p>
+          <p className="py-4 text-sm text-neutral-500 dark:text-neutral-400">No announcements published yet.</p>
         ) : (
           <div className="space-y-3">
             {announcements.map((announcement) => (

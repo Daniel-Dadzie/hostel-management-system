@@ -79,13 +79,13 @@ export default function LandingPage() {
           {/* Right side */}
           <div className="flex items-center gap-2 sm:gap-3">
             {isAuthenticated ? (
-              <Link to={dashboardPath} className="rounded-xl bg-white px-4 py-2 text-sm font-bold text-[#0f6b46] transition hover:bg-emerald-50 sm:px-5">
+              <Link to={dashboardPath} className="rounded-xl bg-white px-4 py-2 text-sm font-bold text-[#0f6b46] transition hover:bg-emerald-100 sm:px-5">
                 Dashboard →
               </Link>
             ) : (
               <>
                 <Link to="/login" className="hidden text-sm font-medium text-white/80 transition hover:text-white sm:block">Login</Link>
-                <Link to="/register" className="rounded-xl bg-white px-4 py-2 text-sm font-bold text-[#0f6b46] shadow-lg transition hover:-translate-y-px hover:bg-emerald-50 sm:px-5">
+                <Link to="/register" className="rounded-xl bg-white px-4 py-2 text-sm font-bold text-[#0f6b46] shadow-lg transition hover:-translate-y-px hover:bg-emerald-100 sm:px-5">
                   Register
                 </Link>
               </>
@@ -144,7 +144,7 @@ export default function LandingPage() {
 
         <div className="relative z-10 mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
           <div className="max-w-3xl">
-             
+              
             <h1 className="text-4xl font-black leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-7xl">
               Your Home{' '}
               <span className="block text-emerald-400">Away From Home</span>
@@ -159,17 +159,17 @@ export default function LandingPage() {
               {!isAuthenticated ? (
                 <>
                   <Link to="/register"
-                    className="group inline-flex items-center justify-center gap-2.5 rounded-2xl bg-[#0f6b46] px-6 py-3.5 text-base font-bold text-white shadow-[0_8px_32px_rgba(15,107,70,0.45)] transition-all hover:-translate-y-0.5 hover:bg-[#0c5a3b] sm:px-8 sm:py-4">
+                    className="group inline-flex items-center justify-center gap-2.5 rounded-2xl bg-[#0f6b46] px-6 py-3.5 text-base font-bold text-white shadow-[0_8px_32px_rgba(15,107,70,0.45)] transition-all hover:-translate-y-0.5 hover:bg-emerald-500 hover:shadow-[0_8px_32px_rgba(16,185,129,0.3)] sm:px-8 sm:py-4">
                     Apply for Hostel <span className="transition-transform group-hover:translate-x-1">→</span>
                   </Link>
                   <Link to="/login"
-                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/20 bg-white/10 px-6 py-3.5 text-base font-semibold text-white backdrop-blur-sm transition-all hover:bg-white/20 sm:px-8 sm:py-4">
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/20 bg-white/10 px-6 py-3.5 text-base font-semibold text-white backdrop-blur-sm transition-all hover:bg-white hover:text-[#0f6b46] sm:px-8 sm:py-4">
                     Sign In
                   </Link>
                 </>
               ) : (
                 <Link to={dashboardPath}
-                  className="group inline-flex items-center justify-center gap-2.5 rounded-2xl bg-[#0f6b46] px-6 py-3.5 text-base font-bold text-white shadow-[0_8px_32px_rgba(15,107,70,0.45)] transition-all hover:-translate-y-0.5 hover:bg-[#0c5a3b] sm:px-8 sm:py-4">
+                  className="group inline-flex items-center justify-center gap-2.5 rounded-2xl bg-[#0f6b46] px-6 py-3.5 text-base font-bold text-white shadow-[0_8px_32px_rgba(15,107,70,0.45)] transition-all hover:-translate-y-0.5 hover:bg-emerald-500 hover:shadow-[0_8px_32px_rgba(16,185,129,0.3)] sm:px-8 sm:py-4">
                   Go to Dashboard <span className="transition-transform group-hover:translate-x-1">→</span>
                 </Link>
               )}
@@ -272,17 +272,17 @@ export default function LandingPage() {
               <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:mt-10 sm:flex-row sm:gap-4">
                 {isAuthenticated ? (
                   <Link to={dashboardPath}
-                    className="group w-full inline-flex items-center justify-center gap-2.5 rounded-2xl bg-white px-8 py-4 text-base font-bold text-[#0f6b46] shadow-xl transition-all hover:-translate-y-0.5 hover:bg-emerald-50 sm:w-auto">
+                    className="group w-full inline-flex items-center justify-center gap-2.5 rounded-2xl bg-white px-8 py-4 text-base font-bold text-[#0f6b46] shadow-xl transition-all hover:-translate-y-1 hover:bg-[#e2fbce] hover:text-[#0c342c] hover:shadow-2xl sm:w-auto">
                     Go to Dashboard <span className="transition-transform group-hover:translate-x-1">→</span>
                   </Link>
                 ) : (
                   <>
                     <Link to="/register"
-                      className="group w-full inline-flex items-center justify-center gap-2.5 rounded-2xl bg-white px-8 py-4 text-base font-bold text-[#0f6b46] shadow-xl transition-all hover:-translate-y-0.5 hover:bg-emerald-50 sm:w-auto">
+                      className="group w-full inline-flex items-center justify-center gap-2.5 rounded-2xl bg-white px-8 py-4 text-base font-bold text-[#0f6b46] shadow-xl transition-all hover:-translate-y-1 hover:bg-[#e2fbce] hover:text-[#0c342c] hover:shadow-2xl sm:w-auto">
                       Create Account <span className="transition-transform group-hover:translate-x-1">→</span>
                     </Link>
                     <Link to="/login"
-                      className="w-full inline-flex items-center justify-center gap-2 rounded-2xl border border-white/20 bg-white/10 px-8 py-4 text-base font-semibold text-white transition-all hover:bg-white/20 sm:w-auto">
+                      className="w-full inline-flex items-center justify-center gap-2 rounded-2xl border border-white/20 bg-white/10 px-8 py-4 text-base font-semibold text-white transition-all hover:bg-white hover:text-[#0f6b46] sm:w-auto">
                       Sign In
                     </Link>
                   </>

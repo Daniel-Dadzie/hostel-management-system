@@ -42,7 +42,8 @@ export default function AdminLayout() {
   return (
     <div className="admin-theme min-h-screen bg-[#e4e0d9] px-2 py-2 text-neutral-900 dark:bg-neutral-950 sm:px-4 sm:py-4">
       <div className="mx-auto flex max-w-[1760px] h-[calc(100vh-1rem)] rounded-[34px] border border-white/80 bg-[#f7f5ef] shadow-[0_28px_80px_rgba(15,23,42,0.12)] ring-1 ring-black/5 dark:border-neutral-800 dark:bg-neutral-900 dark:shadow-[0_32px_86px_rgba(0,0,0,0.45)] sm:h-[calc(100vh-2rem)]">
-        {/* Sidebar: static, never scrolls */}
+        
+        {/* ── Desktop Sidebar ── */}
         <aside className="hidden lg:block w-[292px] border-r border-black/5 bg-[#f8f7f2] dark:border-neutral-800 dark:bg-neutral-900 h-full sticky top-0 z-20">
           <div className="flex h-full flex-col px-4 py-4 sm:px-4 sm:py-4 lg:px-5 lg:py-5">
             <Link to="/admin" className="flex items-center gap-3">
@@ -71,17 +72,25 @@ export default function AdminLayout() {
                           to={item.to}
                           end={item.to === '/admin'}
                           className={({ isActive }) =>
-                            `group flex items-center gap-2.5 rounded-[18px] px-3.5 py-2 text-sm font-semibold transition-all duration-200 w-full ${
+                            `group flex items-center gap-3 rounded-2xl px-3.5 py-2.5 text-sm font-bold transition-all duration-200 w-full ${
                               isActive
-                                ? 'bg-white text-[#0f6b46] shadow-[0_16px_34px_rgba(15,23,42,0.08)] ring-1 ring-[#d8e6dc] hover:bg-white hover:shadow-[0_24px_48px_rgba(15,107,70,0.15)] dark:bg-neutral-800 dark:text-emerald-400 dark:ring-neutral-700 dark:shadow-[0_12px_24px_rgba(0,0,0,0.3)] dark:hover:bg-neutral-700 dark:hover:text-emerald-300 dark:hover:shadow-[0_16px_32px_rgba(0,0,0,0.4)]'
-                                : 'text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-200'
+                                ? 'bg-white text-[#0f6b46] shadow-[0_4px_12px_rgba(0,0,0,0.05)] ring-1 ring-black/5 dark:bg-emerald-900/30 dark:text-emerald-400 dark:ring-emerald-500/20'
+                                : 'text-neutral-600 hover:bg-white hover:text-[#0f6b46] dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-white'
                             }`
                           }
                         >
-                          <span className="flex h-9 w-9 items-center justify-center rounded-[12px] bg-[#eef3ee] text-[#5c6d60] transition-all duration-200 group-hover:bg-[#e1efe5] group-hover:text-[#0f6b46] dark:border dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-500 dark:group-hover:border-neutral-600 dark:group-hover:bg-neutral-700 dark:group-hover:text-emerald-400">
-                            <Icon className="text-sm" aria-hidden="true" />
-                          </span>
-                          <span className="whitespace-nowrap">{item.label}</span>
+                          {({ isActive }) => (
+                            <>
+                              <span className={`flex h-9 w-9 items-center justify-center rounded-xl transition-all duration-200 ${
+                                isActive
+                                  ? 'bg-[#eef3ee] text-[#0f6b46] dark:bg-emerald-800/40 dark:text-emerald-400'
+                                  : 'bg-transparent text-neutral-400 group-hover:bg-[#eef3ee] group-hover:text-[#0f6b46] dark:text-neutral-500 dark:group-hover:bg-neutral-700 dark:group-hover:text-white'
+                              }`}>
+                                <Icon className="text-base" aria-hidden="true" />
+                              </span>
+                              <span className="whitespace-nowrap">{item.label}</span>
+                            </>
+                          )}
                         </NavLink>
                       );
                     })}
@@ -92,7 +101,7 @@ export default function AdminLayout() {
           </div>
         </aside>
         
-        {/* Mobile Sidebar Drawer */}
+        {/* ── Mobile Sidebar Drawer ── */}
         {mobileSidebarOpen && (
           <div className="fixed inset-0 z-40 lg:hidden">
             <div
@@ -100,32 +109,32 @@ export default function AdminLayout() {
               onClick={() => setMobileSidebarOpen(false)}
               aria-hidden="true"
             />
-            <aside className="absolute left-0 top-0 bottom-0 w-64 border-r border-black/5 bg-[#f8f7f2] dark:border-neutral-800 dark:bg-neutral-900 overflow-y-auto z-50">
+            <aside className="absolute left-0 top-0 bottom-0 w-72 border-r border-black/5 bg-[#f8f7f2] dark:border-neutral-800 dark:bg-neutral-900 overflow-y-auto z-50">
               <div className="flex h-full flex-col px-4 py-4">
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center justify-between mb-4">
                   <Link to="/admin" className="flex items-center gap-3" onClick={() => setMobileSidebarOpen(false)}>
                     <Logo size="sm" />
                     <div>
-                      <p className="truncate text-sm font-extrabold text-neutral-900 dark:text-white">
+                      <p className="truncate text-base font-extrabold text-neutral-900 dark:text-white">
                         Hostel Admin
                       </p>
                     </div>
                   </Link>
                   <button
                     onClick={() => setMobileSidebarOpen(false)}
-                    className="rounded-lg p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+                    className="rounded-lg p-2 hover:bg-neutral-200 dark:hover:bg-neutral-800 transition-colors"
                     aria-label="Close sidebar"
                   >
                     <FaTimes className="h-5 w-5 text-neutral-600 dark:text-neutral-400" />
                   </button>
                 </div>
-                <nav className="mt-6 flex-1 flex flex-col">
+                <nav className="mt-4 flex-1 flex flex-col">
                   {navSections.map((section) => (
                     <div key={section.label} className="mb-4">
                       <p className="mb-2 px-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-neutral-400 dark:text-neutral-500">
                         {section.label}
                       </p>
-                      <div className="flex flex-col gap-1">
+                      <div className="flex flex-col gap-1.5">
                         {section.items.map((item) => {
                           const Icon = item.icon;
                           return (
@@ -135,15 +144,25 @@ export default function AdminLayout() {
                               end={item.to === '/admin'}
                               onClick={() => setMobileSidebarOpen(false)}
                               className={({ isActive }) =>
-                                `group flex items-center gap-2.5 rounded-[14px] px-3 py-2 text-sm font-semibold transition-all ${
+                                `group flex items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-bold transition-all duration-200 w-full ${
                                   isActive
-                                    ? 'bg-white text-[#0f6b46] dark:bg-neutral-800 dark:text-emerald-400'
-                                    : 'text-neutral-500 hover:bg-white/60 hover:text-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-200'
+                                    ? 'bg-white text-[#0f6b46] shadow-sm ring-1 ring-black/5 dark:bg-emerald-900/30 dark:text-emerald-400 dark:ring-emerald-500/20'
+                                    : 'text-neutral-600 hover:bg-white hover:text-[#0f6b46] dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-white'
                                 }`
                               }
                             >
-                              <Icon className="text-sm" aria-hidden="true" />
-                              <span>{item.label}</span>
+                              {({ isActive }) => (
+                                <>
+                                  <span className={`flex h-9 w-9 items-center justify-center rounded-xl transition-all duration-200 ${
+                                    isActive
+                                      ? 'bg-[#eef3ee] text-[#0f6b46] dark:bg-emerald-800/40 dark:text-emerald-400'
+                                      : 'bg-transparent text-neutral-400 group-hover:bg-[#eef3ee] group-hover:text-[#0f6b46] dark:text-neutral-500 dark:group-hover:bg-neutral-700 dark:group-hover:text-white'
+                                  }`}>
+                                    <Icon className="text-base" aria-hidden="true" />
+                                  </span>
+                                  <span>{item.label}</span>
+                                </>
+                              )}
                             </NavLink>
                           );
                         })}
@@ -155,7 +174,8 @@ export default function AdminLayout() {
             </aside>
           </div>
         )}
-        {/* Main area: flex column, navbar sticky, content scrollable */}
+
+        {/* ── Main area ── */}
         <div className="flex min-h-full min-w-0 flex-1 flex-col bg-[#f3f1ea] dark:bg-neutral-950 h-full">
           {/* Sticky Navbar */}
           <header className="border-b border-black/5 bg-[#f6f4ee]/92 px-4 py-4 backdrop-blur-xl supports-[backdrop-filter]:bg-[#f6f4ee]/82 sm:px-6 lg:px-8 dark:border-neutral-800 dark:bg-neutral-900/88 dark:supports-[backdrop-filter]:bg-neutral-900/8 sticky top-0 z-10">

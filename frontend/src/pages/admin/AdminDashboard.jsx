@@ -12,25 +12,25 @@ import { listHostels } from '../../services/hostelService.js';
 import { listRooms } from '../../services/roomService.js';
 
 const STATUS_CHIP = {
-  APPROVED: 'bg-emerald-600 text-white dark:bg-emerald-700 dark:text-emerald-50',
-  PENDING_PAYMENT: 'bg-amber-600 text-white dark:bg-amber-700 dark:text-amber-50',
-  CHECKED_OUT: 'bg-lime-600 text-white dark:bg-lime-700 dark:text-lime-50',
-  REJECTED: 'bg-red-600 text-white dark:bg-red-700 dark:text-red-50',
-  EXPIRED: 'bg-neutral-600 text-white dark:bg-neutral-700 dark:text-neutral-50',
-  CANCELLED: 'bg-neutral-600 text-white dark:bg-neutral-700 dark:text-neutral-50'
+  APPROVED: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300',
+  PENDING_PAYMENT: 'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300',
+  CHECKED_OUT: 'bg-lime-100 text-lime-800 dark:bg-lime-500/20 dark:text-lime-300',
+  REJECTED: 'bg-red-100 text-red-800 dark:bg-red-500/20 dark:text-red-300',
+  EXPIRED: 'bg-neutral-100 text-neutral-700 dark:bg-neutral-500/20 dark:text-neutral-300',
+  CANCELLED: 'bg-neutral-100 text-neutral-700 dark:bg-neutral-500/20 dark:text-neutral-300'
 };
 
 const TICKET_CHIP = {
-  OPEN: 'bg-amber-600 text-white dark:bg-amber-700 dark:text-amber-50',
-  IN_PROGRESS: 'bg-blue-600 text-white dark:bg-blue-700 dark:text-blue-50',
-  RESOLVED: 'bg-emerald-600 text-white dark:bg-emerald-700 dark:text-emerald-50',
-  CLOSED: 'bg-neutral-600 text-white dark:bg-neutral-700 dark:text-neutral-50'
+  OPEN: 'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300',
+  IN_PROGRESS: 'bg-blue-100 text-blue-800 dark:bg-blue-500/20 dark:text-blue-300',
+  RESOLVED: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300',
+  CLOSED: 'bg-neutral-100 text-neutral-700 dark:bg-neutral-500/20 dark:text-neutral-300'
 };
 
 const PRIORITY_CHIP = {
-  HIGH: 'bg-red-600 text-white dark:bg-red-700 dark:text-red-50',
-  MEDIUM: 'bg-amber-600 text-white dark:bg-amber-700 dark:text-amber-50',
-  LOW: 'bg-emerald-600 text-white dark:bg-emerald-700 dark:text-emerald-50'
+  HIGH: 'bg-red-100 text-red-800 dark:bg-red-500/20 dark:text-red-300',
+  MEDIUM: 'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300',
+  LOW: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300'
 };
 
 const TABS = ['Overview', 'Analytics', 'Bookings & Payments', 'Students', 'Lifecycle Management', 'Maintenance', 'Announcements'];
@@ -223,7 +223,7 @@ export default function AdminDashboard() {
         </button>
       );
     }
-    return <span className="text-xs font-medium text-neutral-400">No actions</span>;
+    return <span className="text-xs font-medium text-neutral-400 dark:text-neutral-500">No actions</span>;
   }
 
   return (

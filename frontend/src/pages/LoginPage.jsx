@@ -29,23 +29,17 @@ export default function LoginPage() {
     
     try {
       // Step 0: Verify credentials
-      await new Promise(resolve => {
-        setTimeout(resolve, 600);
-      });
+      await new Promise(resolve => setTimeout(resolve, 600));
       setLoadingStep(1);
 
       const data = await login(email, password);
       
       // Step 1: Loading profile
-      await new Promise(resolve => {
-        setTimeout(resolve, 600);
-      });
+      await new Promise(resolve => setTimeout(resolve, 600));
       setLoadingStep(2);
 
       // Step 2: Preparing dashboard
-      await new Promise(resolve => {
-        setTimeout(resolve, 600);
-      });
+      await new Promise(resolve => setTimeout(resolve, 600));
 
       const redirectPath = data.role === 'ADMIN' ? '/admin' : '/student/hostels';
       navigate(from || redirectPath, { replace: true });
@@ -62,25 +56,18 @@ export default function LoginPage() {
 
         {/* ── Decorative green background layers ── */}
         <div className="pointer-events-none absolute inset-0">
-          {/* Large radial glow top-left */}
           <div className="absolute -left-32 -top-32 h-[500px] w-[500px] rounded-full bg-[#0f6b46]/60 blur-[120px]" />
-          {/* Radial glow bottom-right */}
           <div className="absolute -bottom-32 -right-32 h-[400px] w-[400px] rounded-full bg-[#1a8a5a]/50 blur-[100px]" />
-          {/* Subtle center accent */}
           <div className="absolute left-1/2 top-1/2 h-[300px] w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#22a06b]/20 blur-[80px]" />
 
-          {/* Geometric decorative circles */}
           <div className="absolute left-10 top-1/4 h-64 w-64 rounded-full border border-white/5" />
           <div className="absolute left-16 top-1/4 h-48 w-48 rounded-full border border-white/5" />
           <div className="absolute right-10 bottom-1/4 h-80 w-80 rounded-full border border-white/5" />
           <div className="absolute right-20 bottom-1/4 h-56 w-56 rounded-full border border-white/5" />
 
-          {/* Diagonal stripe texture */}
           <div
             className="absolute inset-0 opacity-[0.03]"
-            style={{
-              backgroundImage: 'repeating-linear-gradient(45deg, #fff 0px, #fff 1px, transparent 1px, transparent 12px)'
-            }}
+            style={{ backgroundImage: 'repeating-linear-gradient(45deg, #fff 0px, #fff 1px, transparent 1px, transparent 12px)' }}
           />
         </div>
 
@@ -97,7 +84,6 @@ export default function LoginPage() {
               Manage your accommodation, payments, and room bookings from one unified platform.
             </p>
 
-            {/* Feature pills */}
             <div className="mt-10 flex flex-col gap-3">
               {[
                 'Room allocation & booking',
@@ -118,17 +104,11 @@ export default function LoginPage() {
         <div className="flex min-h-screen items-center justify-center px-4 py-12 lg:ml-[45%]">
           <div className="w-full max-w-[440px]">
 
-            {/* Card */}
             <div className="relative overflow-hidden rounded-[28px] bg-white/95 shadow-[0_32px_80px_rgba(0,0,0,0.28)] ring-1 ring-white/50 backdrop-blur-xl dark:bg-[#1a1d22]/95 dark:ring-white/8">
-              {/* Top accent */}
               <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-400 via-[#0f6b46] to-emerald-500" />
 
               <div className="px-8 pb-8 pt-9">
-                {/* Logo */}
                 <div className="mb-8 flex items-center gap-4">
-                  {/* <div className="flex h-13 w-13 items-center justify-center rounded-[16px] bg-[#0f6b46] text-lg font-black text-white shadow-[0_8px_24px_rgba(15,107,70,0.40)]">
-                    H
-                  </div> */}
                   <div className="align-middle">
                     <p className="text-base font-extrabold tracking-tight text-neutral-900 dark:text-white">
                       Hostel Management
@@ -146,7 +126,6 @@ export default function LoginPage() {
                   Sign in to your account to continue
                 </p>
 
-                {/* Success banner */}
                 {justRegistered && (
                   <div className="mb-5 flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 dark:border-emerald-900/40 dark:bg-emerald-900/20">
                     <span className="mt-0.5 h-2 w-2 flex-shrink-0 rounded-full bg-emerald-500" />
@@ -156,7 +135,6 @@ export default function LoginPage() {
                   </div>
                 )}
 
-                {/* Error banner */}
                 {error && (
                   <div className="mb-5 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 dark:border-red-900/40 dark:bg-red-900/20">
                     <span className="mt-0.5 h-2 w-2 flex-shrink-0 rounded-full bg-red-500" />
@@ -165,7 +143,6 @@ export default function LoginPage() {
                 )}
 
                 <form onSubmit={handleSubmit} className="space-y-5">
-                  {/* Email */}
                   <div>
                     <label htmlFor="login-email" className="mb-1.5 block text-sm font-semibold text-neutral-700 dark:text-neutral-300">
                       Email address
@@ -181,7 +158,6 @@ export default function LoginPage() {
                     />
                   </div>
 
-                  {/* Password */}
                   <div>
                     <div className="mb-1.5 flex items-center justify-between">
                       <label htmlFor="login-password" className="text-sm font-semibold text-neutral-700 dark:text-neutral-300">
@@ -216,7 +192,6 @@ export default function LoginPage() {
                     </div>
                   </div>
 
-                  {/* Remember me */}
                   <div className="flex items-center gap-3">
                     <button
                       type="button"
@@ -237,13 +212,23 @@ export default function LoginPage() {
                     <span className="text-sm text-neutral-600 dark:text-neutral-400">Remember me for 30 days</span>
                   </div>
 
-                  {/* Submit */}
+                  {/* Submit Button with Spinner */}
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full rounded-xl bg-[#0f6b46] px-4 py-3.5 text-sm font-bold text-white shadow-[0_8px_24px_rgba(15,107,70,0.35)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#0c5a3b] hover:shadow-[0_12px_32px_rgba(15,107,70,0.45)] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
+                    className="flex w-full items-center justify-center rounded-xl bg-[#0f6b46] px-4 py-3.5 text-sm font-bold text-white shadow-[0_8px_24px_rgba(15,107,70,0.35)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#0c5a3b] hover:shadow-[0_12px_32px_rgba(15,107,70,0.45)] disabled:cursor-not-allowed disabled:opacity-80 disabled:hover:translate-y-0"
                   >
-                    {loading ? 'Signing in...' : 'Sign In'}
+                    {loading ? (
+                      <div className="flex items-center gap-2.5">
+                        <svg className="h-4 w-4 animate-spin text-white/90" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-100" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>Authenticating...</span>
+                      </div>
+                    ) : (
+                      'Sign In'
+                    )}
                   </button>
                 </form>
 
@@ -255,10 +240,6 @@ export default function LoginPage() {
                 </p>
               </div>
             </div>
-
-            {/* <p className="mt-6 text-center text-xs text-white/40">
-              © {new Date().getFullYear()} University Hostel Management System
-            </p> */}
           </div>
         </div>
       </div>
@@ -266,7 +247,7 @@ export default function LoginPage() {
       <LoadingOverlay
         open={loading}
         title="Signing you in"
-        message="Setting up your secure session..."
+        message="Establishing secure connection..."
         blockNavigation
         steps={LOGIN_STEPS}
         currentStep={loadingStep}
