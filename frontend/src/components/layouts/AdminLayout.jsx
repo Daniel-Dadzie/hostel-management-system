@@ -71,13 +71,15 @@ export default function AdminLayout() {
                           key={item.to}
                           to={item.to}
                           end={item.to === '/admin'}
-                          className={({ isActive }) =>
-                            `group flex items-center gap-3 rounded-2xl px-3.5 py-2.5 text-sm font-bold transition-all duration-200 w-full ${
-                              isActive
-                                ? 'bg-white text-[#0f6b46] shadow-[0_4px_12px_rgba(0,0,0,0.05)] ring-1 ring-black/5 dark:bg-emerald-900/30 dark:text-emerald-400 dark:ring-emerald-500/20'
-                                : 'text-neutral-600 hover:bg-white hover:text-[#0f6b46] dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-white'
-                            }`
-                          }
+                           // Replace this block inside the Mobile Sidebar Drawer (around line 178)
+                        className={({ isActive }) =>
+                        `group flex items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-bold transition-all duration-200 w-full ${
+                          isActive
+                            ? 'bg-white text-[#0f6b46] shadow-sm ring-1 ring-black/5 dark:bg-emerald-900/30 dark:text-emerald-400 dark:ring-emerald-500/20'
+                             // FIX: Added 'hover:bg-neutral-200' and 'hover:text-black' to make it pop
+                            : 'text-neutral-700 hover:bg-neutral-200 hover:text-black dark:text-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-white'
+                        }`
+                      }
                         >
                           {({ isActive }) => (
                             <>

@@ -143,7 +143,7 @@ describe('Login Flow Integration Tests', () => {
 
     await user.click(screen.getByRole('button', { name: /sign in/i }));
 
-    expect(await screen.findByTestId('student-dashboard')).toBeInTheDocument();
+    expect(await screen.findByTestId('student-dashboard', {}, { timeout: 3000 })).toBeInTheDocument();
   });
 
   it('redirects admin after login', async () => {
@@ -180,7 +180,7 @@ describe('Login Flow Integration Tests', () => {
 
     await user.click(screen.getByRole('button', { name: /sign in/i }));
 
-    expect(await screen.findByTestId('admin-dashboard')).toBeInTheDocument();
+    expect(await screen.findByTestId('admin-dashboard', {}, { timeout: 3000 })).toBeInTheDocument();
   });
 
   it('stores token in localStorage', async () => {

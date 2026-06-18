@@ -311,8 +311,8 @@ export default function LandingPage() {
               <Link to="/terms-and-conditions" className="hover:text-[#0f6b46] dark:hover:text-emerald-400">Terms</Link>
             </div>
             <div className="text-center text-sm text-neutral-400 dark:text-neutral-500 md:text-right">
-              <a href="mailto:support@unihostel.com" className="block hover:text-[#0f6b46] dark:hover:text-emerald-400">support@unihostel.com</a>
-              <a href="tel:+233123456789" className="block hover:text-[#0f6b46] dark:hover:text-emerald-400">+233 (123) 456-789</a>
+              <a href="mailto:ddadzie120@gmail.com" className="block hover:text-[#0f6b46] dark:hover:text-emerald-400">ddadzie120@gmail.com</a>
+              <a href="tel:+233503162896" className="block hover:text-[#0f6b46] dark:hover:text-emerald-400">+233 (503) 162-896</a>
             </div>
           </div>
           <div className="mt-6 border-t border-neutral-100 pt-6 text-center text-xs text-neutral-400 dark:border-white/6 dark:text-neutral-500">
