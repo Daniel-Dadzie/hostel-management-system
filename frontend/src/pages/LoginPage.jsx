@@ -32,7 +32,7 @@ export default function LoginPage() {
       await new Promise(resolve => setTimeout(resolve, 600));
       setLoadingStep(1);
 
-      const data = await login(email, password);
+      const data = await login(email, password, rememberMe);
       
       // Step 1: Loading profile
       await new Promise(resolve => setTimeout(resolve, 600));

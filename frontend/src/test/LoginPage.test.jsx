@@ -72,7 +72,7 @@ describe('LoginPage Component', () => {
     fireEvent.click(screen.getByRole('button', { name: /Sign In/i }));
 
     await waitFor(() => {
-      expect(mockLogin).toHaveBeenCalledWith('test@uni.edu', 'password123');
+      expect(mockLogin).toHaveBeenCalledWith('test@uni.edu', 'password123', false);
     }, { timeout: 2500 });
   });
 });

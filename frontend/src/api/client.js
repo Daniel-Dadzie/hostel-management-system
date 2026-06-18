@@ -8,14 +8,37 @@ export class ApiError extends Error {
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
 const REFRESH_TOKEN_KEY = 'hms.refreshToken';
 const ROLE_KEY = 'hms.role';
+const TOKEN_EXPIRY_KEY = 'hms.tokenExpiry';
 
-const getRefreshToken = () => localStorage.getItem(REFRESH_TOKEN_KEY);
-const getAccessToken = () => localStorage.getItem('hms.token');
+const getRefreshToken = () => {
+  return localStorage.getItem(REFRESH_TOKEN_KEY) || sessionStorage.getItem(REFRESH_TOKEN_KEY);
+};
+
+const getAccessToken = () => {
+  const storedToken = localStorage.getItem('hms.token');
+  const storedExpiry = localStorage.getItem(TOKEN_EXPIRY_KEY);
+  if (storedToken && storedExpiry && Date.now() < Number(storedExpiry)) {
+    return storedToken;
+  }
+  return sessionStorage.getItem('hms.token') || storedToken;
+};
+
+const getAuthStorage = () => {
+  const refreshExpiry = localStorage.getItem(TOKEN_EXPIRY_KEY);
+  if (refreshExpiry && Date.now() < Number(refreshExpiry)) {
+    return localStorage;
+  }
+  return sessionStorage;
+};
 
 const clearAuth = () => {
   localStorage.removeItem('hms.token');
   localStorage.removeItem(REFRESH_TOKEN_KEY);
-  localStorage.removeItem('hms.role');
+  localStorage.removeItem(ROLE_KEY);
+  localStorage.removeItem(TOKEN_EXPIRY_KEY);
+  sessionStorage.removeItem('hms.token');
+  sessionStorage.removeItem(REFRESH_TOKEN_KEY);
+  sessionStorage.removeItem(ROLE_KEY);
   globalThis.location.href = '/login';
 };
 
@@ -41,10 +64,11 @@ async function refreshAccessToken() {
   }
 
   const data = await response.json();
-  localStorage.setItem('hms.token', data.accessToken);
-  localStorage.setItem(REFRESH_TOKEN_KEY, data.refreshToken);
+  const storage = localStorage.getItem(REFRESH_TOKEN_KEY) ? localStorage : sessionStorage;
+  storage.setItem('hms.token', data.accessToken);
+  storage.setItem(REFRESH_TOKEN_KEY, data.refreshToken);
   if (data.role) {
-    localStorage.setItem(ROLE_KEY, data.role);
+    storage.setItem(ROLE_KEY, data.role);
   }
   return data.accessToken;
 }

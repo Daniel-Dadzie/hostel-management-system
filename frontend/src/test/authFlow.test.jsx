@@ -62,11 +62,12 @@ function renderWithProviders(
 /* ---------------- Login Flow ---------------- */
 
 describe('Login Flow Integration Tests', () => {
-  beforeEach(() => {
-    vi.restoreAllMocks();
-    localStorage.clear();
-    vi.spyOn(Storage.prototype, 'setItem');
-  });
+   beforeEach(() => {
+     vi.restoreAllMocks();
+     localStorage.clear();
+     sessionStorage.clear();
+     vi.spyOn(Storage.prototype, 'setItem');
+   });
 
   it('renders login form', () => {
     renderWithProviders(
@@ -183,7 +184,7 @@ describe('Login Flow Integration Tests', () => {
     expect(await screen.findByTestId('admin-dashboard', {}, { timeout: 3000 })).toBeInTheDocument();
   });
 
-  it('stores token in localStorage', async () => {
+  it('stores token in sessionStorage when not remembering', async () => {
     const authService = createAuthServiceMock({
       loginUser: vi.fn().mockResolvedValue({
         token: 'stored-token',
@@ -218,8 +219,8 @@ describe('Login Flow Integration Tests', () => {
     await user.click(screen.getByRole('button', { name: /sign in/i }));
 
     await waitFor(() => {
-      expect(localStorage.setItem).toHaveBeenCalledWith('hms.token', 'stored-token');
-      expect(localStorage.setItem).toHaveBeenCalledWith('hms.role', 'STUDENT');
+      expect(sessionStorage.setItem).toHaveBeenCalledWith('hms.token', 'stored-token');
+      expect(sessionStorage.setItem).toHaveBeenCalledWith('hms.role', 'STUDENT');
     });
   });
 });
@@ -319,22 +320,22 @@ describe('Registration Flow Integration Tests', () => {
 /* ---------------- Auth Context ---------------- */
 
 describe('Auth Context Integration Tests', () => {
-  beforeEach(() => {
-    vi.restoreAllMocks();
-    localStorage.clear();
-    vi.spyOn(Storage.prototype, 'setItem');
-  });
+   beforeEach(() => {
+     vi.restoreAllMocks();
+     localStorage.clear();
+     sessionStorage.clear();
+   });
 
-  it('default state is unauthenticated', () => {
-    function Consumer() {
-      const { isAuthenticated } = useAuth();
-      return <span data-testid="status">{String(isAuthenticated)}</span>;
-    }
+   it('default state is unauthenticated', () => {
+     function Consumer() {
+       const { isAuthenticated } = useAuth();
+       return <span data-testid="status">{String(isAuthenticated)}</span>;
+     }
 
-    renderWithProviders(<Consumer />);
+     renderWithProviders(<Consumer />);
 
-    expect(screen.getByTestId('status')).toHaveTextContent('false');
-  });
+     expect(screen.getByTestId('status')).toHaveTextContent('false');
+   });
 
   it('updates state after login', async () => {
     const authService = createAuthServiceMock({
@@ -362,7 +363,7 @@ describe('Auth Context Integration Tests', () => {
 
           <button
             data-testid="login-btn"
-            onClick={() => login('test@test.com', 'pass')}
+            onClick={() => login('test@test.com', 'pass', false)}
           >
             login
           </button>

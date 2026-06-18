@@ -15,8 +15,22 @@ export function AuthProvider({
   authService = defaultAuthService,
   profileService = defaultProfileService,
 }) {
-  const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY) || '');
-  const [role, setRole] = useState(() => localStorage.getItem(ROLE_KEY) || '');
+  const [token, setToken] = useState(() => {
+    const storedToken = localStorage.getItem(TOKEN_KEY);
+    const storedExpiry = localStorage.getItem('hms.tokenExpiry');
+    if (storedToken && storedExpiry && Date.now() < Number(storedExpiry)) {
+      return storedToken;
+    }
+    return sessionStorage.getItem(TOKEN_KEY) || '';
+  });
+  const [role, setRole] = useState(() => {
+    const storedRole = localStorage.getItem(ROLE_KEY);
+    const storedExpiry = localStorage.getItem('hms.tokenExpiry');
+    if (storedRole && storedExpiry && Date.now() < Number(storedExpiry)) {
+      return storedRole;
+    }
+    return sessionStorage.getItem(ROLE_KEY) || '';
+  });
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -29,6 +43,10 @@ export function AuthProvider({
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(REFRESH_TOKEN_KEY);
     localStorage.removeItem(ROLE_KEY);
+    localStorage.removeItem('hms.tokenExpiry');
+    sessionStorage.removeItem(TOKEN_KEY);
+    sessionStorage.removeItem(REFRESH_TOKEN_KEY);
+    sessionStorage.removeItem(ROLE_KEY);
   }, []);
 
  
@@ -55,20 +73,36 @@ export function AuthProvider({
     loadProfile();
   }, [token, loadProfile]);
 
-  async function login(email, password) {
+  async function login(email, password, rememberMe = false) {
     const data = await authService.loginUser(email, password);
 
     const accessToken = data.accessToken || data.token;
     const refreshToken = data.refreshToken;
 
+    const storage = rememberMe ? localStorage : sessionStorage;
+
     setToken(accessToken);
     setRole(data.role);
 
-    localStorage.setItem(TOKEN_KEY, accessToken);
+    storage.setItem(TOKEN_KEY, accessToken);
     if (refreshToken) {
-      localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+      storage.setItem(REFRESH_TOKEN_KEY, refreshToken);
     }
-    localStorage.setItem(ROLE_KEY, data.role);
+    storage.setItem(ROLE_KEY, data.role);
+
+    // Clear from the other storage to ensure consistency
+    const otherStorage = rememberMe ? sessionStorage : localStorage;
+    otherStorage.removeItem(TOKEN_KEY);
+    otherStorage.removeItem(REFRESH_TOKEN_KEY);
+    otherStorage.removeItem(ROLE_KEY);
+
+    // Set expiry for localStorage (30 days from now)
+    if (rememberMe) {
+      const expiry = Date.now() + 30 * 24 * 60 * 60 * 1000;
+      localStorage.setItem('hms.tokenExpiry', String(expiry));
+    } else {
+      localStorage.removeItem('hms.tokenExpiry');
+    }
 
     await loadProfile();
     return data;
