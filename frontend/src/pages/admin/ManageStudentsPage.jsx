@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { listAdminBookings } from '../../services/bookingService.js';
-import { deleteStudent, updateStudent } from '../../services/studentService.js'; // Ensure updateStudent is imported
+import { deleteStudent, updateStudent, createStudent } from '../../services/studentService.js'; // Ensure updateStudent is imported
 import DataTable from '../../components/admin/DataTable.jsx';
 import Alert from '../../components/admin/Alert.jsx';
 import StudentModal from '../../components/admin/StudentModal.jsx'; // Ensure this exists
@@ -35,17 +35,22 @@ export default function ManageStudentsPage() {
     setIsModalOpen(true);
   };
 
-  const handleSave = async (data) => {
-    try {
-      if (currentStudent) {
-        await updateStudent(currentStudent.studentId, data);
-      }
-      setIsModalOpen(false);
-      loadStudentsContext();
-    } catch (err) {
-      setError("Operation failed: " + err.message);
+     // Replace your existing handleSave with this:
+const handleSave = async (data) => {
+  try {
+    if (currentStudent) {
+      // Logic for Update (PUT)
+      await updateStudent(currentStudent.studentId, data);
+    } else {
+      // Logic for Create (POST) - This is what was missing!
+      await createStudent(data); 
     }
-  };
+    setIsModalOpen(false);
+    loadStudentsContext(); // Refresh table to show the new student
+  } catch (err) {
+    setError("Operation failed: " + err.message);
+  }
+};
 
   const handleDelete = async (studentId) => {
     if (!window.confirm("Are you sure? This will permanently delete this student record.")) return;

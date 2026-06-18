@@ -1,13 +1,30 @@
 import { apiRequest, getAuthHeaders } from './api.js';
 
-// import { apiRequest, getAuthHeaders } from './api.js';
+export async function createStudent(studentData) {
+    return await apiRequest('/api/admin/students', {
+        method: 'POST',
+        body: studentData,
+        headers: getAuthHeaders()
+    });
+}
 
+// ADD THIS EXPORT:
+export async function updateStudent(studentId, studentData) {
+    return await apiRequest(`/api/admin/students/${studentId}`, {
+        method: 'PUT',
+        body: studentData,
+        headers: getAuthHeaders()
+    });
+}
+
+// Ensure you have the delete export too:
 export async function deleteStudent(studentId) {
     return await apiRequest(`/api/admin/students/${studentId}`, {
         method: 'DELETE',
         headers: getAuthHeaders()
     });
 }
+
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
 
