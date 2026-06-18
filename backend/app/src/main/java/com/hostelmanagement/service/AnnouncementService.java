@@ -16,8 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.hostelmanagement.domain.Announcement;
 import com.hostelmanagement.repository.AnnouncementRepository;
+import com.hostelmanagement.web.admin.dto.AnnouncementResponse;
 import com.hostelmanagement.web.admin.dto.UpsertAnnouncementRequest;
-import com.hostelmanagement.web.dto.AnnouncementResponse;
 
 @Service
 @Transactional

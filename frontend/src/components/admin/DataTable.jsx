@@ -113,7 +113,7 @@ export default function DataTable({
           <tbody>
             {paginatedData.map((row, idx) => (
               <tr
-                key={idx}
+                key={row.id ?? row.studentId ?? idx}
                 className="border-b border-neutral-100 last:border-b-0 hover:bg-[#f4f8f4] dark:border-neutral-800 dark:hover:bg-[#18201c]"
                 onClick={() => onRowClick?.(row)}
               >

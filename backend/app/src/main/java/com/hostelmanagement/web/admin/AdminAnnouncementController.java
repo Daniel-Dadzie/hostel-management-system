@@ -1,8 +1,9 @@
 package com.hostelmanagement.web.admin;
 
 import com.hostelmanagement.service.AnnouncementService;
+import com.hostelmanagement.web.admin.dto.AnnouncementResponse;
 import com.hostelmanagement.web.admin.dto.UpsertAnnouncementRequest;
-import com.hostelmanagement.web.dto.AnnouncementResponse;
+
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.http.ResponseEntity;

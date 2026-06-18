@@ -1,5 +1,11 @@
 import { apiRequest, getAuthHeaders } from './api.js';
 
+export async function listStudents() {
+    return await apiRequest('/api/admin/students', {
+        headers: getAuthHeaders()
+    });
+}
+
 export async function createStudent(studentData) {
     return await apiRequest('/api/admin/students', {
         method: 'POST',
@@ -8,7 +14,6 @@ export async function createStudent(studentData) {
     });
 }
 
-// ADD THIS EXPORT:
 export async function updateStudent(studentId, studentData) {
     return await apiRequest(`/api/admin/students/${studentId}`, {
         method: 'PUT',
@@ -17,7 +22,6 @@ export async function updateStudent(studentId, studentData) {
     });
 }
 
-// Ensure you have the delete export too:
 export async function deleteStudent(studentId) {
     return await apiRequest(`/api/admin/students/${studentId}`, {
         method: 'DELETE',

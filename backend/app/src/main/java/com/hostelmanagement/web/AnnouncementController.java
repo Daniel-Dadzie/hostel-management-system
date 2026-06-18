@@ -1,7 +1,8 @@
 package com.hostelmanagement.web;
 
 import com.hostelmanagement.service.AnnouncementService;
-import com.hostelmanagement.web.dto.AnnouncementResponse;
+import com.hostelmanagement.web.admin.dto.AnnouncementResponse;
+
 import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

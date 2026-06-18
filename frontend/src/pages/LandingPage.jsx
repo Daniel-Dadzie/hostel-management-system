@@ -69,9 +69,9 @@ export default function LandingPage() {
           <div className="hidden items-center gap-1 lg:flex">
             {navLinks.map((link) =>
               link.href ? (
-                <a key={link.label} href={link.href} className="rounded-lg px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-white/15">{link.label}</a>
+                <a key={link.label} href={link.href} className="rounded-lg px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-white/15 hover:text-white">{link.label}</a>
               ) : (
-                <Link key={link.label} to={link.to} className="rounded-lg px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-white/15">{link.label}</Link>
+                <Link key={link.label} to={link.to} className="rounded-lg px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-white/15 hover:text-white">{link.label}</Link>
               )
             )}
           </div>
@@ -114,10 +114,10 @@ export default function LandingPage() {
               {navLinks.map((link) =>
                 link.href ? (
                   <a key={link.label} href={link.href} onClick={() => setMobileMenuOpen(false)}
-                    className="rounded-xl px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10">{link.label}</a>
+                    className="rounded-xl px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 hover:text-white">{link.label}</a>
                 ) : (
                   <Link key={link.label} to={link.to} onClick={() => setMobileMenuOpen(false)}
-                    className="rounded-xl px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10">{link.label}</Link>
+                    className="rounded-xl px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 hover:text-white">{link.label}</Link>
                 )
               )}
               {!isAuthenticated && (

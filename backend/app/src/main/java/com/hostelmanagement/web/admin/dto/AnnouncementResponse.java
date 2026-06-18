@@ -1,4 +1,4 @@
-package com.hostelmanagement.web.dto;
+package com.hostelmanagement.web.admin.dto;
 
 import com.hostelmanagement.domain.Announcement;
 import java.time.Instant;

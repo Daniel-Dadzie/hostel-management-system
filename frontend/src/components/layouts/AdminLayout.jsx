@@ -57,7 +57,7 @@ export default function AdminLayout() {
                 </p>
               </div>
             </Link>
-            <nav className="mt-8 flex-1 flex flex-col justify-start">
+            <nav className="mt-8 flex flex-1 flex-col justify-start overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-700">
               {navSections.map((section) => (
                 <div key={section.label} className="mb-2">
                   <p className="mb-2 px-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-neutral-400 dark:text-neutral-500">
@@ -71,26 +71,24 @@ export default function AdminLayout() {
                           key={item.to}
                           to={item.to}
                           end={item.to === '/admin'}
-                           // Replace this block inside the Mobile Sidebar Drawer (around line 178)
-                        className={({ isActive }) =>
-                        `group flex items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-bold transition-all duration-200 w-full ${
-                          isActive
-                            ? 'bg-white text-[#0f6b46] shadow-sm ring-1 ring-black/5 dark:bg-emerald-900/30 dark:text-emerald-400 dark:ring-emerald-500/20'
-                             // FIX: Added 'hover:bg-neutral-200' and 'hover:text-black' to make it pop
-                            : 'text-neutral-700 hover:bg-neutral-200 hover:text-black dark:text-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-white'
-                        }`
-                      }
+                          className={({ isActive }) =>
+                            `group flex w-full items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-bold transition-all duration-200 ${
+                              isActive
+                                ? 'bg-white text-[#0f6b46] shadow-sm ring-1 ring-black/5 dark:bg-emerald-900/30 dark:text-emerald-400 dark:ring-emerald-500/20'
+                                : 'text-neutral-700 hover:bg-neutral-200 hover:text-black dark:text-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-white'
+                            }`
+                          }
                         >
                           {({ isActive }) => (
                             <>
-                              <span className={`flex h-9 w-9 items-center justify-center rounded-xl transition-all duration-200 ${
+                              <span className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl transition-all duration-200 ${
                                 isActive
                                   ? 'bg-[#eef3ee] text-[#0f6b46] dark:bg-emerald-800/40 dark:text-emerald-400'
                                   : 'bg-transparent text-neutral-400 group-hover:bg-[#eef3ee] group-hover:text-[#0f6b46] dark:text-neutral-500 dark:group-hover:bg-neutral-700 dark:group-hover:text-white'
                               }`}>
                                 <Icon className="text-base" aria-hidden="true" />
                               </span>
-                              <span className="whitespace-nowrap">{item.label}</span>
+                              <span className="min-w-0 truncate">{item.label}</span>
                             </>
                           )}
                         </NavLink>
@@ -155,7 +153,7 @@ export default function AdminLayout() {
                             >
                               {({ isActive }) => (
                                 <>
-                                  <span className={`flex h-9 w-9 items-center justify-center rounded-xl transition-all duration-200 ${
+                              <span className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl transition-all duration-200 ${
                                     isActive
                                       ? 'bg-[#eef3ee] text-[#0f6b46] dark:bg-emerald-800/40 dark:text-emerald-400'
                                       : 'bg-transparent text-neutral-400 group-hover:bg-[#eef3ee] group-hover:text-[#0f6b46] dark:text-neutral-500 dark:group-hover:bg-neutral-700 dark:group-hover:text-white'

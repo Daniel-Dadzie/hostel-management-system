@@ -1,28 +1,25 @@
 import { useEffect, useMemo, useState } from 'react';
-import { listAdminBookings } from '../../services/bookingService.js';
-import { deleteStudent, updateStudent, createStudent } from '../../services/studentService.js'; // Ensure updateStudent is imported
+import { listStudents, deleteStudent, updateStudent, createStudent } from '../../services/studentService.js';
 import DataTable from '../../components/admin/DataTable.jsx';
 import Alert from '../../components/admin/Alert.jsx';
-import StudentModal from '../../components/admin/StudentModal.jsx'; // Ensure this exists
+import StudentModal from '../../components/admin/StudentModal.jsx';
 
 export default function ManageStudentsPage() {
-  const [bookings, setBookings] = useState([]);
+  const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
-  
-  // State for Modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentStudent, setCurrentStudent] = useState(null);
 
   useEffect(() => {
-    loadStudentsContext();
+    loadStudents();
   }, []);
 
-  async function loadStudentsContext() {
+  async function loadStudents() {
     try {
-      const data = await listAdminBookings();
-      setBookings(Array.isArray(data) ? data : []);
+      const data = await listStudents();
+      setStudents(Array.isArray(data) ? data : []);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -35,109 +32,87 @@ export default function ManageStudentsPage() {
     setIsModalOpen(true);
   };
 
-     // Replace your existing handleSave with this:
-const handleSave = async (data) => {
-  try {
-    if (currentStudent) {
-      // Logic for Update (PUT)
-      await updateStudent(currentStudent.studentId, data);
-    } else {
-      // Logic for Create (POST) - This is what was missing!
-      await createStudent(data); 
+  async function handleSave(data) {
+    try {
+      if (currentStudent?.id) {
+        await updateStudent(currentStudent.id, data);
+      } else {
+        await createStudent(data);
+      }
+      setIsModalOpen(false);
+      setCurrentStudent(null);
+      await loadStudents();
+    } catch (err) {
+      setError(`Operation failed: ${err.message}`);
     }
-    setIsModalOpen(false);
-    loadStudentsContext(); // Refresh table to show the new student
-  } catch (err) {
-    setError("Operation failed: " + err.message);
   }
-};
 
-  const handleDelete = async (studentId) => {
-    if (!window.confirm("Are you sure? This will permanently delete this student record.")) return;
+  async function handleDelete(studentId) {
+    if (!window.confirm('Are you sure? This will permanently delete this student record.')) return;
     try {
       await deleteStudent(studentId);
-      loadStudentsContext();
+      await loadStudents();
     } catch (err) {
-      setError("Failed to delete: " + err.message);
+      setError(`Failed to delete: ${err.message}`);
     }
-  };
+  }
 
-  const students = useMemo(() => {
-    const byStudent = new Map();
-    bookings.forEach((item) => {
-      if (!item.studentId) return;
-      if (!byStudent.has(item.studentId)) {
-        byStudent.set(item.studentId, {
-          studentId: item.studentId,
-          studentName: item.studentName,
-          studentEmail: item.studentEmail,
-          totalBookings: 0,
-          approvedBookings: 0,
-          pendingBookings: 0,
-          latestHostel: item.hostelName || '-',
-          latestRoom: item.roomNumber || '-'
-        });
-      }
-      const student = byStudent.get(item.studentId);
-      student.totalBookings += 1;
-      if (item.status === 'APPROVED') student.approvedBookings += 1;
-      if (item.status === 'PENDING_PAYMENT') student.pendingBookings += 1;
-    });
-    return Array.from(byStudent.values());
-  }, [bookings]);
-
-  const filteredStudents = students.filter((s) => 
-    s.studentName?.toLowerCase().includes(search.toLowerCase()) || 
-    s.studentEmail?.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredStudents = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    if (!query) return students;
+    return students.filter((student) =>
+      student.fullName?.toLowerCase().includes(query) ||
+      student.email?.toLowerCase().includes(query)
+    );
+  }, [students, search]);
 
   return (
     <div className="space-y-6">
       {error && <Alert type="error" message={error} onClose={() => setError('')} />}
-      
+
       <div className="card space-y-4">
-        <div className="flex justify-between items-center">
-          <h2 className="text-xl font-bold">Student Directory</h2>
-          <button 
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-xl font-bold">Student Directory</h2>
+            <p className="text-sm text-neutral-500 dark:text-neutral-400">
+              {loading ? 'Loading students...' : `${filteredStudents.length} student${filteredStudents.length === 1 ? '' : 's'}`}
+            </p>
+          </div>
+          <button
+            type="button"
             onClick={() => { setCurrentStudent(null); setIsModalOpen(true); }}
-            className="btn-primary px-4 py-2 bg-primary-600 text-white rounded-lg"
+            className="btn-primary px-4 py-2"
           >
             + Add Student
           </button>
         </div>
 
-        <DataTable
-          columns={[
-            { key: 'studentName', label: 'Name', sortable: true },
-            { key: 'studentEmail', label: 'Email', sortable: true },
-            { 
-              key: 'totalBookings', 
-              label: 'Bookings', 
-              sortable: true,
-              render: (value, row) => (
-                <div className="text-sm">
-                  <div>{value} total</div>
-                  <div className="text-xs text-neutral-500">
-                    {row.approvedBookings} approved · {row.pendingBookings} pending
-                  </div>
-                </div>
-              )
-            },
-            { key: 'latestHostel', label: 'Latest Allocation', render: (val, row) => `${val} / ${row.latestRoom}` }
-          ]}
-          data={filteredStudents}
-          actions={[
-            { label: 'Edit', onClick: handleEdit, variant: 'primary' },
-            { label: 'Delete', onClick: (row) => handleDelete(row.studentId), variant: 'danger' }
-          ]}
-          itemsPerPage={15}
-        />
+        {loading ? (
+          <div className="rounded-[24px] border border-[#e3e9df] bg-[#fbfcfa] p-8 text-center shadow-[0_12px_28px_rgba(15,23,42,0.04)] dark:border-[#223129] dark:bg-[#141a17]">
+            <p className="text-neutral-600 dark:text-neutral-400">Loading students...</p>
+          </div>
+        ) : (
+          <DataTable
+            columns={[
+              { key: 'fullName', label: 'Name', sortable: true },
+              { key: 'email', label: 'Email', sortable: true },
+              { key: 'role', label: 'Role', sortable: true }
+            ]}
+            data={filteredStudents}
+            actions={[
+              { label: 'Edit', onClick: handleEdit, variant: 'primary' },
+              { label: 'Delete', onClick: (row) => handleDelete(row.id), variant: 'danger' }
+            ]}
+            emptyMessage="No students found"
+            itemsPerPage={15}
+          />
+        )}
       </div>
 
-      <StudentModal 
-        isOpen={isModalOpen} 
-        student={currentStudent} 
-        onClose={() => setIsModalOpen(false)} 
+      <StudentModal
+        isOpen={isModalOpen}
+        student={currentStudent}
+        onClose={() => { setIsModalOpen(false); setCurrentStudent(null); }}
         onSave={handleSave}
       />
     </div>
