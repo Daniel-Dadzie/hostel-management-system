@@ -8,7 +8,7 @@ export async function listPaymentRecords() {
 }
 
 export async function getStudentPaymentHistory() {
-  const response = await fetch(`${API_BASE_URL}/api/payments/student/history`, {
+  const response = await fetch(`${API_BASE_URL}/api/student/payments/history`, {
     method: 'GET',
     headers: {
       ...getAuthHeaders()
