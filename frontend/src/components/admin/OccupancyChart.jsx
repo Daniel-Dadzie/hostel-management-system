@@ -45,52 +45,56 @@ export default function OccupancyChart({ data = null, title = 'Room Occupancy', 
     ? ((data.bookedRooms / data.totalRooms) * 100).toFixed(1)
     : 0;
 
-  return (
-    <div className="w-full rounded-lg border border-neutral-200 bg-white p-6 dark:border-neutral-700 dark:bg-neutral-900">
-      <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+return (
+    <div className="w-full rounded-lg border border-neutral-200 bg-white p-4 sm:p-6 dark:border-neutral-700 dark:bg-neutral-900">
+      <div className="mb-3 flex flex-col gap-2 sm:mb-2 sm:flex-row sm:items-center sm:justify-between">
         <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">{title}</h3>
         <div className="text-sm text-neutral-600 dark:text-neutral-400">
           {data.bookedRooms}/{data.totalRooms} rooms • <span className="font-semibold text-primary-600">{occupancyPercent}%</span> occupied
         </div>
       </div>
 
-      <ResponsiveContainer width="100%" height={320}>
-        <PieChart>
-          <Pie
-            data={chartData}
-            cx="50%"
-            cy="50%"
-            innerRadius={60}
-            outerRadius={100}
-            paddingAngle={2}
-            dataKey="value"
-            label={({ name, value, percent }) => `${name}: ${value} (${(percent * 100).toFixed(0)}%)`}
-          >
-            {chartData.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.fill} />
-            ))}
-          </Pie>
-          <Tooltip
-            contentStyle={{
-              backgroundColor: '#1f2937',
-              border: 'none',
-              borderRadius: '8px',
-              color: '#fff'
-            }}
-            formatter={(value) => [value, 'Rooms']}
-          />
-          <Legend />
-        </PieChart>
-      </ResponsiveContainer>
-
-      <div className="mt-4 grid grid-cols-2 gap-3">
-        <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 dark:border-emerald-800 dark:bg-emerald-900/20">
-          <p className="text-xs font-medium text-emerald-600 dark:text-emerald-300">Booked Rooms</p>
-          <p className="mt-1 text-2xl font-bold text-emerald-700 dark:text-emerald-200">{data.bookedRooms}</p>
+      <div className="overflow-x-auto">
+        <div className="min-w-[250px] sm:min-w-0">
+          <ResponsiveContainer width="100%" height={240} className="sm:h-[320px]">
+            <PieChart>
+              <Pie
+                data={chartData}
+                cx="50%"
+                cy="50%"
+                innerRadius={50}
+                outerRadius={80}
+                paddingAngle={2}
+                dataKey="value"
+                label={({ name, value, percent }) => `${name}: ${value} (${(percent * 100).toFixed(0)}%)`}
+              >
+                {chartData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.fill} />
+                ))}
+              </Pie>
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: '#1f2937',
+                  border: 'none',
+                  borderRadius: '8px',
+                  color: '#fff'
+                }}
+                formatter={(value) => [value, 'Rooms']}
+              />
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
         </div>
-        <div className="rounded-lg border border-neutral-300 bg-neutral-100 p-3 dark:border-neutral-600 dark:bg-neutral-800">
-          <p className="text-xs font-medium text-neutral-600 dark:text-neutral-300">Empty Rooms</p>
-          <p className="mt-1 text-2xl font-bold text-neutral-700 dark:text-neutral-200">{data.emptyRooms}</p>
+      </div>
+
+      <div className="mt-3 grid grid-cols-2 gap-2 sm:mt-4 sm:gap-3">
+        <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-2 sm:p-3 dark:border-emerald-800 dark:bg-emerald-900/20">
+          <p className="text-[10px] font-medium sm:text-xs text-emerald-600 dark:text-emerald-300">Booked Rooms</p>
+          <p className="mt-0.5 text-lg font-bold sm:mt-1 sm:text-xl text-emerald-700 dark:text-emerald-200">{data.bookedRooms}</p>
+        </div>
+        <div className="rounded-lg border border-neutral-300 bg-neutral-100 p-2 sm:p-3 dark:border-neutral-600 dark:bg-neutral-800">
+          <p className="text-[10px] font-medium sm:text-xs text-neutral-600 dark:text-neutral-300">Empty Rooms</p>
+          <p className="mt-0.5 text-lg font-bold sm:mt-1 sm:text-xl text-neutral-700 dark:text-neutral-200">{data.emptyRooms}</p>
         </div>
       </div>
     </div>
