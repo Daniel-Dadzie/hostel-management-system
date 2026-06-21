@@ -39,6 +39,7 @@ import com.hostelmanagement.domain.Student;
 import com.hostelmanagement.repository.BookingRepository;
 import com.hostelmanagement.repository.PaymentRepository;
 import com.hostelmanagement.web.student.dto.PaymentGatewayInitResponse;
+import com.hostelmanagement.web.student.dto.PaymentHistoryItem;
 import com.hostelmanagement.web.student.dto.SubmitPaymentResponse;
 
 @Service
@@ -336,11 +337,28 @@ public class StudentPaymentService {
    * Retrieves the payment history for a student.
    *
    * @param studentId the student ID
-   * @return list of payments for the student
+   * @return list of payment history items for the student
    */
   @Transactional(readOnly = true)
-  public List<Payment> getPaymentHistoryForStudent(Long studentId) {
-    return paymentRepository.findPaymentsByStudentId(studentId);
+  public List<PaymentHistoryItem> getPaymentHistoryForStudent(Long studentId) {
+    return paymentRepository.findPaymentsByStudentId(studentId).stream()
+        .map(this::toHistoryItem)
+        .toList();
+  }
+
+  private PaymentHistoryItem toHistoryItem(Payment payment) {
+    Booking booking = payment.getBooking();
+    return new PaymentHistoryItem(
+        payment.getId(),
+        booking != null ? booking.getId() : null,
+        payment.getAmount(),
+        payment.getStatus(),
+        payment.getPaymentMethod(),
+        payment.getTransactionReference(),
+        payment.getDueAt(),
+        payment.getPaidAt(),
+        payment.getReceiptFilename(),
+        payment.getReceiptStoragePath() != null);
   }
 
   // --- Webhook & Helper Methods ---

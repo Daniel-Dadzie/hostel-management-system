@@ -1,10 +1,10 @@
 package com.hostelmanagement.web.student;
 
-import com.hostelmanagement.domain.Payment;
 import com.hostelmanagement.domain.PaymentMethod;
 import com.hostelmanagement.security.JwtUser;
 import com.hostelmanagement.service.StudentPaymentService;
 import com.hostelmanagement.web.student.dto.PaymentGatewayInitResponse;
+import com.hostelmanagement.web.student.dto.PaymentHistoryItem;
 import com.hostelmanagement.web.student.dto.SubmitPaymentResponse;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -127,7 +127,7 @@ public class StudentPaymentController {
   }
 
   @GetMapping("/history")
-  public ResponseEntity<List<Payment>> getPaymentHistory(
+  public ResponseEntity<List<PaymentHistoryItem>> getPaymentHistory(
     @AuthenticationPrincipal JwtUser user
   ) {
     return ResponseEntity.ok(
