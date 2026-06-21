@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 
 export default function StudentModal({ isOpen, onClose, student, onSave }) {
-  const [formData, setFormData] = useState({ fullName: '', email: '' });
+  const [formData, setFormData] = useState({ fullName: '', email: '', role: 'STUDENT' });
 
   useEffect(() => {
     setFormData({
       fullName: student?.fullName ?? student?.studentName ?? '',
-      email: student?.email ?? student?.studentEmail ?? ''
+      email: student?.email ?? student?.studentEmail ?? '',
+      role: student?.role ?? 'STUDENT'
     });
   }, [student]);
 
@@ -44,6 +45,18 @@ export default function StudentModal({ isOpen, onClose, student, onSave }) {
               onChange={(event) => setFormData({ ...formData, email: event.target.value })}
               required
             />
+          </label>
+          <label className="block text-sm font-semibold text-neutral-700 dark:text-neutral-300">
+            <span>Role</span>
+            <select
+              className="mt-1 w-full rounded-lg border p-2 dark:border-neutral-700 dark:bg-[#1a221f] dark:text-white"
+              value={formData.role}
+              onChange={(event) => setFormData({ ...formData, role: event.target.value })}
+              required
+            >
+              <option value="STUDENT">Student</option>
+              <option value="ADMIN">Admin</option>
+            </select>
           </label>
         </div>
         <div className="mt-6 flex justify-end gap-3">

@@ -34,6 +34,7 @@ export default function ManageStudentsPage() {
 
   async function handleSave(data) {
     try {
+      console.log('Saving student data:', data);
       if (currentStudent?.id) {
         await updateStudent(currentStudent.id, data);
       } else {
@@ -43,6 +44,7 @@ export default function ManageStudentsPage() {
       setCurrentStudent(null);
       await loadStudents();
     } catch (err) {
+      console.error('Save error:', err);
       setError(`Operation failed: ${err.message}`);
     }
   }
