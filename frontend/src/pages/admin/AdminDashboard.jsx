@@ -232,7 +232,7 @@ export default function AdminDashboard() {
       {/* ── Header ── */}
       <section className="flex flex-col gap-3 sm:gap-4 xl:flex-row xl:items-end xl:justify-between">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#64806f] dark:text-[#d8ecd5]/46">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#64806f] dark:text-white">
             Operations Overview
           </p>
           <h1 className="page-title mt-1.5 text-neutral-900 dark:text-white sm:mt-2">Admin Dashboard</h1>
@@ -276,7 +276,7 @@ export default function AdminDashboard() {
               }`}>
               <span className="whitespace-nowrap">{tab}</span>
               {badgeValue > 0 && (
-                <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-extrabold ${isActive ? 'bg-emerald-600 text-white dark:bg-emerald-600 dark:text-white' : 'bg-emerald-600 text-white dark:bg-emerald-600 dark:text-white'}`}>
+                  <span className={isActive ? 'badge-tab-count' : 'badge-tab-count-inactive'}>
                   {badgeValue}
                 </span>
               )}
